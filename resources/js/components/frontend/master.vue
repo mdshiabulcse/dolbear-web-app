@@ -1,6 +1,7 @@
 <template>
     <div>
         <headNav></headNav>
+       
         <router-view> </router-view>
         <bottom></bottom>
     </div>
@@ -10,11 +11,12 @@
 import headNav from "./partials/header";
 import bottom from "./partials/bottom";
 
+
 export default {
     name: "master",
 
     components : {
-        headNav,bottom
+        headNav,bottom,
     },
     watch: {
         $route (to, from) {

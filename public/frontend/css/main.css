@@ -1661,15 +1661,18 @@ textarea.form-control::-webkit-scrollbar-thumb {
 }
 
 /*Dropdown CSS===== */
+
 .sg-dropdown {
 	position: relative;
 }
 
-.sg-dropdown-menu {
-	position: absolute;
+ .sg-dropdown-menu {
+	/* position: sticky; */
 	top: 100%;
+	width: 100vw;
 	min-width: 170px;
-	left: 28%;
+	left: 50; /*Adjusted to start from the middle */
+    transform: translateX(-50%); /* Centering horizontally */
 	border-radius: 0;
 	list-style: none;
 	opacity: 0;
@@ -1679,8 +1682,8 @@ textarea.form-control::-webkit-scrollbar-thumb {
 	-webkit-transform: rotateX(-75deg);
 	-moz-transform: rotateX(-75deg);
 	-ms-transform: rotateX(-75deg);
-	-o-transform: rotateX(-75deg);
-	transform: rotateX(-75deg);
+	-o-transform: rotateX(0deg);
+	transform: rotateX(0deg);
 	-webkit-box-shadow: 0 6px 12px hsl(0deg 0% 0% / 5%);
 	-moz-box-shadow: 0 6px 12px hsl(0deg 0% 0% / 5%);
 	-ms-box-shadow: 0 6px 12px hsl(0deg 0% 0% / 5%);
@@ -1691,23 +1694,37 @@ textarea.form-control::-webkit-scrollbar-thumb {
 	-ms-transform-origin: 0% 0%;
 	-o-transform-origin: 0% 0%;
 	transform-origin: 0% 0%;
-}
+} 
 
 .sg-dropdown-menu .sg-dropdown-menu {
 	left: 100%;
 	top: 15px;
-}
+} */
 
-.sg-dropdown:hover > .sg-dropdown-menu {
+.sg-dropdown:hover >.sg-dropdown-menu {
+	 position: sticky;
 	visibility: visible;
-	opacity: 1;
+	 opacity: 0.5;
 	z-index: 99999;
 	-webkit-transform: rotateX(0deg);
 	-moz-transform: rotateX(0deg);
 	-ms-transform: rotateX(0deg);
 	-o-transform: rotateX(0deg);
-	transform: rotateX(0deg);
+	transform: rotateX(0deg); 
+
+	/* width: 98vw;
+    transform: translateX(-64%); */
 }
+
+
+li.sg-dropdown ul {
+    display: none !important;
+}
+.sg-dropdown:hover ul.sg-dropdown-menu {
+    display: block !important;
+}
+/* nav try ends */
+
 
 .navbar-nav .sg-dropdown-menu li a {
 	padding: 10px 20px;
@@ -1751,7 +1768,7 @@ textarea.form-control::-webkit-scrollbar-thumb {
 
 /* Hero Section START================= */
 .hero-section {
-	margin-top: 10px;
+	/* margin-top: 10px; */
 	padding: 0;
 	background-size: cover;
 }
@@ -1788,7 +1805,7 @@ textarea.form-control::-webkit-scrollbar-thumb {
 	justify-content: center;
 	padding: 0;
 	list-style: none;
-	text-align: left;
+	/* text-align: left; */
 }
 
 .slick-dots {
@@ -1817,7 +1834,7 @@ textarea.form-control::-webkit-scrollbar-thumb {
 }
 
 .slick-dots li.slick-active button {
-	background-color: var(--primary-color) !important;
+	background-color: #363434 !important;
 }
 
 .hero-section .VueCarousel-dot {
@@ -9147,13 +9164,14 @@ a.search_btn.cursor_pointer img {
 }
 
 .category-content .category-slider a {
-	text-align: center;
-	display: block;
-	padding: 15px;
-	background-color: var(--profile-sidebar);
-	border: 1px solid #eee;
-	border-radius: 4px;
-	margin-right: 15px;
+	width: fit-content;
+    height: fit-content;
+    text-align: center;
+    display: block;
+    border: 1px solid #eee;
+    border-radius: 50%;
+    margin-left: 10%;
+	background-color: #fff;
 }
 
 .category-content .category-slider a span {
@@ -9173,7 +9191,7 @@ a.search_btn.cursor_pointer img {
 }
 
 .category-content .category-slider a:hover {
-	border-color: var(--primary-color);
+	border-color: #fff;
 }
 
 .category-content .category-slider a:hover span {
@@ -9181,8 +9199,10 @@ a.search_btn.cursor_pointer img {
 }
 
 .category-content .category-slider a img {
-	margin-bottom: 5px;
-	transition: all 0.3s ease;
+	margin-top: 10%;
+    margin-bottom: 10%;
+	padding: 15px;
+    transition: all 0.3s ease;
 }
 
 /*/ Cart Page Coupon---------END--------- /*/
@@ -9307,6 +9327,7 @@ div#payment_buttons #sslczPayBtn {
 
 /* Details Page-2---------STYLE---------
 ============================================== */
+
 .slider-nav .slick-slide {
 	padding-left: 7px;
 	padding-right: 7px;

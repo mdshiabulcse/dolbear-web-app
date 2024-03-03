@@ -2,7 +2,7 @@
   <section class="products-section bg-white featured" v-if="lengthCounter(products)>0">
     <div class="container" v-if="products[0] != 'id'">
       <div class="title justify-content-between" :class="{ 'title-bg' : addons.includes('ishopet') }">
-        <h1>{{ lang.featured_products }}</h1>
+        <h1>{{ lang.featured_products }}tttt</h1>
         <a href="javascript:void(0)" @click="navigator">{{ lang.more_products }}<span
             class="icon mdi mdi-name mdi-arrow-right"></span></a>
       </div>

@@ -1,29 +1,55 @@
 <template>
-	<section class="products-section bg-white item-space-rmv" v-if="lengthCounter(products) > 0">
+	<section class="products-section item-space-rmv bg-color-products" v-if="lengthCounter(products) > 0">
 		<div class="container" v-if="products[0] != 'id'">
-			<div class="title justify-content-between" :class="{ 'title-bg title-btm-space' : addons.includes('ishopet') }">
-				<h1> {{ lang.best_selling_product }}</h1>
+			<!-- <div class="title justify-content-between" :class="{ 'title-bg title-btm-space' : addons.includes('ishopet') }">
+				<h1> {{ lang.best_selling_product }}ijadkasf</h1>
 				<a :href="getUrl('best-selling/products')" @click.prevent="navigator">{{ lang.more_products }} <span class="icon mdi mdi-name mdi-arrow-right"></span></a>
-			</div>
-			<productCarousel :products="products" :number="12" :grid_class="'grid-6'"></productCarousel>
+			</div> -->
+
+			<div class="custom-padding "></div>
+
+      <h1 class="text-center custom-padding-bottom ">Products</h1>
+
+	  <div class="container ">
+        <div class="row justify-content-center">
+          <div class="col-auto">
+            <button type="button" class="btn custom-btn">New Arrivals</button>
+          </div>
+          <div class="col-auto">
+            <button type="button" class="btn custom-btn">Best Sellers</button>
+          </div>
+          <div class="col-auto">
+            <button type="button" class="btn custom-btn">Bundle Deals</button>
+          </div>
+        </div>
+      </div>
+
+	  <div class="custom-padding-bottom "></div>
+
+
+			<productCarousel :products="products" :number="12" :grid_class="'grid-4'"></productCarousel>
     </div><!-- /.container -->
+	<companyPolicySection></companyPolicySection>
+
   </section><!-- /.section -->
-	<section class="products-section bg-white selling" v-else-if="show_shimmer">
+	<!-- <section class="products-section bg-white selling" v-else-if="show_shimmer">
 		<div class="container">
-			<ul class="products grid-6">
+			<ul class="products grid-4">
 				<li v-for="(product, index) in 6" :key="index">
 					<div class="sg-product">
 						<a href="javascript:void(0)">
 							<shimmer :height="364"></shimmer>
-						</a> </div
-					><!-- /.sg-product -->
+						</a> </div>
 				</li>
 			</ul>
 		</div>
-	</section>
+	</section> -->
+
+
 </template>
 <script>
 import productCarousel from "../pages/product-carousel";
+import companyPolicySection from "./company_policy_section.vue";
 import shimmer from "../partials/shimmer";
 
 export default {
@@ -31,6 +57,7 @@ export default {
 	components: {
 		productCarousel,
 		shimmer,
+		companyPolicySection,
 	},
 	props: ["best_selling_product"],
 	data() {
@@ -89,3 +116,28 @@ export default {
 	},
 };
 </script>
+
+<style scoped>
+.custom-padding {
+  padding: 5% 0;
+}
+
+.custom-padding-bottom {
+  padding-bottom: 5%;
+}
+
+.custom-btn {
+		color: black;
+		background-color: white;
+		padding: 15px;
+		border-radius: 6px;
+		font-size: large;
+    }
+    .custom-btn:hover {
+      background-color: #f8f9fa; /* Change background color on hover */
+    }
+	.bg-color-products {
+		background-color:#F2F2F2;
+ ;
+	}
+</style>

@@ -6,7 +6,7 @@
       'mobile-menu-active': show_sm_home,
     }"
   >
-    <div
+    <!-- <div
       class="sg-header-top-banner alert alert-dismissible fade show"
       role="alert"
       v-if="!is_top_banner && settings.top_bar_banner"
@@ -20,11 +20,20 @@
       >
         <span class="mdi mdi-close mdi-15px" @click="topBanner"></span>
       </button>
-    </div>
-    <div class="sg-topbar">
+    </div> -->
+    <div class="sg-topbar topbar-color">
       <div class="container">
         <div class="topbar-content">
-          <div class="left-content">
+
+        <topBarTextSliderVue></topBarTextSliderVue>
+
+          <!-- <Transition name="bounce">
+          <p v-if="show" style="text-align: center;">
+            Hello here is some bouncy text!
+          </p>
+        </Transition> -->
+
+          <!-- <div class="left-content">
             <ul class="global-list d-flex align-items-center">
               <li v-if="settings.language_switcher != 0">
                 <div class="dropdown">
@@ -127,8 +136,8 @@
                 </router-link>
               </li>
             </ul>
-          </div>
-          <div class="right-content new-list">
+          </div> -->
+          <!-- <div class="right-content new-list">
             <ul class="global-list">
               <li>
                 <a
@@ -163,7 +172,7 @@
                 }}</router-link>
               </li>
             </ul>
-          </div>
+          </div> -->
         </div>
       </div>
       <!-- /.container -->
@@ -172,7 +181,7 @@
     <div
       :class="addons.includes('ishopet') ? toggleNavClass() : ''"
       id="middle_nav"
-      class="header-middle"
+      class="header-middle navbar-color"
     >
       <div class="container">
         <div class="botom-content">
@@ -235,7 +244,6 @@
                     </g>
                   </svg>
                 </button>
-                <!-- <span>{{ lang.all_categories }}</span> -->
               </div>
               <sidebar_categories
                 v-if="addons.includes('ishopet')"
@@ -290,7 +298,7 @@
               </svg>
               <img
                 v-else
-                :src="settings.dark_logo"
+                :src="settings.light_logo"
                 alt="Logo"
                 class="img-fluid"
               />
@@ -302,7 +310,7 @@
                 <input
                   v-model="searchKey"
                   type="text"
-                  class="form-control"
+                  class="form-control search-input-color"
                   :placeholder="lang.looking_for"
                   @keyup="searchProducts"
                   @click.stop="searchDropdown"
@@ -366,7 +374,6 @@
                     </div>
                   </li>
                 </ul>
-                <!---->
               </div>
             </div>
           </div>
@@ -383,7 +390,6 @@
                       class="img-fluid"
                       :src="getUrl('images/others/wishlist.svg')"
                     />
-                    <!---->
                   </div>
                   <span class="badge" v-if="wishlists > 0">{{
                     wishlists
@@ -396,7 +402,6 @@
                       class="img-fluid"
                       :src="getUrl('images/others/wishlist.svg')"
                     />
-                    <!---->
                   </div>
                   <span class="badge" v-if="wishlists > 0">{{
                     wishlists
@@ -552,15 +557,15 @@
     </div>
 
     <div
-      class="header-menu"
+      class="header-menu navbar-color"
       :class="[toggleNavClass(), settings.header_theme]"
       id="nav"
       v-if="!addons.includes('ishopet')"
     >
-      <div class="container">
+      <div class="container navbar-color">
         <div class="bottom-content">
           <div class="sg-categorie-menu categorie-lg align-self-lg-center">
-            <div class="top-content">
+            <!-- <div class="top-content">
               <button class="sg-toggle" @click="toggleCategory">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -618,7 +623,7 @@
                 </svg>
               </button>
               <span>{{ lang.all_categories }}</span>
-            </div>
+            </div> -->
             <sidebar_categories
               ref="sidebar_category"
               :home="1"
@@ -650,6 +655,7 @@
                       :class="{ 'sg-dropdown': Object.keys(menu).length > 2 }"
                     >
                       <a
+                        class="nav-link-color"
                         v-if="urlCheck(menu.url)"
                         :href="menu.url"
                         @click="subMenuToggle"
@@ -672,7 +678,7 @@
                         ></span>
                       </router-link>
                       <ul
-                        class="sg-dropdown-menu"
+                        class="sg-dropdown-menu navbar-color"
                         :class="{ 'd-block': subMenu, 'd-none': !subMenu }"
                         v-if="Object.keys(menu).length > 2"
                       >
@@ -686,7 +692,7 @@
                             :href="sub_menu.url"
                             >{{ sub_menu.label }}</a
                           >
-                          <router-link v-else :to="sub_menu.url">{{
+                          <router-link class="navbar-color" v-else :to="sub_menu.url">{{
                             sub_menu.label
                           }}</router-link>
                         </li>
@@ -696,7 +702,7 @@
                 </div>
               </nav>
             </div>
-            <div class="offer">
+            <!-- <div class="offer">
               <router-link :to="{ name: 'daily.deals' }">
                 <span
                   class="daily--icon gift_idea"
@@ -769,7 +775,7 @@
                   {{ lang.business_idea }}</span
                 >
               </router-link>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -1239,10 +1245,11 @@ import About from "../pages/about";
 import detailsView from "./details-view";
 import shimmer from "../partials/shimmer";
 import sidebar_categories from "../partials/sidebar_categories";
+import topBarTextSliderVue from "../homepage/top_bar_text_slider.vue";
 
 export default {
   name: "headNav",
-  components: { About, detailsView, shimmer, sidebar_categories },
+  components: { About, detailsView, shimmer, sidebar_categories, topBarTextSliderVue },
   data() {
     return {
       mobile_child_id: 0,
@@ -1487,3 +1494,26 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.extra-padding {
+  padding-top: 15px;
+    padding-bottom: 15px;
+}
+.topbar-color {
+  background-color: #57D9FF;
+}
+.navbar-color {
+  background-color: #0B0B0B !important;
+}
+.search-input-color {
+  background-color: #0B0B0B;
+}
+.sg-menu .navbar li a {
+  color: #fff !important;
+}
+.nav-link-color {
+  color: #0B0B0B !important;
+}
+
+</style>
