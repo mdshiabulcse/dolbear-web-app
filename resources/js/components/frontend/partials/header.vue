@@ -27,6 +27,7 @@
 
         <topBarTextSliderVue></topBarTextSliderVue>
 
+
           <!-- <Transition name="bounce">
           <p v-if="show" style="text-align: center;">
             Hello here is some bouncy text!
@@ -178,394 +179,21 @@
       <!-- /.container -->
     </div>
 
-    <div
-      :class="addons.includes('ishopet') ? toggleNavClass() : ''"
-      id="middle_nav"
-      class="header-middle navbar-color"
-    >
-      <div class="container">
-        <div class="botom-content">
-          <div class="sg-logo">
-            <div class="sg-categorie-menu categorie-lg align-self-lg-center">
-              <div class="top-content" v-if="addons.includes('ishopet')">
-                <button class="sg-toggle" @click="toggleCategory">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="18"
-                    viewBox="0 0 24 18"
-                  >
-                    <g id="list" transform="translate(0 -3)">
-                      <path
-                        id="Path_4186"
-                        data-name="Path 4186"
-                        d="M7,6H23a1,1,0,0,0,0-2H7A1,1,0,0,0,7,6Z"
-                        fill="#fff"
-                      />
-                      <path
-                        id="Path_4187"
-                        data-name="Path 4187"
-                        d="M23,11H7a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2Z"
-                        fill="#fff"
-                      />
-                      <path
-                        id="Path_4188"
-                        data-name="Path 4188"
-                        d="M23,18H7a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2Z"
-                        fill="#fff"
-                      />
-                      <circle
-                        id="Ellipse_349"
-                        data-name="Ellipse 349"
-                        cx="2"
-                        cy="2"
-                        r="2"
-                        transform="translate(0 3)"
-                        fill="#fff"
-                      />
-                      <circle
-                        id="Ellipse_350"
-                        data-name="Ellipse 350"
-                        cx="2"
-                        cy="2"
-                        r="2"
-                        transform="translate(0 10)"
-                        fill="#fff"
-                      />
-                      <circle
-                        id="Ellipse_351"
-                        data-name="Ellipse 351"
-                        cx="2"
-                        cy="2"
-                        r="2"
-                        transform="translate(0 17)"
-                        fill="#fff"
-                      />
-                    </g>
-                  </svg>
-                </button>
-              </div>
-              <sidebar_categories
-                v-if="addons.includes('ishopet')"
-                ref="sidebar_category"
-                :home="true"
-              ></sidebar_categories>
-            </div>
-            <router-link :to="{ name: 'home' }">
-              <svg
-                v-if="settings.demo_mode"
-                id="Layer_1"
-                xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
-                x="0px"
-                y="0px"
-                viewBox="0 0 425.95 161.53"
-                style="enable-background: new 0 0 425.95 161.53"
-                xml:space="preserve"
-              >
-                <path
-                  class="st0"
-                  d="M103.23,45.6c-14.37,48.11-40.59,89.7-70.83,115.93H0c11.36-9.86,21.21-19.54,29.9-29.23L11.86,45.6h30.4
-                                                l8.85,58.3C61.81,86.36,69.32,67.49,74.5,45.6H103.23z"
-                />
-                <path
-                  class="st0"
-                  d="M104.07,95.88c-0.33-31.91,19.38-52.95,50.11-52.95c26.39,0,42.43,15.7,42.6,39.76
-                                                c0.33,31.74-18.71,53.12-50.78,53.12C119.6,135.81,104.23,119.94,104.07,95.88z M168.04,84.19c0-10.52-5.68-17.21-15.54-17.21
-                                                c-11.53,0-19.71,10.52-19.71,27.4c0,10.36,5.01,17.37,15.53,17.37C159.86,111.75,168.04,101.56,168.04,84.19z"
-                />
-                <path
-                  class="st0"
-                  d="M205.96,95.88c-0.33-31.91,19.38-52.95,50.11-52.95c26.39,0,42.43,15.7,42.6,39.76
-                                                c0.33,31.74-18.71,53.12-50.78,53.12C221.49,135.81,206.12,119.94,205.96,95.88z M269.94,84.19c0-10.52-5.68-17.21-15.54-17.21
-                                                c-11.53,0-19.71,10.52-19.71,27.4c0,10.36,5.01,17.37,15.53,17.37C261.75,111.75,269.94,101.56,269.94,84.19z"
-                />
-                <path
-                  class="st0"
-                  d="M376.5,43.93l-4.34,27.73c-2-0.84-5.18-1-8.02-1c-6.18,0-15.87,2.84-21.38,12.53l-7.85,50.11h-28.56l13.86-87.7
-                                                h23.89l0.67,8.52c7.68-8.02,15.54-11.19,24.22-11.19C371.66,42.93,374.83,43.26,376.5,43.93z"
-                />
-                <path
-                  class="st0"
-                  d="M378.67,110.58l10.36-64.98h28.56l-9.85,62.64c-0.84,3.84,0.5,5.51,3.84,5.51c1.5,0,2.84-0.17,4.01-0.67
-                                                l-3.17,20.55c-5.35,1.34-9.86,2-15.03,2C380.68,135.64,376,127.79,378.67,110.58z"
-                />
-                <path
-                  class="st1"
-                  d="M390.2,17.21C390.2,5.85,398.22,0,409.24,0c10.02,0,16.7,5.18,16.7,14.53c0,11.69-8.02,17.04-19.04,17.04
-                                                C397.05,31.57,390.2,26.56,390.2,17.21z"
-                />
-              </svg>
-              <img
-                v-else
-                :src="settings.light_logo"
-                alt="Logo"
-                class="img-fluid"
-              />
-            </router-link>
-          </div>
-          <div class="sg-search">
-            <div class="search-form">
-              <div class="btn-group w-100">
-                <input
-                  v-model="searchKey"
-                  type="text"
-                  class="form-control search-input-color"
-                  :placeholder="lang.looking_for"
-                  @keyup="searchProducts"
-                  @click.stop="searchDropdown"
-                />
-                <a
-                  class="search_btn cursor_pointer"
-                  @click="
-                    $router.push({
-                      name: 'search.product',
-                      query: { q: searchKey },
-                    })
-                  "
-                >
-                  <img
-                    :src="getUrl('images/others/search.svg')"
-                    alt="Product Search"
-                    class="img-fluid"
-                  />
-                </a>
-                <ul
-                  @click.stop
-                  class="dropdown-menu dropdown-menu-right show w-100 search_dropdown"
-                  v-if="search_products.length > 0 && search_key_focus"
-                >
-                  <li
-                    v-for="(product, index) in search_products"
-                    :key="index"
-                    class="dropdown-item"
-                    @click.prevent="
-                      routerNavigator('product.details', product.slug)
-                    "
-                  >
-                    <div class="search-show-result">
-                      <div class="search-suggestion">
-                        <img
-                          class="img-fluid"
-                          :src="product.image_40x40"
-                          :alt="product.product_name"
-                        />
-                      </div>
-                      <div class="search-title">
-                        <div class="product-info-ellipse">
-                          {{ product.product_name }}
-                        </div>
-                        <div class="overflow-hidden price">
-                          <h4>
-                            <span class="price"
-                              ><del v-if="product.special_discount_check > 0">{{
-                                priceFormat(product.price)
-                              }}</del>
-                              <span v-if="product.special_discount_check > 0">
-                                {{ priceFormat(product.discount_percentage) }}
-                              </span>
-                              <span v-else>{{
-                                priceFormat(product.price)
-                              }}</span>
-                            </span>
-                          </h4>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="user-option">
-            <ul class="global-list user-shop-option">
-              <li>
-                <router-link
-                  :to="{ name: 'wishlist' }"
-                  v-if="authUser && authUser.user_type == 'customer'"
-                >
-                  <div class="icon">
-                    <img
-                      alt="Compare Icon"
-                      class="img-fluid"
-                      :src="getUrl('images/others/wishlist.svg')"
-                    />
-                  </div>
-                  <span class="badge" v-if="wishlists > 0">{{
-                    wishlists
-                  }}</span>
-                </router-link>
-                <a href="javascript:void(0)" v-else>
-                  <div class="icon">
-                    <img
-                      alt="Compare Icon"
-                      class="img-fluid"
-                      :src="getUrl('images/others/wishlist.svg')"
-                    />
-                  </div>
-                  <span class="badge" v-if="wishlists > 0">{{
-                    wishlists
-                  }}</span>
-                </a>
-              </li>
-
-              <li class="sg-dropdown cart">
-                <router-link :to="{ name: 'cart' }" class="">
-                  <div class="icon">
-                    <img
-                      alt="bag Icon"
-                      class="img-fluid"
-                      :src="getUrl('images/others/bag.svg')"
-                    />
-                    <span v-if="carts && carts.length > 0" class="badge">{{
-                      carts.filter((cart) => cart.is_buy_now == false).length
-                    }}</span>
-                  </div>
-                </router-link>
-                <div class="sg-dropdown-menu" v-if="carts && carts.length > 0">
-                  <span class="title">{{ lang.cart_items }}</span>
-                  <ul class="global-list">
-                    <li v-for="(cart, index) in carts" :key="index">
-                      <div class="sg-product" v-if="!cart.is_buy_now">
-                        <span
-                          @click="deleteCart(cart.id)"
-                          class="remove-icon mdi mdi-name mdi-close"
-                        ></span>
-                        <div class="product-thumb">
-                          <router-link
-                            :to="{
-                              name: 'product.details',
-                              params: { slug: cart.product_slug },
-                            }"
-                          >
-                            <img
-                              loading="lazy"
-                              :src="cart.image_40x40"
-                              :alt="cart.product_name"
-                              class="img-fluid"
-                          /></router-link>
-                        </div>
-                        <div class="product-info text-ellipse">
-                          <h3 class="text-ellipse">
-                            <router-link
-                              :to="{
-                                name: 'product.details',
-                                params: { slug: cart.product_slug },
-                              }"
-                            >
-                              {{ cart.product_name }}
-                            </router-link>
-                          </h3>
-                          <span v-if="cart.variant"
-                            >{{ lang.Variant }} : {{ cart.variant }}</span
-                          >
-                          <span class="price"
-                            >{{ priceFormat(cart.price - cart.discount) }} x
-                            {{ cart.quantity }}</span
-                          >
-                        </div>
-                      </div>
-                    </li>
-                    <li>
-                      <div class="text-center buttons">
-                        <router-link
-                          :to="{ name: 'cart' }"
-                          class="btn btn-primary"
-                        >
-                          {{ lang.view_cart }}
-                        </router-link>
-                        <a
-                          :href="getUrl('checkout')"
-                          class="btn btn-primary"
-                          @click="checkoutPage($event)"
-                          >{{ lang.check_out }}</a
-                        >
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-
-              <li class="compare-icon">
-                <router-link :to="{ name: 'compare.list' }">
-                  <div class="icon">
-                    <img
-                      :src="getUrl('images/others/compare.svg')"
-                      alt="List"
-                    />
-                  </div>
-                  <span v-if="compareList > 0" class="badge">{{
-                    compareList
-                  }}</span>
-                </router-link>
-              </li>
-
-              <li class="d-flex user-log-info">
-                <a
-                  :href="'tel:' + settings.header_contact_phone"
-                  class="live-chat"
-                >
-                  <div class="icon">
-                    <span
-                      ><img
-                        alt="Phone Icon"
-                        class="img-fluid"
-                        :src="getUrl('images/others/phone.svg')"
-                    /></span>
-                  </div>
-                </a>
-                <div class="text-left text" v-if="authUser">
-                  <router-link
-                    class="d-block"
-                    :to="{ name: 'dashboard' }"
-                    v-if="authUser.user_type == 'customer'"
-                  >
-                    {{ lang.profile }}
-                  </router-link>
-                  <a
-                    class="d-block"
-                    :href="getUrl('seller/dashboard')"
-                    v-if="authUser.user_type == 'seller'"
-                    >{{ lang.dashboard }}</a
-                  >
-                  <a
-                    class="d-block"
-                    :href="getUrl('admin/dashboard')"
-                    v-if="
-                      authUser.user_type == 'admin' ||
-                      authUser.user_type == 'staff'
-                    "
-                    >{{ lang.dashboard }}</a
-                  >
-                  <a href="javascript:void(0)" @click="logout">
-                    {{ lang.logout }}</a
-                  >
-                </div>
-                <div v-else>
-                  <router-link class="d-block" :to="{ name: 'login' }">{{
-                    lang.sign_in
-                  }}</router-link>
-                  <router-link :to="{ name: 'register' }">{{
-                    lang.register
-                  }}</router-link>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+    <!-- Navbar -->
+    <div>
+      <newNavBar></newNavBar>
     </div>
 
-    <div
-      class="header-menu navbar-color"
+    <!-- <div
+      class="header-menu"
       :class="[toggleNavClass(), settings.header_theme]"
       id="nav"
       v-if="!addons.includes('ishopet')"
     >
-      <div class="container navbar-color">
+      <div class="container">
         <div class="bottom-content">
           <div class="sg-categorie-menu categorie-lg align-self-lg-center">
-            <!-- <div class="top-content">
+            <div class="top-content">
               <button class="sg-toggle" @click="toggleCategory">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -623,7 +251,7 @@
                 </svg>
               </button>
               <span>{{ lang.all_categories }}</span>
-            </div> -->
+            </div>
             <sidebar_categories
               ref="sidebar_category"
               :home="1"
@@ -655,7 +283,6 @@
                       :class="{ 'sg-dropdown': Object.keys(menu).length > 2 }"
                     >
                       <a
-                        class="nav-link-color"
                         v-if="urlCheck(menu.url)"
                         :href="menu.url"
                         @click="subMenuToggle"
@@ -678,7 +305,7 @@
                         ></span>
                       </router-link>
                       <ul
-                        class="sg-dropdown-menu navbar-color"
+                        class="sg-dropdown-menu"
                         :class="{ 'd-block': subMenu, 'd-none': !subMenu }"
                         v-if="Object.keys(menu).length > 2"
                       >
@@ -692,7 +319,7 @@
                             :href="sub_menu.url"
                             >{{ sub_menu.label }}</a
                           >
-                          <router-link class="navbar-color" v-else :to="sub_menu.url">{{
+                          <router-link v-else :to="sub_menu.url">{{
                             sub_menu.label
                           }}</router-link>
                         </li>
@@ -702,7 +329,7 @@
                 </div>
               </nav>
             </div>
-            <!-- <div class="offer">
+            <div class="offer">
               <router-link :to="{ name: 'daily.deals' }">
                 <span
                   class="daily--icon gift_idea"
@@ -775,11 +402,11 @@
                   {{ lang.business_idea }}</span
                 >
               </router-link>
-            </div> -->
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <div class="sg-categorie-menu home-menu-sm">
       <div class="sg-toggle" @click="$store.commit('setSmCategory', false)">
@@ -900,7 +527,7 @@
         </ul>
       </div>
     </div>
-    <div class="sg-categorie-menu categorie-sm">
+    <!-- <div class="sg-categorie-menu categorie-sm">
       <div @click="$store.commit('setSmCategory', false)" class="sg-toggle">
         <span class="mdi mdi-name mdi-close"></span>
       </div>
@@ -1076,7 +703,7 @@
           </li>
         </ul>
       </div>
-    </div>
+    </div> -->
 
     <div id="sm_menu" class="sticky-sm-menu">
       <div class="sm-menu-content">
@@ -1236,6 +863,8 @@
         </div>
       </div>
     </div>
+
+    
   </header>
   <!-- /.sg-header -->
 </template>
@@ -1246,10 +875,11 @@ import detailsView from "./details-view";
 import shimmer from "../partials/shimmer";
 import sidebar_categories from "../partials/sidebar_categories";
 import topBarTextSliderVue from "../homepage/top_bar_text_slider.vue";
+import newNavBar from "../homepage/new_nav_bar.vue";
 
 export default {
   name: "headNav",
-  components: { About, detailsView, shimmer, sidebar_categories, topBarTextSliderVue },
+  components: { About, detailsView, shimmer, sidebar_categories, topBarTextSliderVue, newNavBar },
   data() {
     return {
       mobile_child_id: 0,

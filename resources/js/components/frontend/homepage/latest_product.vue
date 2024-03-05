@@ -1,26 +1,5 @@
 <template>
-	<section class="products-section bg-white item-space-rmv" v-if="lengthCounter(products) > 0">
-		<div class="container">
-			<div class="title justify-content-between" :class="{ 'title-bg title-btm-space' : addons.includes('ishopet') }">
-				<h1> {{ lang.latest_products }}</h1>
-				<a :href="getUrl('product')" @click.prevent="routerNavigator('all.products')">{{ lang.more_products }}<span class="icon mdi mdi-name mdi-arrow-right"></span></a>
-			</div>
-			<productCarousel :products="products" :number="12" :grid_class="'grid-6'"></productCarousel>
-    </div>
-  </section>
-	<section class="products-section bg-white" v-else-if="show_shimmer">
-		<div class="container">
-			<ul class="products grid-6">
-				<li v-for="(product, index) in 6" :key="index">
-					<div class="sg-product">
-						<a href="javascript:void(0)">
-							<shimmer :height="364"></shimmer>
-						</a> </div
-					><!-- /.sg-product -->
-				</li>
-			</ul> </div
-		><!-- /.container --> </section
-	><!-- /.section -->
+	
 </template>
 <script>
 import productCarousel from "../pages/product-carousel";

@@ -815,11 +815,11 @@
                                 </a>
                             </li>
                         @endif
-                        <li class="@yield('banners')">
+                        {{-- <li class="@yield('banners')">
                             <a class="nav-link"
                                 href="{{ route('admin.banners') }}"><span>{{ __('Banners') }}</span>
                             </a>
-                        </li>
+                        </li> --}}
                     </ul>
                 </li>
             @endif

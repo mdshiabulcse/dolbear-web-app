@@ -155,7 +155,7 @@
                                     <div class="role__showHide pt-4 pb-4">
                                         <div class="accordion" id="staffRoleForm">
                                             @foreach ($permissions as $permission)
-                                                @if (in_array($permission->id, [3, 7, 8, 39]))
+                                                @if (in_array($permission->id, [3, 7, 8, 32, 39]) || true)
                                                     <div class="card">
                                                         <div class="card-header" id="heading_{{ $permission->id }}">
                                                             <h2 class="mb-0">

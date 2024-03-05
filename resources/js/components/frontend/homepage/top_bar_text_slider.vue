@@ -5,7 +5,7 @@
           {{ currentItem }}
         </div>
         <div v-else class="text-center">
-          Loading...    
+          Text 1   
         </div>
       </transition>
     </div>
@@ -15,7 +15,7 @@
   export default {
     data() {
       return {
-        items: ['Text 1', 'Text 2', 'Text 3'],
+        items: ['Text 2', 'Text 3', 'Text 4'],
         currentIndex: 0,
         currentItem: null
       };

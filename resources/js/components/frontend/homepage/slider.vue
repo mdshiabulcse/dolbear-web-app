@@ -96,8 +96,37 @@ export default {
 </script>
 
 <style scoped>
-	.slider-height{
-		height: 890px;
-	}
+.slider-height {
+    height: 890px; /* Default height */
+}
+
+/* Adjust height for smaller screens */
+@media only screen and (max-width: 950px) {
+    .slider-height {
+        height: 550px; /* Adjust height for screens up to 768px wide */
+    }
+}
+
+/* Adjust height for smaller screens */
+@media only screen and (max-width: 768px) {
+    .slider-height {
+        height: 350px; /* Adjust height for screens up to 768px wide */
+    }
+}
+
+/* Adjust height for even smaller screens */
+@media only screen and (max-width: 480px) {
+    .slider-height {
+        height: 200px; /* Adjust height for screens up to 480px wide */
+    }
+}
+
+/* Adjust height for very small screens */
+@media only screen and (max-width: 320px) {
+    .slider-height {
+        height: 150px; /* Adjust height for screens up to 320px wide */
+    }
+}
+
 
 </style>
