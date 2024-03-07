@@ -20,12 +20,7 @@
 
             </a>
 
-            
-
             <span class="text-align-center text-white">{{ category.title }}</span>
-
-          
-
 
           </div>
           

@@ -3,20 +3,18 @@
     <div class="footer-top">
       <div class="container">
         <div class="footer-logo">
-          <!-- <router-link :to="{ name: 'home' }"
+          <router-link :to="{ name: 'home' }"
             ><img
               loading="lazy"
               :src="settings.footer_logo"
               alt="preloader"
               class="img-fluid"
             />
-          </router-link> -->
+          </router-link>
         </div>
 
-        <!-- <div>
-          <h1>WOrk on Progress</h1>
-        </div> -->
-        <!-- <div class="row">
+       
+        <div class="row">
           <div
             class="col-sm-6 col-md-6"
             v-if="
@@ -234,7 +232,7 @@
               </div>
             </div>
           </div>
-        </div> -->
+        </div>
         <!-- /.row -->
       </div>
       <!-- /.container -->

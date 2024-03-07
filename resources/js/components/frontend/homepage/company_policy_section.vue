@@ -1,7 +1,7 @@
 <template>
   <div class="custom-padding-top bg-color">
     <div class="container">
-      <div class="row">
+      <div class="row horizontal-scroll">
         <div class="col-md-2 col-sm-4">
           <div class="round-icon padding-left">
             <svg
@@ -136,6 +136,16 @@
 </script>
 
 <style scoped>
+.horizontal-scroll {
+  display: flex;
+  flex-wrap: nowrap; /* Prevent wrapping of child elements */
+  overflow-x: auto; /* Enable horizontal scrolling */
+  -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+  padding-bottom: 15px; /* Add padding to accommodate scroll bar */
+}
+.horizontal-scroll::-webkit-scrollbar {
+  display: none;
+}
 .sg-product .product-info {
   width: 100%;
   height: 200px;

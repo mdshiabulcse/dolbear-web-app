@@ -719,19 +719,34 @@ trait ImageTrait
     public function getImageWithRecommendedSize($id, $width = 40, $height = 40, $slider = false, $avater = false)
     {
         $image = Media::find($id);
+
         if ($image && is_file_exists($image->original_file, $image->storage)):
+
             $image_size = 'image_' . $width . 'x' . $height;
             if (!array_key_exists($image_size, $image->image_variants) || !file_exists($image->image_variants[$image_size])):
+
                 $directory = 'images/';
                 $size = date('YmdHis') . $image_size . '-' . rand(1, 500) . '.png';
                 $url = $directory . $size;
                 if ($image->storage == 'local'):
+
                     if (!$slider):
-                        Image::make(public_path($image->original_file), $image->storage)->resize($width, $height, function ($constraint) {
+
+                        
+                        $imagePath = "/public/" . $image->original_file;
+                        $imagePath = public_path($imagePath);
+
+
+                        Image::make($imagePath)->resize($width, $height, function ($constraint) {
                             $constraint->aspectRatio();
                         }, true)->resizeCanvas($width, $height, 'center', false, 'rgba(255, 255, 255, 0.00)')->save('public/' . $url, $this->getEncodePercentage(), 'webp');
                     else:
-                        Image::make(public_path($image->original_file), $image->storage)->resize($width, $height,
+
+
+                        $imagePath = "/public/" . $image->original_file;
+                        $imagePath = public_path($imagePath);
+                        
+                        Image::make($imagePath)->resize($width, $height,
                             function ($constraint) {
                                 $constraint->aspectRatio();
                             })->save('public/' . $url, $this->getEncodePercentage(), 'jpg');
@@ -773,6 +788,9 @@ trait ImageTrait
             return $image->image_variants;
 
         elseif ($avater):
+
+            info("2nd if:");
+
             $directory = 'images/';
 
             $originalImage = date('YmdHis') . "-user-" . rand(1, 500) . '.png';

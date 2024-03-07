@@ -94,7 +94,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-xs-6 col-md-6">
+            {{-- <div class="col-sm-xs-6 col-md-6">
                 <div class="card">
                     <form action="">
                         <div class="card-header input-title">
@@ -163,7 +163,7 @@
                         </nav>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 </section>
