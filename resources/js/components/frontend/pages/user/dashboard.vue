@@ -20,7 +20,7 @@
               <h1>{{ lang.dashboard }}</h1>
             </div>
             <div class="row">
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <router-link :to="{ name: 'order.history' }">
                   <div
                     class="card text-center profile-card d-flex justify-center profile-card-red"
@@ -34,7 +34,7 @@
                   </div>
                 </router-link>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <router-link :to="{ name: 'cart' }">
                   <div
                     class="card text-center profile-card d-flex justify-center profile-card-gray"
@@ -46,7 +46,7 @@
                   </div>
                 </router-link>
               </div>
-              <div class="col-md-4">
+              <!-- <div class="col-md-4">
                 <router-link :to="{ name: 'wishlist' }">
                   <div
                     class="card text-center profile-card d-flex justify-center profile-card-green"
@@ -57,8 +57,8 @@
                     <h3 class="text-white">{{ wishlists }}</h3>
                   </div>
                 </router-link>
-              </div>
-              <div class="col-md-4" v-if="settings.wallet_system == 1">
+              </div> -->
+              <!-- <div class="col-md-4" v-if="settings.wallet_system == 1">
                 <router-link :to="{ name: 'wallet.history' }">
                   <div
                     class="card text-center profile-card d-flex justify-center profile-card-white"
@@ -71,8 +71,8 @@
                     </h3>
                   </div>
                 </router-link>
-              </div>
-              <div class="col-md-4" v-if="settings.wallet_system == 1">
+              </div> -->
+              <!-- <div class="col-md-4" v-if="settings.wallet_system == 1">
                 <div
                   class="card text-center profile-card d-flex justify-center profile-card-white"
                 >
@@ -83,8 +83,8 @@
                     {{ priceFormat(authUser.last_recharge) }}
                   </h3>
                 </div>
-              </div>
-              <div class="col-md-4" v-if="settings.wallet_system == 1">
+              </div> -->
+              <!-- <div class="col-md-4" v-if="settings.wallet_system == 1">
                 <a
                   href="#"
                   data-bs-target="#recharge_wallet"
@@ -99,7 +99,7 @@
                     <h3><i class="mdi mdi-plus"></i></h3>
                   </div>
                 </a>
-              </div>
+              </div> -->
 
               <div class="col-md-4" v-if="addons.includes('reward')">
                 <router-link :to="{ name: 'reward.history' }">

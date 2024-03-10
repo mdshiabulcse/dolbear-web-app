@@ -16,7 +16,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card-header-form float-right form-inline">
-                            @if(!$order->pickupHub)
+                            {{-- @if(!$order->pickupHub)
                                 <form action="{{ route('order.assign.delivery.hero') }}" method="POST" class=""
                                       id="sorting"
                                       data-for="assign-hero">
@@ -35,7 +35,7 @@
                                         </select>
                                     </div>
                                 </form>
-                            @endif
+                            @endif --}}
                             @if($order->payment_type != 'offline_method')
                                 <form action="{{ route('order.payment.status.change') }}" method="POST"
                                       id="onChangeFormSubmit2">
@@ -54,18 +54,18 @@
                                                 <option
                                                         {{ $order->payment_status == "unpaid" ? "selected" : "" }} value="unpaid">{{ __('Unpaid') }}
                                                 </option>
-                                                <option
+                                                {{-- <option
                                                         {{ $order->payment_status == "paid" ? "selected" : "" }} value="paid">{{ __('Paid') }}
-                                                </option>
+                                                </option> --}}
                                             @endif
                                             @if($order->payment_status == "refunded_to_wallet" || $order->payment_type == 'cash_on_delivery' || $order->pickupHub)
                                                 <option
                                                         {{ $order->payment_status == "paid" ? "selected" : "" }} value="paid">{{ __('Paid') }}</option>
                                             @endif
-                                            @if($order->payment_status == "refunded_to_wallet")
+                                            {{-- @if($order->payment_status == "refunded_to_wallet")
                                                 <option
                                                         {{ $order->payment_status == "refunded_to_wallet" ? "selected" : "" }} value="refunded_to_wallet">{{ __('Refunded to wallet') }}</option>
-                                            @endif
+                                            @endif --}}
                                         </select>
                                     </div>
                                 </form>
@@ -548,17 +548,17 @@
                             <label for="payment_type">{{ __('Paid by') }}</label>
                             <select class="form-control selectric" name="payment_type" id="payment_type">
                                 <option value="cash">{{ __('Cash') }}</option>
-                                <option value="wallet">{{ __('Wallet') }}</option>
+                                {{-- <option value="wallet">{{ __('Wallet') }}</option> --}}
                             </select>
                         </div>
-                        <div class="form-group" id="modal_payment_type">
+                        {{-- <div class="form-group" id="modal_payment_type">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" name="paid_to_delivery_man" class="custom-control-input"
                                        tabindex="3" id="paid-to-delivery-man">
                                 <label class="custom-control-label"
                                        for="paid-to-delivery-man">{{ __('Paid to delivery man') }}</label>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="modal-footer modal-padding-bottom">
                         <button type="submit" class="btn btn-outline-primary">{{ __('Submit') }}</button>
