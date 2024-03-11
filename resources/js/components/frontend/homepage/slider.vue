@@ -1,17 +1,17 @@
 <template>
 	<section class="hero-slider p-0 home-4">
-		<div class="container">
+		<!-- <div class="container"> -->
 			<div class="row">
-				<div class="col-lg-3 categorie-menu-fixed">
+				<!-- <div class="col-lg-3 categorie-menu-fixed">
 					<sidebar_categories :slider="true" :home="0"></sidebar_categories>
-				</div>
+				</div> -->
 				<!-- end fixedc menu -->
 
-				<div class="col-lg-9">
-					<div v-if="sliders.length > 0" class="row">
+				<div class="col-lg-12 ">
+					<div v-if="sliders.length > 0" class="row ">
 						<div :class="addons.includes('ishopet') ? 'col-lg-9' : 'col-lg-12'">
 							<VueSlickCarousel class="hero-section" :class="{ 'ishopet-hero-section' : addons.includes('ishopet') }" v-bind="slick_settings" :rtl="settings.text_direction == 'rtl'">
-								<div class="hero-slide-item" v-for="(slider, i) in sliders" :key="i">
+								<div class="hero-slide-item slider-height" v-for="(slider, i) in sliders" :key="i">
 									<div class="slider__img slider_div">
 										<a :href="slider.link" v-if="urlCheck(slider.link)">
 											<img :src="slider.slider_bg_image" :alt="slider.link" />
@@ -24,7 +24,7 @@
 								</div>
 							</VueSlickCarousel>
 						</div>
-						<div :class="addons.includes('ishopet') ? 'col-lg-3' : 'col-lg-12'">
+						<!-- <div :class="addons.includes('ishopet') ? 'col-lg-3' : 'col-lg-12'">
 							<div class="hero-banner-section" :class="{ 'ishopet-hero-banner' : addons.includes('ishopet') }">
 								<div class="banner__items">
 									<div class="banner__item" v-for="(banner, index) in banners" :key="'banner' + index">
@@ -37,7 +37,7 @@
 									</div>
 								</div>
 							</div>
-						</div>
+						</div> -->
 						<!-- /.hero-banner-section -->
 
 						
@@ -45,7 +45,7 @@
 					</div>
 				</div>
 			</div>
-		</div>
+		<!-- </div> -->
 	</section>
 </template>
 
@@ -94,3 +94,39 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.slider-height {
+    height: 890px; /* Default height */
+}
+
+/* Adjust height for smaller screens */
+@media only screen and (max-width: 950px) {
+    .slider-height {
+        height: 550px; /* Adjust height for screens up to 768px wide */
+    }
+}
+
+/* Adjust height for smaller screens */
+@media only screen and (max-width: 768px) {
+    .slider-height {
+        height: 350px; /* Adjust height for screens up to 768px wide */
+    }
+}
+
+/* Adjust height for even smaller screens */
+@media only screen and (max-width: 480px) {
+    .slider-height {
+        height: 200px; /* Adjust height for screens up to 480px wide */
+    }
+}
+
+/* Adjust height for very small screens */
+@media only screen and (max-width: 320px) {
+    .slider-height {
+        height: 150px; /* Adjust height for screens up to 320px wide */
+    }
+}
+
+
+</style>

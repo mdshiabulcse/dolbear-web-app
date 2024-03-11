@@ -83,7 +83,7 @@
                                     href="#description-and-specification" role="tab" aria-controls="contact"
                                     aria-selected="false">{{ __('Description & Specification') }}</a>
                             </li>
-                            {{-- @if (!isset($is_digital) && !isset($is_catalog) && !isset($is_classified))
+                            @if (!isset($is_digital) && !isset($is_catalog) && !isset($is_classified))
                                 <li class="nav-item">
                                     <a class="nav-link bar shipping-days {{ has_key(['shipping_type', 'shipping_fee', 'shipping_fee_depend_on_quantity', 'cash_on_delivery', 'estimated_shipping_days'], $errors) ? 'error' : '' }} }}"
                                         id="shipping-tab" data-toggle="tab" href="#shipping" role="tab"
@@ -96,7 +96,7 @@
                                         id="others-tab" data-toggle="tab" href="#others" role="tab"
                                         aria-controls="contact" aria-selected="false">{{ __('Others') }}</a>
                                 </li>
-                            @endif --}}
+                            @endif
                             @if (isset($is_classified))
                                 <li class="nav-item">
                                     <a class="nav-link bar {{ has_key(['contact_name', 'email', 'phone_no', 'address', 'others'], $errors) ? 'error' : '' }}"
@@ -267,7 +267,7 @@
                                             @endif
                                         </div>
                                         @if (!isset($is_digital) && !isset($is_catalog) && !isset($is_classified))
-                                            {{-- <div class="form-group row mt-2">
+                                            <div class="form-group row mt-2">
                                                 <label class="col-md-5 col-from-label">{{ __('Digital') }}</label>
                                                 <div class="col-md-7">
                                                     <label class="custom-switch">
@@ -284,7 +284,7 @@
                                                         </div>
                                                     @endif
                                                 </div>
-                                            </div> --}}
+                                            </div>
                                         @elseif(isset($is_digital))
                                             <input type="hidden" name="is_digital" value="1">
                                         @endif
@@ -468,7 +468,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                {{-- <div class="card">
+                                <div class="card">
                                     <div class="card-header extra-padding">
                                         <h4>{{ __('Product Video') }}</h4>
                                     </div>
@@ -513,7 +513,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div> --}}
+                                </div>
                             </div>
                             <div class="tab-pane fade" id="price-and-stock" role="tabpane1"
                                 aria-labelledby="price-and-stock-tab">
@@ -866,7 +866,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                {{-- <div class="card">
+                                <div class="card">
                                     <div class="card-header extra-padding">
                                         <h4>{{ __('PDF Specification') }}</h4>
                                     </div>
@@ -908,9 +908,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div> --}}
+                                </div>
                             </div>
-                            {{-- <div class="tab-pane fade" id="shipping" role="tabpane2" aria-labelledby="shipping-tab">
+                            <div class="tab-pane fade" id="shipping" role="tabpane2" aria-labelledby="shipping-tab">
                                 <div class="card">
                                     <div class="card-header extra-padding">
                                         <h4>{{ __('Shipping Info') }}</h4>
@@ -1042,8 +1042,8 @@
                                         @endif
                                     </div>
                                 </div>
-                            </div> --}}
-                            {{-- <div class="tab-pane fade" id="others" role="tabpane3" aria-labelledby="others-tab">
+                            </div>
+                            <div class="tab-pane fade" id="others" role="tabpane3" aria-labelledby="others-tab">
                                 <div class="card">
                                     <div class="card-header extra-padding">
                                         <h4>{{ __('Add To Campaign') }}</h4>
@@ -1205,7 +1205,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div> --}}
+                            </div>
                             @if (isset($is_classified))
                                 <div class="tab-pane fade" id="contact-details" role="tabpane3"
                                     aria-labelledby="contact-details-tab">

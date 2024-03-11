@@ -34,7 +34,7 @@
                         <h4>{{ __('Orders') }}</h4>
                         <div class="card-header-form">
                             <form class="form-inline" id="sorting">
-                                @if(settingHelper('seller_system') == 1)
+                                {{-- @if(settingHelper('seller_system') == 1)
                                     <div class="form-group">
                                         <select class="seller-by-ajax form-control select2" name="sl" id="seller_id"
                                                 aria-hidden="true">
@@ -44,7 +44,7 @@
                                             @endif
                                         </select>
                                     </div>
-                                @endif
+                                @endif --}}
                                 <div class="form-group">
                                     <select class="form-control select2 sorting" name="ds">
                                         <option {{ @$ds == "" ? "selected" : "" }} value="">{{ __('Delivery Status') }}</option>

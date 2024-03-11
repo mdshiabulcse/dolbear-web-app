@@ -1,7 +1,9 @@
 <template>
-  <section class="categories-section">
+  <section class="categories-section bg-color">
+    <h1 class="text-center text-white">Popular Categories</h1>
+
     <div class="container" v-if="lengthCounter(countCategories) >0">
-      <div class="title justify-content-between" :class="{ 'title-bg' : addons.includes('ishopet') }">
+      <div class="title justify-content-between border-bottom" :class="{ 'title-bg' : addons.includes('ishopet') }">
         <h1>{{ lang.popular_categories }}</h1>
         <a :href="getUrl('categories')"
            @click.prevent="routerNavigator('categories',null)">{{ lang.browse_all_categories }} <span
@@ -14,10 +16,16 @@
             <a class="slider_div" @mouseup="checkEl($event)" :href="getUrl('category/'+category.slug)"
                @click.prevent="routerNavigator('product.by.category',category.slug)">
               <img :src="category.popular_image"
-                   :alt="category.title" class="img-fluid"><span>{{ category.title }}</span>
+                   :alt="category.title" class="img-fluid">
+
             </a>
+
+            <span class="text-align-center text-white">{{ category.title }}</span>
+
           </div>
+          
         </VueSlickCarousel>
+
       </div>
     </div>
 
@@ -120,3 +128,20 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.border-bottom {
+  border-bottom: none !important;
+}
+.text-align-center {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  font-weight: 600;
+}
+.bg-color {
+  background-color: #0B0B0B;
+  padding-top: 5%;
+  padding-bottom: 10%;
+}
+</style>

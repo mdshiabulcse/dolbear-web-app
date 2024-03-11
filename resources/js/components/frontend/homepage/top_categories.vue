@@ -1,31 +1,5 @@
 <template>
-  <section class="categories-section category-style-1 bg-color top">
-    <div class="container" v-if="lengthCounter(countCategories)>0">
-      <div class="title justify-content-center" v-if="!addons.includes('ishopet')">
-        <h1>{{ lang.top_categories_of_this_month }}</h1>
-      </div>
-      <div class="category-content" :class="{ 'slider-arrows ishopet-category' : addons.includes('ishopet') }">
-        <VueSlickCarousel ref="carousel" v-bind="slick_settings" :rtl="settings.text_direction == 'rtl'">
-          <div class="global-list category-slider text-center"
-               v-for="(category,index) in top_categories" :key="index">
-            <router-link class="slider_div" :to="{name : 'product.by.category',params : {id : category.id, slug : category.slug } }"><img
-                :src="category.top_image" :alt="category.title" class="img-fluid"><span
-                class="text-ellipse-one">{{ category.title }}</span></router-link>
-          </div>
-        </VueSlickCarousel>
-      </div>
-    </div>
-    <div class="container" v-else-if="show_shimmer">
-      <div class="category-content">
-        <div class="d-flex">
-          <div class="global-list category-slider text-center"
-               v-for="(category,index) in 6" :key="index">
-            <a href="#"><shimmer :height="160"></shimmer></a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+ 
 </template>
 
 <script>

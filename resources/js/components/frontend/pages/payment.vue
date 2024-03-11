@@ -465,7 +465,7 @@
                     </div>
                   </li>
 
-                  <li
+                  <!-- <li
                     v-if="!code && settings.pay_later_system == 1 && authUser"
                   >
                     <div class="input-checkbox">
@@ -487,7 +487,7 @@
                         {{ lang.pay_later }}
                       </label>
                     </div>
-                  </li>
+                  </li> -->
                   <li v-if="payment_form.total > 0 && !code && !check_cod">
                     <div class="input-checkbox">
                       <input

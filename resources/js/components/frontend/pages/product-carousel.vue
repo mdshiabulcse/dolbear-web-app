@@ -1,49 +1,105 @@
 <template>
-  <div :class="{ 'ishopet-slider-effect slider-arrows' : addons.includes('ishopet') }">
-    <VueSlickCarousel v-bind="slick_settings" :rtl="settings.text_direction == 'rtl'" ref="carousel_best" @reInit="swipeSlide">
-        <div v-for="(product,index) in products" :key="index" class="padding_17" :class="{ 'ishopet-pr-0' : addons.includes('ishopet') }">
-          <div class="sg-product slider_div" :class="{ 'style-1' : type == 'flash', 'ishopet-sg-product' : addons.includes('ishopet') }">
-            <a :href="'product/'+product.slug" @click.prevent="routerNavigator('product.details',product.slug)">
-              <div class="product-thumb">
-                            <span class="base" v-if="product.special_discount_check > 0">{{
-                                product.special_discount_type == 'flat' ? priceFormat(product.special_discount_check) + ' '+lang.off : product.special_discount_check + '% '+lang.off
-                              }} </span>
-                <span v-if="product.current_stock == 0 && !product.is_classified" class="base stock_badge">{{
-                    lang.out_of_stock
-                  }}</span>
-                <span class="base reword-badge" v-if="addons.includes('reward') && product.reward > 0">{{
-                    lang.reward_point
-                  }}: {{ product.reward }}</span>
-                <img :src="product.image_190x230" :alt="product.product_name" class="img-fluid">
-              </div>
-            </a>
-            <div class="product-info">
+  
+  <div class="yyy">
+  <div
+    :class="{
+      'ishopet-slider-effect slider-arrows': addons.includes('ishopet'),
+    }"
+  >
+    <VueSlickCarousel
+      v-bind="slick_settings"
+      :rtl="settings.text_direction == 'rtl'"
+      ref="carousel_best"
+      @reInit="swipeSlide"
+    >
+      <div
+        v-for="(product, index) in products"
+        :key="index"
+        class="padding_17"
+        :class="{ 'ishopet-pr-0': addons.includes('ishopet') }"
+      >
+        <div
+          class="sg-product slider_div"
+          :class="{
+            'style-1': type == 'flash',
+            'ishopet-sg-product': addons.includes('ishopet'),
+          }"
+        >
+          <a
+            :href="'product/' + product.slug"
+            @click.prevent="routerNavigator('product.details', product.slug)"
+          >
+            <div class="product-thumb">
+              <span class="base" v-if="product.special_discount_check > 0"
+                >{{
+                  product.special_discount_type == "flat"
+                    ? priceFormat(product.special_discount_check) +
+                      " " +
+                      lang.off
+                    : product.special_discount_check + "% " + lang.off
+                }}
+              </span>
+              <span
+                v-if="product.current_stock == 0 && !product.is_classified"
+                class="base stock_badge"
+                >{{ lang.out_of_stock }}</span
+              >
+              <span
+                class="base reword-badge"
+                v-if="addons.includes('reward') && product.reward > 0"
+                >{{ lang.reward_point }}: {{ product.reward }}</span
+              >
+              <img
+                :src="product.image_190x230"
+                :alt="product.product_name"
+                class="img-fluid"
+              />
+            </div>
+          </a>
+          <div class="product-info">
+            <h1
+              class="product-name text-ellipse-one"
+              :title="product.product_name"
+            >
+              <a
+                :href="'product/' + product.slug"
+                @click.prevent="
+                  routerNavigator('product.details', product.slug)
+                "
+              >
+                {{ product.product_name }}
+              </a>
+            </h1>
+
             <span class="price">
-              <del v-if="product.special_discount_check > 0">{{ priceFormat(product.price) }} </del>
+              <del v-if="product.special_discount_check > 0"
+                >{{ priceFormat(product.price) }}
+              </del>
               <span v-if="product.special_discount_check > 0">
                 {{ priceFormat(product.discount_percentage) }}
               </span>
               <span v-else>{{ priceFormat(product.price) }}</span>
             </span>
-              <h1 class="product-name text-ellipse-one" :title="product.product_name ">
-                <a :href="'product/'+product.slug"
-                   @click.prevent="routerNavigator('product.details',product.slug)">
-                  {{ product.product_name }}
-                </a>
-              </h1>
-              <div class="sg-rating" v-if="!addons.includes('ishopet')">
+            <!-- <div class="sg-rating" v-if="!addons.includes('ishopet')">
                 <star-rating v-model:rating="product.rating" :read-only="true" :star-size="12" :round-start-rating="false"></star-rating>
                 <span class="reviews" v-if="product.reviews_count > 0">({{
                     product.reviews_count
                   }} {{ lang.reviews }})</span>
-              </div>
-              <div class="icons">
-                <ul class="global-list">
-                  <li v-if="product.minimum_order_quantity <= product.current_stock && !product.is_catalog && !product.is_classified"><a
-                      href="javaScript:void(0)" @click="cartBtn(product,index)"><span
-                      class="mdi mdi-name mdi-shopping-outline"></span></a>
-                  </li>
-                  <div v-if="authUser">
+              </div> -->
+            <div class="icons">
+              <ul class="global-list">
+                <li
+                  v-if="
+                    product.minimum_order_quantity <= product.current_stock &&
+                    !product.is_catalog &&
+                    !product.is_classified
+                  "
+                >
+                  <a href="javaScript:void(0)" @click="cartBtn(product, index)"
+                    ><span class="mdi mdi-name mdi-shopping-outline"></span
+                  ></a>
+                </li>
+                <!-- <div v-if="authUser">
                     <li v-if="$store.getters.isThisWishlisted(product.id)"><a href="javaScript:void(0)"
                                                                               @click="removeWishlist(product.id)"><span
                         class="mdi mdi-name mdi-heart"></span></a></li>
@@ -51,8 +107,8 @@
                                   :class="{ 'disable_btn' :  is_disabled == true }"
                                   @click="addToWishlist(product.id)"><span
                         class="mdi mdi-name mdi-heart-outline"></span></a></li>
-                  </div>
-                  <li v-if="compareCheck(product)"><a class="active_compare"
+                  </div> -->
+                <!-- <li v-if="compareCheck(product)"><a class="active_compare"
                                                       :class="{ 'disable_btn' :  is_disabled == true }"
                                                       @click="removeCompare(product.id)"
                                                       href="javaScript:void(0)"><span
@@ -60,36 +116,46 @@
                   <li v-else><a @click="addToCompare(product)"
                                 :class="{ 'disable_btn' :  is_disabled == true }"
                                 href="javaScript:void(0)"><span
-                      class="mdi mdi-name mdi-scale-balance"></span></a></li>
-                  <li><a href="javaScript:void(0)" @click="productFetch(product.slug)"><span
-                      class="mdi mdi-name mdi-magnify"></span></a></li>
-                </ul>
-              </div>
+                      class="mdi mdi-name mdi-scale-balance"></span></a></li> -->
+                <li>
+                  <a
+                    href="javaScript:void(0)"
+                    @click="productFetch(product.slug)"
+                    ><span class="mdi mdi-name mdi-magnify"></span
+                  ></a>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
+      </div>
     </VueSlickCarousel>
+
+    <div class="custom-padding-bottom"></div>
+
+    
+  </div>
+
+  
   </div>
 </template>
 
 <script>
-import StarRating from 'vue-star-rating';
+import StarRating from "vue-star-rating";
 import FlipCountdown from "vue2-flip-countdown";
 import shimmer from "../partials/shimmer";
 import detailsView from "../partials/details-view";
-import VueSlickCarousel from 'vue-slick-carousel'
+import VueSlickCarousel from "vue-slick-carousel";
 
 export default {
   name: "product",
-  props: [
-    'products',
-    'grid_class',
-    'type',
-    'number',
-  ],
+  props: ["products", "grid_class", "type", "number"],
   components: {
-    FlipCountdown, StarRating,
-    shimmer, detailsView, VueSlickCarousel
+    FlipCountdown,
+    StarRating,
+    shimmer,
+    detailsView,
+    VueSlickCarousel,
   },
   data() {
     return {
@@ -102,8 +168,8 @@ export default {
         infinite: true,
         speed: 500,
         touchThreshold: 5,
-        slidesToShow: 6,
-        slidesToScroll: 6,
+        slidesToShow: 4,
+        slidesToScroll: 4,
         initialSlide: 0,
         arrows: true,
         autoplay: true,
@@ -112,46 +178,44 @@ export default {
           {
             breakpoint: 1024,
             settings: {
-              slidesToShow: 5,
-              slidesToScroll: 5,
+              slidesToShow: 4,
+              slidesToScroll: 4,
               infinite: false,
-              dots: false
-            }
+              dots: false,
+            },
           },
           {
             breakpoint: 768,
             settings: {
               slidesToShow: 3,
               slidesToScroll: 3,
-              initialSlide: 2
-            }
+              initialSlide: 2,
+            },
           },
           {
-
             breakpoint: 575,
             settings: {
               slidesToShow: 3,
-              slidesToScroll: 3
-            }
-          }, {
-
+              slidesToScroll: 3,
+            },
+          },
+          {
             breakpoint: 480,
             settings: {
               slidesToShow: 2,
-              slidesToScroll: 2
-            }
+              slidesToScroll: 2,
+            },
           },
           {
-
             breakpoint: 320,
             settings: {
               slidesToShow: 2,
-              slidesToScroll: 2
-            }
-          }
-        ]
-      }
-    }
+              slidesToScroll: 2,
+            },
+          },
+        ],
+      },
+    };
   },
 
   mounted() {
@@ -182,23 +246,23 @@ export default {
         }
       }
       return false;
-    }
+    },
   },
 
   methods: {
     addToWishlist(id) {
-      this.is_disabled = true
-      this.$store.commit('addNewWishlistId',id);
-      let url = this.getUrl('user/add-to-wishlist/' + id);
+      this.is_disabled = true;
+      this.$store.commit("addNewWishlistId", id);
+      let url = this.getUrl("user/add-to-wishlist/" + id);
       axios.get(url).then((response) => {
-        this.is_disabled = false
+        this.is_disabled = false;
         if (response.data.error) {
           this.$Progress.error();
-          toastr.error(response.data.error, this.lang.Error + ' !!');
+          toastr.error(response.data.error, this.lang.Error + " !!");
         } else {
-          this.$store.dispatch('userWishlistProduct', response.data.wishlist);
-          this.$store.dispatch('wishlists', response.data.wishlists);
-          toastr.success(response.data.success, this.lang.Success + ' !!');
+          this.$store.dispatch("userWishlistProduct", response.data.wishlist);
+          this.$store.dispatch("wishlists", response.data.wishlists);
+          toastr.success(response.data.success, this.lang.Success + " !!");
         }
       });
     },
@@ -213,23 +277,21 @@ export default {
       return false;
     },
     removeWishlist(id) {
-
       this.checkListing = false;
-      this.$store.commit('removeFromWishlistID',id);
+      this.$store.commit("removeFromWishlistID", id);
 
-      let url = this.getUrl('user/remove-wishlist-product/' + id);
+      let url = this.getUrl("user/remove-wishlist-product/" + id);
       axios.get(url).then((response) => {
         if (response.data.error) {
           this.$Progress.fail();
-          toastr.error(response.data.error, this.lang.Error + ' !!');
+          toastr.error(response.data.error, this.lang.Error + " !!");
         } else {
           this.checkListing = true;
-          this.$store.commit('getRemoveWishlist', response.data.wishlist);
-          this.$store.dispatch('wishlists', response.data.totalWishlist);
-          toastr.success(response.data.success, this.lang.Success + ' !!');
+          this.$store.commit("getRemoveWishlist", response.data.wishlist);
+          this.$store.dispatch("wishlists", response.data.totalWishlist);
+          toastr.success(response.data.success, this.lang.Success + " !!");
         }
       });
-
     },
     pushWishlists() {
       if (this.wishlists.length > 0) {
@@ -240,7 +302,7 @@ export default {
           for (let i = 0; i < product_length; i++) {
             let wishlist = this.products[i].user_wishlist;
             if (wishlist) {
-              this.$store.dispatch('userWishlistProduct', wishlist);
+              this.$store.dispatch("userWishlistProduct", wishlist);
             }
           }
         }
@@ -251,17 +313,17 @@ export default {
       let flag = this.count_compare;
 
       if (length == 0 && flag) {
-        this.$store.commit('getCountCompare', false);
-        let url = this.getUrl('home/compare-list');
+        this.$store.commit("getCountCompare", false);
+        let url = this.getUrl("home/compare-list");
         axios.get(url).then((response) => {
           if (response.data.error) {
-            toastr.error(response.data.error, this.lang.Error + ' !!');
+            toastr.error(response.data.error, this.lang.Error + " !!");
           } else {
             let products = response.data.products;
             for (let i = 0; i < products.length; i++) {
               let compare = products[i];
               if (compare) {
-                this.$store.dispatch('userCompareProduct', compare);
+                this.$store.dispatch("userCompareProduct", compare);
               }
             }
             // this.pushCompare();
@@ -271,25 +333,25 @@ export default {
     },
     addToCompare(product) {
       this.is_disabled = true;
-      let url = this.getUrl('home/add-to-compare/' + product.id);
+      let url = this.getUrl("home/add-to-compare/" + product.id);
       axios.get(url).then((response) => {
         this.is_disabled = false;
         if (response.data.error) {
-          toastr.error(response.data.error, this.lang.Error + ' !!');
+          toastr.error(response.data.error, this.lang.Error + " !!");
         } else {
-          this.$store.commit('getUserCompare', response.data.product);
-          this.$store.dispatch('compareList', response.data.compare_list);
+          this.$store.commit("getUserCompare", response.data.product);
+          this.$store.dispatch("compareList", response.data.compare_list);
         }
       });
     },
     removeCompare(id) {
-      let url = this.getUrl('home/remove-compare_product/' + id);
+      let url = this.getUrl("home/remove-compare_product/" + id);
       axios.get(url).then((response) => {
         if (response.data.error) {
-          toastr.error(response.data.error, this.lang.Error + ' !!');
+          toastr.error(response.data.error, this.lang.Error + " !!");
         } else {
-          this.$store.commit('getRemoveCompare', response.data.product);
-          this.$store.dispatch('compareList', response.data.compare_list);
+          this.$store.commit("getRemoveCompare", response.data.product);
+          this.$store.dispatch("compareList", response.data.compare_list);
         }
       });
     },
@@ -298,19 +360,50 @@ export default {
     },
     swipeSlide() {
       setTimeout(() => {
-        if(this.$refs.carousel_best)
-        {
+        if (this.$refs.carousel_best) {
           this.$refs.carousel_best.pause();
         }
-      },1000);
+      }, 1000);
     },
     swipe(event) {
-      if (event == 'left') {
+      if (event == "left") {
         this.$refs.carousel_best.next();
-      } else if(event == 'right') {
+      } else if (event == "right") {
         this.$refs.carousel_best.prev();
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
+
+<style scoped>
+.sg-product .product-info {
+  width: 100%;
+  height: 200px;
+}
+
+.custom-padding-bottom {
+  padding-bottom: 5%;
+}
+
+.round-icon {
+  width: 150px; /* Set width of the circle */
+  height: 150px; /* Set height of the circle */
+  border-radius: 50%; /* Make it round */
+  background-color: #fff; /* Set background color */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.round-icon i {
+  color: white; /* Set icon color */
+  font-size: 30px; /* Set icon size */
+}
+.section-text {
+  text-align: center; /* Center-align text */
+  margin-top: 20px; /* Add margin to separate text from circles */
+}
+.padding-left {
+  margin-left: 10%;
+}
+</style>

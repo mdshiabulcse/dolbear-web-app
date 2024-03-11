@@ -6,9 +6,14 @@
             </div>
             <h2>{{ authUser.full_name }} <router-link class="d-inline" :to="{ name : 'edit.profile' }"><span class="mdi mdi-name mdi-pencil"></span></router-link></h2>
             <a href="javascript:void(0)">{{ authUser.email }}</a>
-            <router-link class="be_seller base" :to="{ name : 'migrate.seller' }"  v-if="!addons.includes('ramdhani') && settings.seller_system == 1">
+            <div>
+              <a href="javascript:void(0)" @click="logout">
+                    {{ lang.logout }}</a
+                  >
+            </div>
+            <!-- <router-link class="be_seller base" :to="{ name : 'migrate.seller' }"  v-if="!addons.includes('ramdhani') && settings.seller_system == 1">
                 {{ lang.be_a_seller }} <span class="mdi mdi-name mdi-store-outline"></span>
-            </router-link>
+            </router-link> -->
         </div>
         <div class="sidebar-menu">
             <ul class="global-list">
@@ -47,7 +52,7 @@
                         {{ lang.change_password }}
                     </router-link>
                 </li>
-                <li v-if="settings.wallet_system == 1" :class="{active: current === 'wallet_history'}">
+                <!-- <li v-if="settings.wallet_system == 1" :class="{active: current === 'wallet_history'}">
                     <router-link :to="{ name : 'wallet.history' }"><span class="mdi mdi-wallet-outline"></span>
                         {{ lang.my_wallet }}
                     </router-link>
@@ -56,22 +61,21 @@
                     <router-link :to="{ name : 'reward.history' }"><span
                         class="mdi mdi-vector-point"></span>{{ lang.my_rewards }}
                     </router-link>
-                </li>
-              <li v-if="addons.includes('affiliate') && authUser.referral_code" class="dp-arrow" :class="{active: current === 'affiliate_system', displayMenu: show_menu === 'displayMenu'}" @click="showMenu">
+                </li> -->
+              <!-- <li v-if="addons.includes('affiliate') && authUser.referral_code" class="dp-arrow" :class="{active: current === 'affiliate_system', displayMenu: show_menu === 'displayMenu'}" @click="showMenu">
                 <a href="javascript:void(0)"><span
                     class="mdi mdi-vector-point"></span>Affiliate
                 </a>
                 <ul class="dashboard-dp-menu">
                   <li><router-link :to="{name:'affiliate.system'}">Affiliate System</router-link></li>
                   <li><router-link to="/sdfsfd">iewww1</router-link></li>
-<!--                  <li><router-link>iewww1</router-link></li>-->
                 </ul>
-              </li>
-                <li v-if="settings.seller_system == 1" :class="{active: current === 'followed_shop'}">
+              </li> -->
+                <!-- <li v-if="settings.seller_system == 1" :class="{active: current === 'followed_shop'}">
                     <router-link :to="{ name : 'shop.followed' }"><span
                         class="mdi mdi-home-heart"></span>{{ lang.shop }}
                     </router-link>
-                </li>
+                </li> -->
             </ul>
         </div>
 

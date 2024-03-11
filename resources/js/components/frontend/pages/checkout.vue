@@ -28,10 +28,10 @@
                            class="form-check-input">
                     <label for="address">{{ lang.use_shipping_billing_addresses }}</label>
 
-                    <input type="radio" id="pickhub" value="1"
+                    <!-- <input type="radio" id="pickhub" value="1"
                            v-model="checkout_method" @change="calculateShippingCost"
                            class="form-check-input">
-                    <label for="pickhub">{{ lang.use_pickHub_point }}</label>
+                    <label for="pickhub">{{ lang.use_pickHub_point }}</label> -->
                   </div>
                 </form>
               </div>

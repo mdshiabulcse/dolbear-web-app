@@ -14,7 +14,7 @@ class CurrencySeeder extends Seeder
      */
     public function run()
     {
-        Currency::create([ 'name' => 'US Dollar', 'symbol' => '$', 'code' => 'USD', 'exchange_rate' => '1', 'status' => 1]);
+        Currency::create([ 'name' => 'Taka', 'symbol' => 'tk', 'code' => 'BDT', 'exchange_rate' => '1', 'status' => 1]);
 
     }
 }

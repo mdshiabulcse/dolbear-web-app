@@ -28,23 +28,23 @@
                         @if (hasPermission('order_read'))
                             <li class="@yield('orders')"><a class="nav-link"
                                     href="{{ route('orders') }}">{{ __('All Orders') }}</a></li>
-                            @if (settingHelper('seller_system') == 1)
+                            {{-- @if (settingHelper('seller_system') == 1)
                                 <li class="@yield('admins')"><a class="nav-link"
                                         href="{{ route('admin.orders') }}">{{ __('Admin Orders') }}</a>
                                 </li>
                                 <li class="@yield('seller-orders')"><a class="nav-link"
                                         href="{{ route('admin.seller.orders') }}">{{ __('Seller Orders') }}</a>
                                 </li>
-                            @endif
-                            <li class="@yield('pickup-hub-order')"><a class="nav-link"
+                            @endif --}}
+                            {{-- <li class="@yield('pickup-hub-order')"><a class="nav-link"
                                     href="{{ route('pickup.hub.orders') }}">{{ __('Pickup Hub Orders') }}</a>
-                            </li>
+                            </li> --}}
                         @endif
-                        @if (hasPermission('pickup_hub_read'))
+                        {{-- @if (hasPermission('pickup_hub_read'))
                             <li class="@yield('pickup-hubs')"><a class="nav-link"
                                     href="{{ route('pickup.hub.index') }}">{{ __('Pickup Hub') }}</a>
                             </li>
-                        @endif
+                        @endif --}}
                     </ul>
                 </li>
             @endif
@@ -815,11 +815,11 @@
                                 </a>
                             </li>
                         @endif
-                        <li class="@yield('banners')">
+                        {{-- <li class="@yield('banners')">
                             <a class="nav-link"
                                 href="{{ route('admin.banners') }}"><span>{{ __('Banners') }}</span>
                             </a>
-                        </li>
+                        </li> --}}
                     </ul>
                 </li>
             @endif
