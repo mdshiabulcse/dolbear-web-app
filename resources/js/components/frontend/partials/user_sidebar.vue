@@ -6,6 +6,11 @@
             </div>
             <h2>{{ authUser.full_name }} <router-link class="d-inline" :to="{ name : 'edit.profile' }"><span class="mdi mdi-name mdi-pencil"></span></router-link></h2>
             <a href="javascript:void(0)">{{ authUser.email }}</a>
+            <div>
+              <a href="javascript:void(0)" @click="logout">
+                    {{ lang.logout }}</a
+                  >
+            </div>
             <!-- <router-link class="be_seller base" :to="{ name : 'migrate.seller' }"  v-if="!addons.includes('ramdhani') && settings.seller_system == 1">
                 {{ lang.be_a_seller }} <span class="mdi mdi-name mdi-store-outline"></span>
             </router-link> -->
