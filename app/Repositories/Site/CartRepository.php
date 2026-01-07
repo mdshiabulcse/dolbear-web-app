@@ -2,23 +2,25 @@
 
 namespace App\Repositories\Site;
 
+use Carbon\Carbon;
 use App\Models\Cart;
-use App\Models\Checkout;
 use App\Models\City;
-use App\Models\ClassCity;
-use App\Models\Coupon;
+use App\Models\User;
 use App\Models\Order;
+use App\Models\Coupon;
 use App\Models\Product;
+use App\Models\Checkout;
+use App\Models\ClassCity;
 use App\Models\ProductCity;
 use App\Models\ShippedCity;
-use App\Repositories\Admin\ShippingRepository;
-use App\Repositories\Admin\VatTaxRepository;
-use App\Repositories\Interfaces\Admin\Product\ProductInterface;
-use App\Repositories\Interfaces\Site\CartInterface;
-use App\Traits\RandomStringTrait;
-use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\Models\PointSetting;
+use App\Traits\RandomStringTrait;
 use Illuminate\Support\Facades\DB;
+use App\Repositories\Admin\VatTaxRepository;
+use App\Repositories\Admin\ShippingRepository;
+use App\Repositories\Interfaces\Site\CartInterface;
+use App\Repositories\Interfaces\Admin\Product\ProductInterface;
 
 class CartRepository implements CartInterface
 {
@@ -35,7 +37,7 @@ class CartRepository implements CartInterface
     {
         if (authUser()) {
             $carts = Cart::with('product.stock:id,product_id,image,name,sku,current_stock',
-                'product:slug,shipping_fee,user_id,price,id,thumbnail,minimum_order_quantity,is_refundable,current_stock,shipping_fee_depend_on_quantity,special_discount,special_discount_start,special_discount_end,special_discount_type,is_digital','seller:user_id,shop_name,logo')
+                'product:free_shipping,slug,shipping_fee,user_id,price,id,thumbnail,minimum_order_quantity,is_refundable,current_stock,shipping_fee_depend_on_quantity,special_discount,special_discount_start,special_discount_end,special_discount_type,is_digital','seller:user_id,shop_name,logo')
                 ->where('user_id', authId())->get();
         } else {
             Cart::where('created_at','<',Carbon::now()->subDays(2))->delete();
@@ -44,7 +46,7 @@ class CartRepository implements CartInterface
                 session()->put('walk_in_id',Str::random(21));
             }
             $carts = Cart::with('product.stock:id,product_id,image,name,sku,current_stock',
-                'product:slug,user_id,price,shipping_fee,id,thumbnail,minimum_order_quantity,is_refundable,current_stock,shipping_fee_depend_on_quantity,special_discount,special_discount_start,special_discount_end,special_discount_type,is_digital','seller:user_id,shop_name,logo')
+                'product:free_shipping,slug,user_id,price,shipping_fee,id,thumbnail,minimum_order_quantity,is_refundable,current_stock,shipping_fee_depend_on_quantity,special_discount,special_discount_start,special_discount_end,special_discount_type,is_digital','seller:user_id,shop_name,logo')
                 ->where('user_id', getWalkInCustomer()->id)->where('trx_id',session()->get('walk_in_id'))->get();
         }
         return $carts;
@@ -83,12 +85,16 @@ class CartRepository implements CartInterface
         endif;
 
         $product_stock = $product->stock->where('name', $request['variants_name'])->where('variant_ids', $request['variants_ids'])->first();
+        $product_stock_count = $product->stock;
+
+        $totalStock = $product_stock_count->sum('current_stock');
+
 
         if(!$product_stock) {
-            $product_stock = $product->firstStock;
+            $product_stock = $totalStock;
         }
 
-        if ($product_stock->current_stock < $request['quantity']) {
+        if ($totalStock < $request['quantity']) {
             return 'out_of_stock';
         }
 
@@ -142,7 +148,7 @@ class CartRepository implements CartInterface
             }
         }
 
-        if ($product->current_stock < $request['quantity']) {
+        if ($totalStock < $request['quantity']) {
             return 'out_of_stock';
         }
 
@@ -163,7 +169,8 @@ class CartRepository implements CartInterface
                 $cart_product       = $this->product->all()->where('id', $cart_item['product_id'])->first();
 
                 $product_stock      = $cart_product->stock->where('name', $variant)->first();
-                $current_stock      = $product_stock ? $product_stock->current_stock : 0;
+//                $current_stock      = $product_stock ? $product_stock->current_stock : 0;
+                $current_stock      = $cart_product->stock->sum('current_stock') ?? 0;
 
                 if (($current_stock < $cart_item['quantity'] + $request['quantity']) && $variant == $cart_item['variant']):
                     return 'out_of_stock';
@@ -190,7 +197,8 @@ class CartRepository implements CartInterface
             if (!$cart_exist) :
                 //inserting new record to cart as cart not available for this variant
                 $cart_item                  = new Cart();
-                $cart_item->seller_id       = $product->user_id;
+                $cart_item->seller_id       = 4;
+//                $cart_item->seller_id       = $product->user_id;
                 $cart_item->user_id         = $user ? $user->id : getWalkInCustomer()->id;
                 $cart_item->guest_id        = null;
                 $cart_item->product_id      = $product->id;
@@ -208,7 +216,7 @@ class CartRepository implements CartInterface
         else:
             //inserting new record to cart as cart not available
             $cart_item                      = new Cart();
-            $cart_item->seller_id           = $product->user_id;
+            $cart_item->seller_id           = 4;
             $cart_item->user_id             = $user ? $user->id : getWalkInCustomer()->id;
             $cart_item->guest_id            = null;
             $cart_item->product_id          = $product->id;
@@ -368,7 +376,7 @@ class CartRepository implements CartInterface
         //get the requested cart item and product price by stock
         $product        = $this->product->get($cart_item->product_id);
         $product_stock  = $product->stock->where('name', $cart_item->variant)->first();
-        $quantity       = $product_stock->current_stock;
+        $quantity       = $product->stock->sum('current_stock');
         $price          = $product_stock->price;
 
         $total_quantity = $cart_item->quantity + $request->quantity;
@@ -545,6 +553,61 @@ class CartRepository implements CartInterface
         } else {
             return __('Coupon Not Found');
         }
+    }
+
+    public function applyPoints($data,$user)
+    {
+        info($data['use_purchase_point']);
+        info($user->id);
+
+        $pointData = PointSetting::where('status', 1)->first();
+
+        if ($pointData->status == 1) {
+            $point = $user->point;
+            $point_value = ($pointData->point_to_money / $pointData->point);
+            $point_amount = $data['use_purchase_point'] * $point_value;
+        
+            info($point_amount);
+        
+            if ($point >= $data['use_purchase_point']) {
+                $carts = Cart::where('user_id', $user->id)->where('trx_id',$data['trx_id'])->get();
+                $sub_total = 0;
+                $amount = 0; 
+
+                //find auth user
+                $authUser = User::where('id', authUser()->id)->first();
+
+                $authUser->point = $point - $data['use_purchase_point'];
+                $authUser->save();
+        
+                // foreach ($carts as $cart) {
+                //     $sub_total += $cart->price * $cart->quantity;
+                //     $amount = $this->calculatePointDiscount($point_amount, $cart->price * $cart->quantity); // Update $amount inside the loop
+                //     // $cart->point_discount = $amount;
+                //     $cart->save();
+                // }
+
+                info($amount);
+        
+                // return Checkout::create([
+                //     'user_id'           => $user->id,
+                //     'seller_id'         => 1,
+                //     'point_discount'    => $point_amount, // Now $amount is defined in this scope
+                //     'trx_id'            => $data['trx_id'],
+                //     'status'            => 1,
+                // ]);
+            } 
+        
+        } else {
+            return __('Point System is Disabled');
+        }
+
+
+    }
+
+    protected function calculatePointDiscount($point_amount, $price)
+    {
+        return ($price - $point_amount);
     }
 
     protected function calculateDiscount($coupon, $price)
@@ -765,20 +828,28 @@ class CartRepository implements CartInterface
     public function shippingCostFind($carts, $data)
     {
         $shipping_cost  = 0;
-        if (addon_is_activated('ramdhani') && settingHelper('shipping_fee_type') == 'product_base')
-        {
-            $class_ids = Product::whereIn('id',$carts->pluck('product_id')->toArray())->pluck('shipping_class_id')->toArray();
-            $shipping_cost = ClassCity::whereIn('shipping_class_id',$class_ids)->where('city_id',$data['city_id'])->sum('cost');
-        }
-        else{
-            $seller_carts   = $carts->groupBy('seller_id');
-            $shipping_repo  = new ShippingRepository();
-            $city           = $shipping_repo->getCity($data['city_id']);
-            $cost           = $city ? $city->cost : 0;
 
-            foreach ($seller_carts as $key => $seller_cart) {
-                $shipping_cost += $cost;
+        $seller_carts   = $carts->groupBy('seller_id');
+        $shipping_repo  = new ShippingRepository();
+        $city           = $shipping_repo->getCity($data['city_id']);
+        $cost           = 0;
+
+        if ($city) {
+            switch ($data["deliveryMethod"] ?? "") {
+                case "Pick from Store":
+                    $cost = $city->pickup_store_cost;
+                    break;
+                case "Express Delivery":
+                    $cost = $city->express_delivery_cost;
+                    break;
+                default:
+                    $cost = $city->cost;
+                    break;
             }
+        }
+
+        foreach ($seller_carts as $key => $seller_cart) {
+            $shipping_cost += $cost;
         }
 
         return $shipping_cost;

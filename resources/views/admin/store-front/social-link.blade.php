@@ -55,7 +55,7 @@
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">
-                                                            <i class="bx bxl-twitter"></i>
+                                                            <i class="bx bxl-tiktok"></i>
                                                         </div>
                                                     </div>
                                                     <input type="url" class="form-control" value="{{old('twitter_link') ? old('twitter_link') : settingHelper('twitter_link')}}" name="twitter_link" placeholder="https://" />
@@ -71,6 +71,17 @@
                                                     </div>
                                                     <input type="url" class="form-control" value="{{old('instagram_link') ? old('instagram_link') : settingHelper('instagram_link')}}" name="instagram_link" placeholder="https://" />
                                                 </div>
+                                            </div> 
+                                            <div class="form-group">
+                                                <label></label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="bx bxl-linkedin"></i>
+                                                        </div>
+                                                    </div>
+                                                    <input type="url" class="form-control" value="{{old('linkedin_link') ? old('linkedin_link') : settingHelper('linkedin_link')}}" name="linkedin_link" placeholder="https://" />
+                                                </div>
                                             </div>
                                             <div class="form-group">
                                                 <label></label>
@@ -83,17 +94,7 @@
                                                     <input type="url" class="form-control" value="{{old('youtube_link') ? old('youtube_link') : settingHelper('youtube_link')}}" name="youtube_link" placeholder="https://" />
                                                 </div>
                                             </div>
-                                            <div class="form-group">
-                                                <label></label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            <i class="bx bxl-linkedin"></i>
-                                                        </div>
-                                                    </div>
-                                                    <input type="url" class="form-control" value="{{old('linkedin_link') ? old('linkedin_link') : settingHelper('linkedin_link')}}" name="linkedin_link" placeholder="https://" />
-                                                </div>
-                                            </div>
+                                            
                                         </div>
                                         <div class="text-md-right">
                                             <button class="btn btn-outline-primary" id="save-btn">{{__('Update')}}</button>

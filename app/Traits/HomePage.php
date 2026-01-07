@@ -24,6 +24,7 @@ trait HomePage
             $skip = ($page-1) * 3;
         }
         $settings = settingHelper('home_page_contents');
+        
         $component_names = [];
         $results = $keys = [];
         if ($settings) {
@@ -89,6 +90,7 @@ trait HomePage
                         if ($set_key == 'popular_category') {
                             $component_names[]=$set_key;
                             $popular_category = TopCategoryResource::collection($category->categoryByIds($item));
+
                             $results = $this->keyDefine('popular_categories', $key, $popular_category, $results);
                             $keys[] = 'popular_categories';
                         }
@@ -437,6 +439,7 @@ trait HomePage
                     'id'                    => $cart->id,
                     'seller_id'             => $cart->seller_id,
                     'product_name'          => $cart->product->product_name,
+                    'free_shipping'          => $cart->product->free_shipping,
                     'product_slug'          => $cart->product->slug,
                     'image_72x72'           => $cart->image_72x72,
                     'image_40x40'           => $cart->image_40x40,
@@ -447,7 +450,8 @@ trait HomePage
                     'trx_id'                => $cart->trx_id,
                     'shipping_cost'         => $cart->shipping_cost,
                     'tax'                   => $cart->tax,
-                    'current_stock'         => $cart->current_stock,
+                    'current_stock'         => $cart->product->stock->sum('current_stock'),
+//                    'current_stock'         => $cart->current_stock,
                     'min_quantity'          => $cart->min_quantity,
                     'is_digital_product'    => $cart->product->is_digital,
                     'variant'               => nullCheck($cart->variant),

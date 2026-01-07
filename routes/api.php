@@ -32,6 +32,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::post('update-order-status', [OrderController::class, 'updateOrderStatus'])->name('api.update.order.status');
+Route::post('order', [OrderController::class, 'createOrder'])->name('api.create.order');
+
 Route::prefix('v100')->group(function() {
     Route::middleware(['CheckApiKey'])->group(function () {
         Route::post('login', [AuthController::class, 'login']);
@@ -158,8 +161,11 @@ Route::prefix('v100')->group(function() {
         Route::post('cart-update/{id}',[CartController::class,'update']);
         Route::delete('cart-delete/{id}',[CartController::class,'destroy']);
         Route::get('coupons',[CartController::class,'couponList']);
+
+        
+
         Route::post('apply-coupon',[CartController::class,'applyCoupon']);
-        Route::get('applied-coupons',[CartController::class,'appliedCoupons']);
+        //Route::get('applied-coupons',[CartController::class,'appliedCoupons']);
         Route::post("find/shipping-cost", [CartController::class, 'findShippingCost']);
 
         //order
@@ -185,3 +191,4 @@ Route::match(['get', 'post'], 'complete-recharge', [WalletController::class, 'wa
 
 Route::get('payment-success', [OrderController::class, 'paymentSuccess'])->name('api.payment.success');
 Route::get('import-db', [APIController::class, 'importDb']);
+

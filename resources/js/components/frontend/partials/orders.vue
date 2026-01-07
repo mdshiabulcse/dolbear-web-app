@@ -3,7 +3,7 @@
     <table class="table">
       <thead>
       <tr>
-        <th scope="col">{{ lang.product }}</th>
+        <th scope="col">{{ lang.order }}</th>
         <th scope="col">{{ lang.date }}</th>
         <th scope="col">{{ lang.delivery_status }}</th>
         <th scope="col">{{ lang.pay_status }}</th>
@@ -13,8 +13,8 @@
       </thead>
       <tbody>
       <tr v-for="(orderDetails,i) in orders" :key="i" v-if="orderDetails.is_deleted == 0">
-        <th scope="row">
-          <div class="product">
+        <th>
+          <!-- <div class="product">
             <a href="javascript:void(0)">
                         <span class="product-thumb">
                           <img :src="orderDetails.image" :alt="orderDetails.product_name"
@@ -26,15 +26,23 @@
                 <span v-else> {{ orderDetails.sku }}</span>
               </div>
             </a>
-          </div><!-- /.product -->
+          </div> -->
+          <template>
+            <router-link :to="{ name: 'TrackOrderNew', query: { code: orderDetails.code } }">
+              {{ orderDetails.code }}
+            </router-link>
+          </template>
+
         </th>
         <td>{{ orderDetails.order_date }}</td>
         <td class="text-capitalize">
+
           <div
               :class="orderDetails.delivery_status == 'pending' ? 'pending' : (orderDetails.delivery_status == 'delivered' ? 'complete' : (orderDetails.delivery_status == 'canceled' ? 'cancel' : 'delivery-info'))">
                     <span>
                         {{
-                        orderDetails.delivery_status == 'pending' ? lang.Pending :
+                        (orderDetails.delivery_status == 'no_ans_1' || orderDetails.delivery_status == 'no_ans_2' || orderDetails.delivery_status == 'no_ans_3') ? "Awaiting Confirmation" :
+                            orderDetails.delivery_status == 'pending' ? lang.Pending :
                             (orderDetails.delivery_status == 'delivered' ? lang.delivered :
                                 (orderDetails.delivery_status == 'canceled' ? lang.Canceled :
                                     ((orderDetails.delivery_status == 'confirmed') || (orderDetails.delivery_status == 'confirm') ? lang.Confirmed :
@@ -53,35 +61,35 @@
         </td>
         <td><span>{{ priceFormat(orderDetails.total_payable) }}</span></td>
         <td>
-          <div class="dropdown">
+          <div class="dropdown" v-if="orderDetails.delivery_status == 'canceled' || orderDetails.delivery_status == 'pending' || orderDetails.delivery_status == 'no_ans_1' || orderDetails.delivery_status == 'no_ans_2' || orderDetails.delivery_status == 'no_ans_3'">
             <button class="dropdown-toggle btn-primary" type="button" id=""
                     @click="orderDropdown(orderDetails.order_id)"
                     :class="orderDetails.order_id == order_dropdown ? 'show' : ''" data-bs-toggle="dropdown"
                     aria-expanded="false">{{ lang.Actions }}
             </button>
             <ul class="dropdown-menu text-capitalize" :class="orderDetails.order_id == order_dropdown ? 'show' : ''">
-              <li v-if="orderDetails.delivery_status == 'pending'">
+              <li v-if="orderDetails.delivery_status == 'pending' || orderDetails.delivery_status == 'no_ans_1' || orderDetails.delivery_status == 'no_ans_2' || orderDetails.delivery_status == 'no_ans_3' ">
                 <a href="javascript:void(0)" @click="cancelOrder(orderDetails.order_id,i)">{{ lang.cancel }}</a>
               </li>
-              <li>
-                <router-link
-                    v-if="orderDetails.payment_status == 'unpaid' && orderDetails.payment_type != 'cash_on_delivery' && orderDetails.delivery_status != 'cancelled' && orderDetails.delivery_status != 'offline_method'"
-                    :to="{name: 'payment' , params : { code : orderDetails.code } }">{{ lang.pay_now }}
-                </router-link>
-              </li>
-              <li>
-                <router-link :to="{name: 'get.invoice',params:{orderCode:orderDetails.code}}">{{ lang.view }}
-                </router-link>
-              </li>
-              <li>
-                <a href="javascript:void(0)"
-                   @click="download(orderDetails.order_id, orderDetails.code)">{{ lang.download }}</a>
-              </li>
-              <li v-if="orderDetails.product_file_id && orderDetails.payment_status == 'paid'">
-                <a v-for="(url,index) in orderUrls" :key="index" v-if="index == orderDetails.id"
-                   :href="url">{{ lang.download_file }}</a>
-              </li>
-              <li v-if="orderDetails.delivery_status == 'delivered' || orderDetails.delivery_status == 'canceled'">
+<!--              <li>-->
+<!--                <router-link-->
+<!--                    v-if="orderDetails.payment_status == 'unpaid' && orderDetails.payment_type != 'cash_on_delivery' && orderDetails.delivery_status != 'cancelled' && orderDetails.delivery_status != 'offline_method'"-->
+<!--                    :to="{name: 'payment' , params : { code : orderDetails.code } }">{{ lang.pay_now }}-->
+<!--                </router-link>-->
+<!--              </li>-->
+<!--              <li>-->
+<!--                <router-link :to="{name: 'get.invoice',params:{orderCode:orderDetails.code}}">{{ lang.view }}-->
+<!--                </router-link>-->
+<!--              </li>-->
+<!--              <li>-->
+<!--                <a href="javascript:void(0)"-->
+<!--                   @click="download(orderDetails.order_id, orderDetails.code)">{{ lang.download }}</a>-->
+<!--              </li>-->
+<!--              <li v-if="orderDetails.product_file_id && orderDetails.payment_status == 'paid'">-->
+<!--                <a v-for="(url,index) in orderUrls" :key="index" v-if="index == orderDetails.id"-->
+<!--                   :href="url">{{ lang.download_file }}</a>-->
+<!--              </li>-->
+              <li v-if="orderDetails.delivery_status == 'canceled'">
                 <a href="javascript:void(0)" @click="removeOrder(orderDetails.order_id,i)">{{ lang.delete }}</a>
               </li>
             </ul>

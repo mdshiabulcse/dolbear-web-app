@@ -36,7 +36,8 @@ interface AttributeInterface
 
     public function attributeValue($id);
 
-    public function findStock($id,$product_id);
+    public function firstStock($id,$product_id);
+    public function findStocks($id,$product_id);
 
     public function stocks($id,$product_id);
 }

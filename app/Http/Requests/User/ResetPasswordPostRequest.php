@@ -24,8 +24,10 @@ class ResetPasswordPostRequest extends FormRequest
     public function rules()
     {
         return [
-             'newPassword'   => 'required|min:6|max:32|required_with:confirmPassword|same:confirmPassword',
-            'confirmPassword'   => 'required|min:6|max:32',
+            'phone' => 'required',
+            'otp' => 'required|numeric',
+            'newPassword'   => 'nullable|min:6|max:32|required_with:confirmPassword|same:confirmPassword',
+            'confirmPassword'   => 'nullable|min:6|max:32',
         ];
     }
 }

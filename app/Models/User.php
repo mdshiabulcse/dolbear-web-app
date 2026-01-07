@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\CustomerSyncJob;
 use Cartalyst\Sentinel\Users\EloquentUser;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,7 @@ class User extends EloquentUser implements JWTSubject, ContractAuthenticatable
     use HasApiTokens, HasFactory, Notifiable, Authenticatable;
 
     protected $fillable = [
+        'code',
         'first_name',
         'last_name',
         'user_type',
@@ -33,7 +35,11 @@ class User extends EloquentUser implements JWTSubject, ContractAuthenticatable
         'referral_code',
         'referred_by_user',
         'balance',
-        'ai_review_option'
+        'ai_review_option',
+        'otp',
+        'otp_sent_at',
+        'status',
+        'point'
     ];
     protected $hidden = [
         'password',
@@ -56,6 +62,23 @@ class User extends EloquentUser implements JWTSubject, ContractAuthenticatable
     protected $appends = ['profile_image','user_profile_image','full_name','shipping_address','billing_address','last_recharge'];
 
     public $timestamps = true;
+
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            if ($user->user_type === 'customer' && $user->status === 1) {
+                CustomerSyncJob::dispatch($user);
+            }
+        });
+
+        static::updated(function ($user) {
+            if ($user->user_type === 'customer' && $user->status === 1) {
+                if ($user->isDirty(['first_name', 'last_name', 'phone', 'gender', 'status'])) {
+                    CustomerSyncJob::dispatch($user);
+                }
+            }
+        });
+    }
 
     public static function byEmail($email)
     {
@@ -84,6 +107,11 @@ class User extends EloquentUser implements JWTSubject, ContractAuthenticatable
     public function addresses()
     {
         return $this->hasMany(Address::class);
+    }
+
+    public function deliveryAddresses()
+    {
+        return $this->hasOne(DeliveryAddress::class);
     }
 
     public function support()

@@ -2,7 +2,7 @@
     <div class="sg-page-content" >
         <section class="about-section">
             <div class="container" v-if="lengthCounter(page)>0">
-                <div class="page-title">
+                <div class="page-title mt-5">
                     <h1>{{page.title}}</h1>
                 </div>
               <div v-html="page.content"></div>

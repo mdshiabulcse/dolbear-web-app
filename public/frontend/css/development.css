@@ -197,6 +197,42 @@ label.upload-image {
 .product-quantity .btn {
 	line-height: 2.5 !important;
 }
+.product-quantity {
+	font-size: 24px;
+	font-weight: 600;
+	/* color: var(--theme-color);
+	border: 1px solid #eeeeee; */
+}
+
+.product-quantity input {
+	width: 40px;
+	text-align: center;
+	border: 0;
+	height: 40px;
+	font-size: 13px;
+	border-left: 1px solid #eeeeee;
+	border-right: 1px solid #eeeeee;
+	border-radius: 4px ;
+}
+
+.product-quantity .quantity {
+	display: flex;
+}
+
+.product-quantity .btn {
+	padding: 0;
+	color: var(--theme-color);
+}
+
+.product-quantity .btn:hover {
+	color: var(--primary-color);
+}
+
+.product-quantity .btn span {
+	margin-right: 0;
+	font-size: 13px;
+	padding: 8px 10px;
+}
 
 .sg-card.address {
 	position: relative;

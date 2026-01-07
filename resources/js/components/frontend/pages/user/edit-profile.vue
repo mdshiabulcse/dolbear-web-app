@@ -45,25 +45,8 @@
                       }}</span>
                     </div>
                     <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="email">{{ lang.email }}</label>
-                        <input
-                          type="email"
-                          class="form-control"
-                          disabled
-                          :value="form.email"
-                          id="email"
-                          :class="{ error_border: errors.email }"
-                          :placeholder="lang.email"
-                        />
-                      </div>
-                      <span class="validation_error" v-if="errors.email">{{
-                        errors.email[0]
-                      }}</span>
-                    </div>
-                    <div class="col-md-6">
                       <label>{{ lang.phone }}</label>
-                      <telePhone @phone_no="getNumber"></telePhone>
+                      <telePhone :editable="false" :phone="form.phone" @phone_no="getNumber"></telePhone>
                       <span class="validation_error" v-if="errors.phone">{{
                         errors.phone[0]
                       }}</span>
@@ -87,26 +70,26 @@
                         errors.gender[0]
                       }}</span>
                     </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="date_of_birth">{{
-                          lang.date_of_birth
-                        }}</label>
-                        <input
-                          type="date"
-                          class="form-control"
-                          id="date_of_birth"
-                          :class="{ error_border: errors.date_of_birth }"
-                          v-model="form.date_of_birth"
-                          :placeholder="lang.select_date_of_birth"
-                        />
-                      </div>
-                      <span
-                        class="validation_error"
-                        v-if="errors.date_of_birth"
-                        >{{ errors.date_of_birth[0] }}</span
-                      >
-                    </div>
+<!--                    <div class="col-md-6">-->
+<!--                      <div class="form-group">-->
+<!--                        <label for="date_of_birth">{{-->
+<!--                          lang.date_of_birth-->
+<!--                        }}</label>-->
+<!--                        <input-->
+<!--                          type="date"-->
+<!--                          class="form-control"-->
+<!--                          id="date_of_birth"-->
+<!--                          :class="{ error_border: errors.date_of_birth }"-->
+<!--                          v-model="form.date_of_birth"-->
+<!--                          :placeholder="lang.select_date_of_birth"-->
+<!--                        />-->
+<!--                      </div>-->
+<!--                      <span-->
+<!--                        class="validation_error"-->
+<!--                        v-if="errors.date_of_birth"-->
+<!--                        >{{ errors.date_of_birth[0] }}</span-->
+<!--                      >-->
+<!--                    </div>-->
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="profile_image">{{
@@ -145,78 +128,6 @@
                             </label>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="facebook">{{ lang.facebook }}</label>
-                        <input
-                          type="url"
-                          class="form-control"
-                          v-model="socials.facebook"
-                          id="facebook"
-                          placeholder="https://facebook.com/xxxxxxxx"
-                        />
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="twitter">{{ lang.twitter }}</label>
-                        <input
-                          type="url"
-                          class="form-control"
-                          v-model="socials.twitter"
-                          id="twitter"
-                          placeholder="https://twitter.com/xxxxxxxx"
-                        />
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="linkedin">{{ lang.linkedin }}</label>
-                        <input
-                          type="url"
-                          class="form-control"
-                          v-model="socials.linkedin"
-                          id="linkedin"
-                          placeholder="https://LinkedIn.com/xxxxxxxx"
-                        />
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="instagram">{{ lang.instagram }}</label>
-                        <input
-                          type="url"
-                          class="form-control"
-                          v-model="socials.instagram"
-                          id="instagram"
-                          placeholder="https://instagram.com/xxxxxxxx"
-                        />
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="pinterest">{{ lang.pinterest }}</label>
-                        <input
-                          type="url"
-                          class="form-control"
-                          v-model="socials.pinterest"
-                          id="pinterest"
-                          placeholder="https://pinterest.com/xxxxxxxx"
-                        />
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="youtube">{{ lang.youTube }}</label>
-                        <input
-                          type="url"
-                          class="form-control"
-                          v-model="socials.youtube"
-                          id="youtube"
-                          placeholder="https://youtube.com/xxxxxxxx"
-                        />
                       </div>
                     </div>
                   </div>

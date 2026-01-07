@@ -1,22 +1,33 @@
 <template>
     <div>
-        <headNav></headNav>
+        <!-- <headNav></headNav> -->
        
+        <header_new></header_new>
         <router-view> </router-view>
-        <bottom></bottom>
+        <!-- <bottom></bottom> -->
+
+        <!-- <fullHomePage></fullHomePage> -->
+
+        <!-- <bottom></bottom> -->
+         <footer_new></footer_new>
     </div>
 </template>
 
 <script>
 import headNav from "./partials/header";
 import bottom from "./partials/bottom";
+import fullHomePage from "./homepage/fullHomePage";
+import header_new from "./partials/header_new.vue";
+import footer_new from "./common/footer_new.vue";
 
 
 export default {
     name: "master",
 
     components : {
-        headNav,bottom,
+        headNav,bottom,fullHomePage,
+        header_new,
+        footer_new
     },
     watch: {
         $route (to, from) {
@@ -30,3 +41,5 @@ export default {
 
 }
 </script>
+
+

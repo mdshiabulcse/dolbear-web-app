@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Admin\Product;
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Brian2694\Toastr\Facades\Toastr;
 use App\Http\Requests\Admin\Product\CategoryRequest;
+use App\Http\Resources\SiteResource\TopCategoryResource;
 use App\Repositories\Interfaces\Admin\LanguageInterface;
 use App\Repositories\Interfaces\Admin\Product\CategoryInterface;
 use App\Repositories\Interfaces\Admin\Product\CategoryLanguageInterface;
-use Brian2694\Toastr\Facades\Toastr;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
@@ -34,6 +35,17 @@ class CategoryController extends Controller
              Toastr::error($e->getMessage());
             return back();
         }
+    }
+
+    public function popular()
+    {
+        try {
+            return TopCategoryResource::collection($this->category->popular());
+        } catch (\Exception $e) {
+             Toastr::error($e->getMessage());
+            return back();
+        }
+        
     }
 
     public function store(CategoryRequest $request)

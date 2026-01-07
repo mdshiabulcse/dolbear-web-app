@@ -47,8 +47,8 @@ trait MetaGeneratorTrait {
                   "name": "'.$language->name.'",
                   "image": '.json_encode($product_image).',
                   "description": "'.$description.'",
-                  "sku": "'.strip_tags($product->stock[0]->sku).'",
-                  "mpn": "Mpn-'.strip_tags($product->stock[0]->sku).'",
+                  "sku": "'.strip_tags($product->stock[0]->sku ?? '').'",
+                  "mpn": "Mpn-'.strip_tags($product->stock[0]->sku ?? '').'",
                 
                   "brand": {
                     "@type": "Brand",
@@ -103,7 +103,7 @@ trait MetaGeneratorTrait {
         elseif (request()->route()->getName() == 'blog-details'){
             $slug = request()->route()->parameter('slug');
             $blog = $blog->blogDetails($slug);
-       
+
             if ($blog)
             {
                 $meta_data = [

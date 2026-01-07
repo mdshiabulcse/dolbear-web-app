@@ -2,29 +2,30 @@
 
 namespace App\Http\Controllers\Api\V100;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\AdminResource\PosUserResource;
-use App\Http\Resources\RechargeHistoryResource;
-use App\Models\OrderDetail;
-use App\Repositories\Interfaces\Admin\Addon\OfflineMethodInterface;
-use App\Repositories\Interfaces\Admin\Addon\WalletInterface;
-use App\Repositories\Interfaces\Admin\AddonInterface;
-use App\Repositories\Interfaces\Admin\CurrencyInterface;
-use App\Repositories\Interfaces\Admin\LanguageInterface;
-use App\Repositories\Interfaces\Admin\OrderInterface;
-use App\Repositories\Interfaces\UserInterface;
-use App\Traits\ApiReturnFormatTrait;
-use App\Utility\AppSettingUtility;
+use Sentinel;
 use Carbon\Carbon;
-use Cartalyst\Sentinel\Checkpoints\NotActivatedException;
-use Cartalyst\Sentinel\Checkpoints\ThrottlingException;
+use App\Models\OrderDetail;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Utility\AppSettingUtility;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\Controller;
+use App\Traits\ApiReturnFormatTrait;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Sentinel;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Repositories\Interfaces\UserInterface;
+use App\Http\Resources\RechargeHistoryResource;
+use App\Http\Resources\AdminResource\PosUserResource;
+use App\Repositories\Interfaces\Admin\AddonInterface;
+use App\Repositories\Interfaces\Admin\OrderInterface;
+use Cartalyst\Sentinel\Checkpoints\ThrottlingException;
+use App\Repositories\Interfaces\Admin\CurrencyInterface;
+use App\Repositories\Interfaces\Admin\LanguageInterface;
+use Cartalyst\Sentinel\Checkpoints\NotActivatedException;
+use App\Repositories\Interfaces\Admin\Addon\WalletInterface;
+use App\Repositories\Interfaces\Admin\Marketing\CouponInterface;
+use App\Repositories\Interfaces\Admin\Addon\OfflineMethodInterface;
 
 class UserController extends Controller
 {
@@ -392,4 +393,5 @@ class UserController extends Controller
             return [];
         }
     }
+
 }

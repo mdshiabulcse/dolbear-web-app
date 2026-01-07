@@ -5,7 +5,8 @@
                 <img :src="authUser.profile_image" :alt="authUser.full_name" class="img-fluid">
             </div>
             <h2>{{ authUser.full_name }} <router-link class="d-inline" :to="{ name : 'edit.profile' }"><span class="mdi mdi-name mdi-pencil"></span></router-link></h2>
-            <a href="javascript:void(0)">{{ authUser.email }}</a>
+            <a>{{ authUser.phone }}</a>
+<!--            <p>Points: {{ authUser.point }}</p>-->
             <div>
               <a href="javascript:void(0)" @click="logout">
                     {{ lang.logout }}</a
@@ -42,11 +43,11 @@
                         class="mdi mdi-name mdi-cart-arrow-down"></span> {{ lang.digital_product_order }}
                     </router-link>
                 </li>
-                <li v-if="settings.coupon_system == 1" :class="{active: current === 'gift_voucher'}">
+                <!-- <li v-if="settings.coupon_system == 1" :class="{active: current === 'gift_voucher'}">
                     <router-link :to="{ name : 'gift.voucher' }"><span class="mdi mdi-name mdi-wallet-giftcard"></span>
                         {{ lang.gift_voucher }}
                     </router-link>
-                </li>
+                </li> -->
                 <li :class="{active: current === 'change_password'}">
                     <router-link :to="{ name : 'change.password' }"><span class="mdi mdi-name mdi-lock-outline"></span>
                         {{ lang.change_password }}

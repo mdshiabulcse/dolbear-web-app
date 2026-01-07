@@ -9,7 +9,7 @@ class Checkout extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id','seller_id','trx_id','coupon_id','coupon_discount','status'];
+    protected $fillable = ['user_id','seller_id','trx_id','coupon_id','coupon_discount','status', 'point_discount'];
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

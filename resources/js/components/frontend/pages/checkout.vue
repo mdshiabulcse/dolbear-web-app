@@ -156,6 +156,7 @@
             <div class="order-summary">
               <h6>{{ lang.price_details }}</h6>
               <coupon v-if="authUser" :coupon_list="coupon_list" :cartList="carts" :trx_id="payment_form.trx_id"></coupon>
+              <purchasePoint v-if="authUser" :purchase_point="purchase_point" :cartList="carts" :trx_id="payment_form.trx_id"></purchasePoint>
               <div class="sg-card">
                 <payment_details
                     :sub_total="payment_form.sub_total"
@@ -163,6 +164,7 @@
                     :discount_offer="payment_form.discount_offer"
                     :shipping_tax="payment_form.shipping_tax"
                     :coupon_discount="payment_form.coupon_discount"
+                    :point_discount="payment_form.point_discount"
                     :total="payment_form.total"
                 ></payment_details>
                 <gdpr_page ref="privacy_agreement" :agreements="settings.privacy_agreement"></gdpr_page>
@@ -183,17 +185,19 @@
 import shimmer from "../partials/shimmer";
 import telePhone from "../partials/telephone";
 import coupon from "../partials/coupon";
+import purchasePoint from "../partials/purchase-point";
 import payment_details from "../partials/payment_details";
 import addressForm from "../partials/addressForm";
 import gdpr_page from "../partials/gdpr_page";
 
 export default {
   name: "checkout",
-  components: {telePhone, shimmer, coupon, payment_details, addressForm, gdpr_page},
+  components: {telePhone, shimmer, coupon, payment_details, addressForm, gdpr_page, purchasePoint},
   data() {
     return {
       coupon_area: true,
       coupon_list: [],
+      purchase_point: "",
       checkout: {},
       form: {
         id: '',
@@ -224,6 +228,7 @@ export default {
   mounted() {
     this.getAddress();
     this.address_submit_button = this.lang.add;
+    this.getPoint();
   },
   watch: {
     carts(newValue, oldValue) {
@@ -361,7 +366,11 @@ export default {
           city_id: this.default_shipping.address_ids.city_id
         };
 
+
+
         axios.post(url, form).then((response) => {
+
+
           if (response.data.error) {
             toastr.error(response.data.error, this.lang.Error + ' !!');
           } else {
@@ -409,7 +418,19 @@ export default {
     },
     getNumber(number) {
       this.form.phone_no = number;
-    }
+    },
+    getPoint() {
+      let url = this.getUrl('user/purchase-points');
+     
+      axios.get(url).then((response) => {
+
+        if (response.data.error) {
+          toastr.error("Point not found", "Error !!");
+        } else {
+          this.purchase_point = response.data.points;
+        }
+      });
+    },
   }
 }
 </script>

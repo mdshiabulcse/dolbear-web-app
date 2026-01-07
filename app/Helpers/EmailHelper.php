@@ -99,7 +99,7 @@ if (!function_exists('sendMailTo')) :
         try{
             if($email != null || $email != ""):
                 Mail::send('email.auth.email-template', [
-                    'data' => $data
+                    'content' => $data
                 ], function ($message) use ($email, $data) {
                     $message    ->to($email);
                     $message    ->subject($data['subject']);
@@ -109,6 +109,7 @@ if (!function_exists('sendMailTo')) :
             endif;
         }
         catch (\Exception $e){
+            info($e);
             Toastr::error(__('Email Is Not Send. Please Check Email Configuration'));
             return false;
         }

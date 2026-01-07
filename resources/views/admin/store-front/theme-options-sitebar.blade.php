@@ -20,6 +20,12 @@
                            href="{{ route('website.popup') }}">{{ __('Website Popup') }}</a>
                     </li>
                 @endif
+                @if(hasPermission('website_video_update'))
+                    <li class="nav-item">
+                        <a class="nav-link @yield('video')"
+                           href="{{ route('website.video') }}">Website Video</a>
+                    </li>
+                @endif
                 @if(hasPermission('custom_css_update'))
                     <li class="nav-item">
                         <a class="nav-link @yield('custom-css')"

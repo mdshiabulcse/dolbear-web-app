@@ -49,6 +49,9 @@
                                     <select class="form-control select2 sorting" name="ds">
                                         <option {{ @$ds == "" ? "selected" : "" }} value="">{{ __('Delivery Status') }}</option>
                                         <option {{ @$ds == "pending" ? "selected" : "" }} value="pending">{{ __('Pending') }}</option>
+                                        <option {{ @$ds == "no_ans_1" ? "selected" : "" }} value="no_ans_1">No Ans 1</option>
+                                        <option {{ @$ds == "no_ans_2" ? "selected" : "" }} value="no_ans_2">No Ans 2</option>
+                                        <option {{ @$ds == "no_ans_3" ? "selected" : "" }} value="no_ans_3">No Ans 3</option>
                                         <option {{ @$ds == "confirm" ? "selected" : "" }} value="confirm">{{ __('Confirmed') }}</option>
                                         <option {{ @$ds == "picked_up" ? "selected" : "" }} value="picked_up">{{ __('Picked Up') }}</option>
                                         <option {{ @$ds == "on_the_way" ? "selected" : "" }} value="on_the_way">{{ __('On The Way') }}</option>
@@ -92,14 +95,17 @@
                                 <tr>
                                     <th>#</th>
                                     <th>{{ __('Order Code') }}</th>
-                                    @if(settingHelper('seller_system') == 1)
+                                    {{-- @if(settingHelper('seller_system') == 1)
                                         <th>{{ __('Seller') }}</th>
-                                    @endif
+                                    @endif --}}
                                     <th>{{ __('Customer') }}</th>
                                     <th>{{ __('Total Product') }}</th>
+                                    <th>{{ __('Payable Amount') }}</th>
                                     <th>{{ __('Total Price') }}</th>
+                                    <th>Delivery Method</th>
                                     <th>{{ __('Delivery Status') }}</th>
                                     <th>{{ __('Payment Status') }}</th>
+                                    <th>Payment Type</th>
                                     @if(addon_is_activated('refund'))
                                         <th>{{ __('Refunds') }}</th>
                                     @endif
@@ -111,7 +117,7 @@
                                     <tr id="row_{{ $value->id }}" class="table-data-row">
                                         <td> {{ $orders->firstItem() + $key  }} </td>
                                         <td> {{ $value->code }} </td>
-                                        @if(settingHelper('seller_system') == 1)
+                                        {{-- @if(settingHelper('seller_system') == 1)
                                             <td>
                                                 @if($value->seller_id != 1)
                                                     @if(isset($value->orderDetails[0]->product->sellerProfile))
@@ -122,7 +128,7 @@
                                                     <div class="badge badge-warning">{{__('Admin Orders')}}</div>
                                                 @endif
                                             </td>
-                                        @endif
+                                        @endif --}}
                                         <td>
                                             <div class="ml-1">
                                                 <a href="javascript:void(0)" class="modal-menu"
@@ -136,8 +142,60 @@
                                         </td>
                                         <td> {{ $value->order_details_count }} </td>
                                         <td> {{ get_price($value->total_payable,user_curr()) }} </td>
+                                        <td> {{ get_price($value->total_amount,user_curr()) }} </td>
                                         <td>
-                                            @if ($value->delivery_status == 'confirm')
+                                            <div class="badge badge-confirm">{{ $value->delivery_method }}</div>
+                                        </td>
+                                        <td>
+                                            @php
+                                                $statusTitle = '';
+                                                $badgeClass = '';
+
+                                                switch ($value->delivery_status) {
+
+                                                    case 'no_ans_1':
+                                                        $statusTitle = 'No Ans 1';
+                                                        $badgeClass = 'badge-primary';
+                                                        break;
+
+                                                    case 'no_ans_2':
+                                                        $statusTitle = 'No Ans 2';
+                                                        $badgeClass = 'badge-warning';
+                                                        break;
+                                                    case 'no_ans_3':
+                                                        $statusTitle = 'No Ans 3';
+                                                        $badgeClass = 'badge-danger';
+                                                        break;
+
+                                                    case 'confirm':
+                                                        $statusTitle = __('Confirmed');
+                                                        $badgeClass = 'badge-success';
+                                                        break;
+                                                    case 'picked_up':
+                                                        $statusTitle = __('Picked Up');
+                                                        $badgeClass = 'badge-info';
+                                                        break;
+                                                    case 'on_the_way':
+                                                        $statusTitle = __('On The Way');
+                                                        $badgeClass = 'badge-info';
+                                                        break;
+                                                    case 'delivered':
+                                                        $statusTitle = __('Delivered');
+                                                        $badgeClass = 'badge-primary';
+                                                        break;
+                                                    case 'canceled':
+                                                        $statusTitle = __('Canceled');
+                                                        $badgeClass = 'badge-danger';
+                                                        break;
+                                                    default:
+                                                         $statusTitle = __('Pending'); // Use __('...') for translation
+                                                        $badgeClass = 'badge-primary';
+                                                }
+                                            @endphp
+
+                                            <div class="badge {{ $badgeClass }}">{{ $statusTitle }}</div>
+
+                                            {{-- @if ($value->delivery_status == 'confirm')
                                                 <div class="badge badge-confirm">{{__('Confirm')}}</div>
                                             @elseif ($value->delivery_status == 'pending')
                                                 <div class="badge badge-warning">{{__('Pending')}}</div>
@@ -149,7 +207,7 @@
                                                 <div class="badge badge-info">{{__('Picked Up')}}</div>
                                             @elseif($value->delivery_status == 'on_the_way')
                                                 <div class="badge badge-secondary">{{__('On The Way')}}</div>
-                                            @endif
+                                            @endif --}}
                                         </td>
                                         <td>
                                             @if ($value->payment_status == 'unpaid' && ($value->offline_method_id != '' || $value->offline_method_id != null))
@@ -171,6 +229,9 @@
                                                     <i class="bx bx-link-alt"></i>
                                                 </a>
                                             @endif
+                                        </td>
+                                        <td>
+                                            {{ str_replace('_', ' ', $value->payment_type) }}                                           
                                         </td>
                                         @if(addon_is_activated('refund'))
                                             <td>{{ count($value->totalRefunded) .' '.__('refunded') }}</td>
@@ -200,6 +261,16 @@
                                                    data-toggle="tooltip" title=""
                                                    data-original-title="{{ __('Approve Payment') }}">
                                                     <i class="bx bx-check"></i>
+                                                </a>
+                                            @endif
+
+                                            <!-- ----------- -->
+                                            @if(($value->delivery_status == "confirm" && ($value->delivery_method !== '' || $value->delivery_method !== \App\Constants\DeliveryMethodConstant::PICK_FROM_STORE)) || $value->pathao_delivery_id)
+                                                <a href="{{ route('admin.delivery.pathao', ['orderId' => $value->id]) }}"
+                                                   class="btn btn-danger btn-circle" data-url=""
+                                                   data-toggle="tooltip" title=""
+                                                   data-original-title="Pathao Delivery">
+                                                    <i class='bx bx-package'></i>
                                                 </a>
                                             @endif
                                         </td>

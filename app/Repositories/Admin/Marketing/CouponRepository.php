@@ -5,6 +5,7 @@ namespace App\Repositories\Admin\Marketing;
 use App\Models\Checkout;
 use App\Models\Coupon;
 use App\Models\CouponLanguage;
+use App\Models\User;
 use App\Repositories\Interfaces\Admin\Marketing\CouponInterface;
 use App\Repositories\Interfaces\Admin\Marketing\CouponLangInterface;
 use App\Traits\ImageTrait;
@@ -132,6 +133,13 @@ class CouponRepository implements CouponInterface
     {
         $now = Carbon::now()->format('Y-m-d H:i:s');
         return Coupon::with('currentLanguage')->where('start_date','<=',$now)->where('end_date','>=',$now)->where('status',1)->latest()->paginate(10);
+    }
+
+    public function pointPage()
+    {
+        $authUser = User::where('id', authUser()->id)->first();
+
+        return $authUser->point;
     }
 
     public function sellerCoupons($id)

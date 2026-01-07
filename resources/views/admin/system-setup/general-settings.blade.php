@@ -68,7 +68,7 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <div class="col-lg-6">
+                                    <div class="col-lg-12">
                                         <div class="form-group">
                                             <label for="contact_email">{{ __('contact_email') }} *</label>
                                             <input type="email" id="contact_email" name="contact_email"
@@ -81,31 +81,46 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <div class="col-lg-6">
+{{--                                    <div class="col-lg-6">--}}
+{{--                                        <div class="form-group">--}}
+{{--                                            <label for="contact_phone">{{ __('contact_phone') }} *</label>--}}
+{{--                                            <input type="text" id="contact_phone" name="contact_phone"--}}
+{{--                                                   value="{{ old('contact_phone') ? old('contact_phone') : (!config('app.demo_mode') ? settingHelper('contact_phone') : '') }}"--}}
+{{--                                                   class="form-control" required>--}}
+{{--                                            @if ($errors->has('contact_phone'))--}}
+{{--                                                <div class="invalid-feedback">--}}
+{{--                                                    <p>{{ $errors->first('contact_phone') }}</p>--}}
+{{--                                                </div>--}}
+{{--                                            @endif--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+
+                                    <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label for="contact_phone">{{ __('contact_phone') }} *</label>
-                                            <input type="text" id="contact_phone" name="contact_phone"
-                                                   value="{{ old('contact_phone') ? old('contact_phone') : (!config('app.demo_mode') ? settingHelper('contact_phone') : '') }}"
+                                            <label for="available_time">Available Time *</label>
+                                            <input type="text" id="available_time" name="available_time"
+                                                   value="{{ old('available_time') ? old('available_time') : (!config('app.demo_mode') ? settingHelper('available_time') : '') }}"
                                                    class="form-control" required>
-                                            @if ($errors->has('contact_phone'))
+                                            @if ($errors->has('available_time'))
                                                 <div class="invalid-feedback">
-                                                    <p>{{ $errors->first('contact_phone') }}</p>
+                                                    <p>{{ $errors->first('available_time') }}</p>
                                                 </div>
                                             @endif
                                         </div>
                                     </div>
+
                                     <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="purchase_code">{{ __('Purchase Code') }} *</label>
-                                            <input type="text" id="purchase_code" name="purchase_code"
-                                                   value="{{ old('purchase_code') ? old('purchase_code') : (!config('app.demo_mode') ? settingHelper('purchase_code') : '') }}"
-                                                   class="form-control" required>
-                                            @if ($errors->has('purchase_code'))
-                                                <div class="invalid-feedback">
-                                                    <p>{{ $errors->first('purchase_code') }}</p>
-                                                </div>
-                                            @endif
-                                        </div>
+{{--                                        <div class="form-group">--}}
+{{--                                            <label for="purchase_code">{{ __('Purchase Code') }} *</label>--}}
+{{--                                            <input type="text" id="purchase_code" name="purchase_code"--}}
+{{--                                                   value="{{ old('purchase_code') ? old('purchase_code') : (!config('app.demo_mode') ? settingHelper('purchase_code') : '') }}"--}}
+{{--                                                   class="form-control" required>--}}
+{{--                                            @if ($errors->has('purchase_code'))--}}
+{{--                                                <div class="invalid-feedback">--}}
+{{--                                                    <p>{{ $errors->first('purchase_code') }}</p>--}}
+{{--                                                </div>--}}
+{{--                                            @endif--}}
+{{--                                        </div>--}}
                                         @php
                                             $timezone = '';
                                             $default_timezone = \App\Utility\AppSettingUtility::settings()->where('title','default_time_zone')->first();
@@ -215,7 +230,7 @@
                                             </div>
                                             <div>
                                                 @if(@$icon !=[] && @is_file_exists(@$icon['image_72x72_url']))
-                                                    <img src="{{ static_asset($icon['image_72x72_url'])}}" alt=""
+                                                    <img src="{{ get_media(settingHelper('favicon')['image_72x72_url']) }}" alt=""
                                                          id="img_profile" class="img-thumbnail site-icon">
                                                 @else
                                                     <img

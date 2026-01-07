@@ -30,6 +30,11 @@ class CategoryRepository implements CategoryInterface
         return Category::find($id);
     }
 
+    public function popular()
+    {
+        return Category::where('is_featured', 1)->where('status', 1)->get();
+    }
+
     public function getByLang($id, $lang)
     {
         if($lang == null):
@@ -224,42 +229,60 @@ class CategoryRepository implements CategoryInterface
 
     public function shopCategory($user_id=null): array
     {
+        // $all_categories = [];
+        // $categories = Category::with('childCategories:id,parent_id')->where('status',1)->where('parent_id',null)->selectRaw('id,slug,status,parent_id')->paginate(120);
+
+        
+
+        // foreach ($categories as $category) {
+        //     $category_ids = \App\Utility\CategoryUtility::getMyAllChildIds($category->id,1);
+        //     $category_ids[] = $category->id;
+
+        //     $total_products = Product::whereIn('category_id',$category_ids)->when($user_id,function ($query) use($user_id){
+        //         if(authUser()->user_type == 'staff' || authUser()->user_type == 'admin')
+        //         {
+        //             $query->where('user_id',1);
+        //         }
+        //         else{
+        //             $query->where('user_id',$user_id);
+        //         }
+        //     })->ProductPublished()->UserCheck()->IsWholesale()->IsStockOut()->count();
+
+        //     if ($total_products > 0)
+        //     {
+        //         $all_categories[] = [
+        //             'id' => $category->id,
+        //             'title' => $category->getTranslation('title',languageCheck()),
+        //             'total_products' => $total_products,
+        //             'slug' => $category->slug,
+        //         ];
+        //     }
+        // }
+
+        // return $all_categories;
+
+
         $all_categories = [];
-        $categories = Category::with('childCategories:id,parent_id')->where('status',1)->where('parent_id',null)->selectRaw('id,slug,status,parent_id')->paginate(12);
+        $categories = Category::withCount('products')->where('status', 1)->get();
 
         foreach ($categories as $category) {
-            $category_ids = \App\Utility\CategoryUtility::getMyAllChildIds($category->id,1);
-            $category_ids[] = $category->id;
-
-            $total_products = Product::whereIn('category_id',$category_ids)->when($user_id,function ($query) use($user_id){
-                if(authUser()->user_type == 'staff' || authUser()->user_type == 'admin')
-                {
-                    $query->where('user_id',1);
-                }
-                else{
-                    $query->where('user_id',$user_id);
-                }
-            })->ProductPublished()->UserCheck()->IsWholesale()->IsStockOut()->count();
-
-            if ($total_products > 0)
-            {
-                $all_categories[] = [
-                    'id' => $category->id,
-                    'title' => $category->getTranslation('title',languageCheck()),
-                    'total_products' => $total_products,
-                    'slug' => $category->slug,
-                ];
-            }
+            $all_categories[] = [
+                'id' => $category->id,
+                'title' => $category->getTranslation('title',languageCheck()),
+                'total_products' => $category->products_count,
+                'slug' => $category->slug,
+            ];
         }
 
         return $all_categories;
+        // return $categories;
     }
 
     public function categoryPage()
     {
         return Category::with(['categories' => function ($query){
             $query->where('status',1);
-        }])->where('status',1)->select('id','parent_id','logo','slug','banner')->where('parent_id',null)->latest()->get();
+        }])->where('status',1)->where('is_featured',1)->select('id','parent_id','logo','slug','banner')->where('parent_id',null)->latest()->get();
     }
 
     public function categoryProducts($id)

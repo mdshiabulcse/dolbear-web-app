@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Jobs\CustomerSyncJob;
+use App\Models\DeliveryAddress;
+use App\Repositories\Erp\CustomerRepository;
+use App\Services\ElitbuzzSmsService;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -29,26 +33,21 @@ class RegisterController extends Controller
         return view('admin.authenticate.register');
     }
 
-    public function postRegister(SignUpRequest $request, SellerProfileInterface $seller)
+    public function postRegister(SignUpRequest $request)
     {
-        if (config('app.demo_mode')) {
-            return response()->json([
-                'error' => __('This function is disabled in demo server.')
-            ]);
-        }
         DB::beginTransaction();
         try {
-            
-            if ($request->phone && !$request->user_type == 'affiliate-register') {
+
+            if ($request->phone) {
                 $request['phone'] = str_replace(' ','',$request->phone);
-                
+
                 if (settingHelper('disable_otp_verification') != 1)
                 {
-                    $req = RegistrationRequest::where('phone',$request->phone)->first();
+                    $req = User::where('phone',$request->phone)->first();
                     if (!$req)
                     {
                         return response()->json([
-                            'error' => __('Verification Code Needed To Verify')
+                            'error' => __('User Not Found'),
                         ]);
                     }
 
@@ -57,83 +56,56 @@ class RegisterController extends Controller
                             'error' => __('OTP Doesnt Match')
                         ]);
                     }
-                    RegistrationRequest::where('phone',$request->phone)->delete();
-                }
 
-                $request['password'] = '123456';
-                $sellerData = Sentinel::registerAndActivate($request->all());
-            }
-            if( addon_is_activated('affiliate')){
-                if($request->user_type == 'affiliate-register'){
-                    $request['referral_code'] = Str::random(10);
-                    $request['user_type'] = 'customer';
-                }if($request->has('referral_code')){
-                    $user = User::where('referral_code', $request->referral_code)->first();
-                    $request['referred_by_user'] = $user->id;
-                }
-                $sellerData = Sentinel::register($request->all());
-                $activation = Activation::create($sellerData);
-                $affiliate->processAffiliateStats($sellerData,1,0,0,0);
-            }
-
-            if($request->user_type == 'seller-migrate'){
-                    $request['user_type'] = 'seller';
-                    $user = Sentinel::findById(authId());
-                    $credentials = [
-                        'user_type' => $request->user_type,
-                        'permissions' => [],
-                    ];
-
-                    $sellerData = Sentinel::update($user, $credentials);
-                    $activation = Activation::create($sellerData);
-            }else{
-                if (!$request->phone) {
-                    if (settingHelper('disable_email_confirmation') == 1)
-                    {
-                        $sellerData = Sentinel::registerAndActivate($request->all());
-                        
-                    }
-                    else{
-
-                        $sellerData = Sentinel::register($request->all());
-                        $activation = Activation::create($sellerData);
+                    if (!empty($req->otp_sent_at)) {
+                        try {
+                            if (now()->diffInMinutes($req->otp_sent_at) > 5) {
+                                return response()->json([
+                                    'error' => __('OTP has expired. Please request a new one.'),
+                                ], 422);
+                            }
+                        } catch (\Throwable $t) {
+                        }
                     }
                 }
             }
 
-            
-            
-            if ($request->email) {
-                if (settingHelper('disable_email_confirmation') != 1)
-                {
-                    $this->sendmail($request->email, 'Registration', $sellerData, 'email.auth.activate-account-email',url('/') . '/activation/' . $request->email . '/' . $activation->code);
-                }
-                if($sellerData){
-                    $user_id = $sellerData->id;
-                    $sellerData['id'] = 1;
-                    $this->SendNotification($sellerData, __("{$sellerData->first_name} {$sellerData->last_name} has been registered"),'success','edit-customer/'.$user_id);
-                }
-            }
-            else if ($request->phone){
-                $user = User::where('phone',$request->phone)->first();
-                Sentinel::login($user);
+            $req->status = 1;
+            $req->save();
+
+            $user = User::where('phone',$request->phone)->first();
+
+            // Check if activation exists
+            $activation = Activation::exists($user);
+
+            // If no activation exists, create one
+            if (!$activation) {
+                $activation = Activation::create($user);
             }
 
+            // Complete the activation (marks user as active)
+            Activation::complete($user, $activation->code);
 
-            $request['user_id'] = $sellerData->id;
-            if ($request->user_type == 'seller') {
-                $seller->store($request);
-                Sentinel::logout();
-                session()->flush();
-                session()->regenerate();
+            Sentinel::login($user);
+
+            if ($request->phone) {
+
+                $delivery_address = [
+                    'user_id' => $user->id,
+                    'name' => $user->first_name . ' ' . $user->last_name,
+                    'phone_no' => $user->phone,
+                    'email' => ''
+                ];
+
+                DeliveryAddress::create($delivery_address);
             }
 
             DB::commit();
 
             return response()->json([
-                'success' => $request->email && settingHelper('disable_email_confirmation') != 1 ?  __('Check your mail to verify your account') : __('Registration Successfully'),
+                'success' => $request->email && settingHelper('disable_email_confirmation') != 1 ?  __('Check your sms to verify your account') : __('Registration Successfully'),
                 'migrate_msg' => __('Request sent successfully. Wait for approval.'),
-                'user' => $sellerData,
+                'user' => $user,
                 'auth_user' => authUser(),
                 'type' => $request->email ? 0 : 1,
             ]);
@@ -145,124 +117,79 @@ class RegisterController extends Controller
         }
     }
 
-    public function sellerRegister(SignUpRequest $request, SellerProfileInterface $seller)
-    {
-        DB::beginTransaction();
-        try {
-            $request['phone'] = str_replace(' ','',$request->phone);
-            if(isset($request['password'])){
-                 $sellerData = Sentinel::register($request->all());
-            };
-           
-
-            $activation = Activation::create($sellerData);
-
-            try {
-                $otp = rand(10000, 99999);
-                if ($request->phone && addon_is_activated('otp_system')):
-                    $sms_templates = AppSettingUtility::smsTemplates();
-                    $sms_template = $sms_templates->where('tab_key', 'signup')->first();
-                    $sms_body = str_replace('{otp}', $otp, @$sms_template->sms_body);
-                    $query = $this->send($request->phone, $sms_body, @$sms_template->template_id);
-                    if (is_string($query))
-                    {
-                        return response()->json([
-                            'error' => __('Something went wrong')
-                        ]);
-                    }
-                    if ($query)
-                    {
-                        $sellerData->otp = $otp;
-                        $sellerData->save();
-                    }
-                endif;
-            } catch (\Exception $e) {
-                Toastr::error(__('Please check your email configuration'));
-                DB::rollback();
-                return false;
-            }
-            $request['user_id'] = $sellerData->id;
-            if ($request->user_type == 'seller') {
-                $data = [
-                    'seller' => $seller->store($request),
-                ];
-                Sentinel::logout();
-                session()->flush();
-                session()->regenerate();
-            }
-            DB::commit();
-            if ($request->email) {
-//                sendMail($sellerData, $activation->code, 'verify_email', $otp);
-                $this->sendmail($request->email, 'Registration', $sellerData, 'email.auth.activate-account-email',url('/') . '/activation/' . $request->email . '/' . $activation->code);
-
-            }
-            return response()->json([
-                'success' => __('Check your mail to verify your account'),
-                'migrate_msg' => __('Registration is successful, Wait for the Approval'),
-                'user' => $sellerData
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'error' =>$e->getMessage()
-            ]);
-        }
-    }
-
     public function registerByPhone(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
-            'first_name'    => 'required',
-            'last_name'     => 'required',
-            'phone'         => 'required',
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'required|string|max:255',
+            'phone'      => [
+                'required',
+                'regex:/^(?:\+88|88)?01[3-9]\d{8}$/',
+            ],
+            'password'   => 'required|confirmed|min:6',
+        ], [
+            'phone.regex' => 'Please enter a valid Bangladeshi phone number.',
         ]);
+
+
         try {
-            $request['phone'] = str_replace(' ','',$request->phone);
+            $phone = str_replace(' ', '', $request->phone);
+            $phone = preg_replace('/^(?:\+88|88)/', '', $phone);
 
-            $req = RegistrationRequest::where('phone',$request->phone)->first();
-
-            if ($req && Carbon::parse($req->created_at)->addMinutes(2) >= Carbon::now())
-            {
-                return response()->json([
-                    'error' => __('Verification Code was Already Sent')
-                ]);
-            }
-
-            $user = User::where('phone', $request->phone)->first();
-            RegistrationRequest::where('phone',$request->phone)->delete();
-
-            if ($user) {
-                return response()->json([
-                    'error' => __('This Phone Number is Already Registered')
-                ]);
-            }
-            $otp = rand(10000, 99999);
-           if ($request->phone && addon_is_activated('otp_system')):
-                $sms_templates  = AppSettingUtility::smsTemplates();
-                $sms_template   = $sms_templates->where('tab_key','signup')->first();
-                $sms_body       = str_replace('{otp}', $otp, @$sms_template->sms_body);
-               $query = $this->send($request->phone, $sms_body, @$sms_template->template_id);
-               if (is_string($query))
-               {
-                   return response()->json([
-                       'error' => __('Something went wrong')
-                   ]);
-               }
-                if (!$query):
+            // Check resend cooldown (2 minutes)
+            $existingUser = User::where('phone', $phone)->first();
+            if ($existingUser) {
+                // If user exists but unverified and OTP sent recently
+                if ($existingUser->status == 0 && $existingUser->otp_sent_at &&
+                    now()->diffInMinutes($existingUser->otp_sent_at) < 2) {
                     return response()->json([
-                        'error' => __('Unable to send otp')
-                    ]);
-                endif;
-            endif;
-            $request['otp'] = $otp;
-            RegistrationRequest::create($request->all());
+                        'error' => __('Verification code was already sent. Please wait a few minutes.'),
+                    ], 429);
+                }
+
+                // If verified already
+                if ($existingUser->status == 1) {
+                    return response()->json([
+                        'error' => __('This phone number is already registered.'),
+                    ], 400);
+                }
+            }
+
+            // Generate OTP
+            $otp = rand(10000, 99999);
+
+            // Send OTP
+            $smsService = new ElitbuzzSmsService();
+            $sent = $smsService->registration($phone, ['otp' => $otp]);
+
+
+            if (!$sent) {
+                return response()->json([
+                    'error' => __('Failed to send OTP. Please try again later.'),
+                ], 500);
+            }
+
+            // Create or update user with status = 0
+            User::updateOrCreate(
+                ['phone' => $phone],
+                [
+                    'first_name'   => $request->first_name,
+                    'last_name'    => $request->last_name,
+                    'password'     => bcrypt($request->password),
+                    'otp'          => $otp,
+                    'status'       => 0,
+                    'otp_sent_at'  => now(),
+                ]
+            );
+
             return response()->json([
-                'data' => __('OTP Send Successfully')
+                'data' => __('OTP sent successfully. Please verify to activate your account.'),
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
-                'error' => $e->getMessage()
-            ]);
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 }

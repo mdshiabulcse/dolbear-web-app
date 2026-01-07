@@ -28,6 +28,7 @@ use App\Repositories\Interfaces\Admin\SellerInterface;
 use App\Repositories\Interfaces\Admin\SellerProfileInterface;
 use App\Repositories\Interfaces\Site\ReviewInterface;
 use Carbon\Carbon;
+use http\Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -43,12 +44,13 @@ class ProductController extends Controller
         $this->review = $review;
     }
 
+    public function allAvailableProducts(Request $request)
+    {
+        return ProductResource::collection($this->product->allAvailableProducts());
+    }
+
     public function productDetails(Request $request,$slug, ColorInterface $color, AttributeInterface $attribute): \Illuminate\Http\JsonResponse
     {
-        if($request->referral_code && addon_is_activated('affiliate')) {
-            $referred_by_user = User::where('referral_code', $request->referral_code)->first();
-            $affiliate->processAffiliateStats($referred_by_user,1,0,0,0);
-        }
         try {
             $best_seller                            = 0;
             $product                                = $this->product->productDetails($slug);
@@ -58,6 +60,8 @@ class ProductController extends Controller
             }
 
             $product_colors                         = $color->colorByIds($product->colors);
+            $product_colors                         = $this->priceByColor($product_colors, $product);
+
             $attributes                             = $attribute->attributeByIds(array_keys($product->selected_variants));
 
             $product->video_link                    = $product->video_provider == 'mp4' ? $product->video_url : getVideoId($product->video_provider, $product->video_url);
@@ -127,7 +131,6 @@ class ProductController extends Controller
                     if ($item->image && (@is_file_exists($item->image['image_72x72'], @$item->image['storage']) || @is_file_exists($item->image['image_320x320'], @$item->image['storage'])))
                     {
                         $gallery_images['large'][] =  getFileLink('original_image', @$item->image);
-
                         $gallery_images['small'][] =  getFileLink('72x72', @$item->image);
 
                         $image_no++;
@@ -169,7 +172,8 @@ class ProductController extends Controller
             $product->product_stock             = [
                 'discount_percentage' => $first_stock->discount_percentage,
                 'price'               => $first_stock->price,
-                'current_stock'               => $first_stock->current_stock - $cart_quantity,
+                'current_stock'               => $product->stock->sum('current_stock'),
+//                'current_stock'               => $first_stock->current_stock - $cart_quantity,
                 'sku'               => $first_stock->sku,
                 'special_discount_check'               => $first_stock->special_discount_check,
                 'variant_ids'               => $first_stock->variant_ids,
@@ -184,6 +188,7 @@ class ProductController extends Controller
             $product->is_wholesale              = (bool)$product->is_wholesale;
             $product->has_variant               = (bool)$product->has_variant;
             $product->attribute_selector        = $attribute_selector;
+            $product->current_stock = $product->stock->sum('current_stock');
 
 
             $days = Carbon::now()->diffInDays(Carbon::parse($product->special_discount_end),false);
@@ -234,12 +239,13 @@ class ProductController extends Controller
             ];
 
             $data                   = [
-                'product'           => $product,
+                'product'           =>  $product,
                 'attributes'        => $attributes,
             ];
 
             return response()->json($data);
         } catch (\Exception $e) {
+            info($e);
             return response()->json([
                 'error' =>  $e->getMessage()
             ]);
@@ -313,11 +319,13 @@ class ProductController extends Controller
                 $i++;
             }
 
-            $stock = $attribute->findStock($variant, $request->product_id);
+            $stock = $attribute->firstStock($variant, $request->product_id);
+            $currentStock = $attribute->findStocks($variant, $request->product_id);
             $images = [];
 
             if ($stock) {
                 $images = [
+                    'original'     => @is_file_exists($stock->image['original_image'], $stock->image['storage']) ? @get_media($stock->image['original_image'], $stock->image['storage']) : static_asset('images/default/default-image-original_image.png'),
                     'image_72x72'     => @is_file_exists($stock->image['image_72x72'], $stock->image['storage']) ? @get_media($stock->image['image_72x72'], $stock->image['storage']) : static_asset('images/default/default-image-72x72.png'),
                     'image_320x320'   => @is_file_exists($stock->image['image_320x320'], $stock->image['storage']) ? @get_media($stock->image['image_320x320'], $stock->image['storage']) : static_asset('images/default/default-image-320x320.png')
                 ];
@@ -327,17 +335,17 @@ class ProductController extends Controller
                 ->where('variant',@$stock->name)->sum('quantity');
 
             $data = [
-                'product_stock' => $stock && $stock->current_stock > 0 ?
+                'product_stock' => $stock && $currentStock > 0 ?
                     [
                         'discount_percentage' => $stock->discount_percentage,
                         'price'               => $stock->price,
-                        'current_stock'               => $stock->current_stock - $cart_quantity,
+                        'current_stock'               => $currentStock - $cart_quantity,
                         'sku'               => $stock->sku,
                         'special_discount_check'               => $stock->special_discount_check,
                         'variant_ids'               => $stock->variant_ids,
-                        'name'               => $stock->name,]
+                        'name'               => $stock->name]
                     : '',
-                'msg'           => $stock && $stock->current_stock > 0 ? __('Product Available of this Variant') : __('Stock Out'),
+                'msg'           => $stock && $currentStock > 0 ? __('Product Available of this Variant') : __('Stock Out'),
                 'images'        => $images,
             ];
             return response()->json($data);
@@ -531,6 +539,12 @@ class ProductController extends Controller
         try {
 
             $campaign = $campaign->getBySlug($request->slug);
+            if(!$campaign){
+                return response()->json([
+                    'error' => 'Invalid campaign slug'
+                ]);
+            }
+
             $campaign_products = $this->product->productByCampaign($campaign->id);
             $data = [
                 'products' => $campaign_products,
@@ -593,6 +607,8 @@ class ProductController extends Controller
 
             return response()->json($data);
         } catch (\Exception $e) {
+
+            info($e);
             return response()->json([
                 'error' => $e->getMessage()
             ]);
@@ -683,7 +699,9 @@ class ProductController extends Controller
 
                 if ($page->banner)
                 {
+//                    $page->image_835x200 = @getFileLink('835x200',$page->banner);
                     $page->image_835x200 = @getFileLink('835x200',$page->banner);
+                    $page->original_image = @getFileLink('original_image',$page->banner);
                 }
                 else{
                     $page->image_835x200 = @getFileLink('835x200',settingHelper('category_default_banner')['images']);
@@ -736,5 +754,54 @@ class ProductController extends Controller
                 'error' => $e->getMessage()
             ]);
         }
+    }
+
+    public function productByFeatured()
+    {
+        try {
+            $data = [
+                'products' => ProductResource::collection($this->product->productByFeatured()),
+            ];
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    private function priceByColor($product_colors, $product)
+    {
+        foreach ($product_colors ?? [] as $color)
+        {
+            $product_stock = $product->stock->where('name', $color->name)->where('variant_ids', $color->id)->first();
+            $color['price'] = $product_stock->price ?? $product->price;
+            $color['discount_price'] = $this->getDiscountPrice($product, $color['price']);
+            $color['gallery_large'] = getFileLink('original_image', @$product_stock->image);
+            $color['gallery_small'] = getFileLink('72x72', @$product_stock->image);
+        }
+
+        return $product_colors;
+    }
+
+    public function getDiscountPrice($product, $price)
+    {
+        $percentage = 0;
+        $special_discount = @$product->special_discount;
+        $now = Carbon::now()->format('Y-m-d H:i:s');
+
+        if ($special_discount > 0 && $product->special_discount_start <= $now && @$product->special_discount_end >= $now)
+        {
+            $type = $product->special_discount_type;
+
+            if ($type == 'flat')
+            {
+                $percentage = $price - $special_discount;
+            }
+            else{
+                $percentage = $price - ($price*($special_discount/100));
+            }
+        }
+        return $percentage;
     }
 }

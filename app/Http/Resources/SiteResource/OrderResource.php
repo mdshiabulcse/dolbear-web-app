@@ -10,7 +10,14 @@ class OrderResource extends ResourceCollection
     {
         return [
             'data' => $this->collection->map(function ($data) {
-                $sku_product = $data->product->stock->where('name', $data->variation)->first();
+                $stockCollection = optional($data->product)->stock;
+
+                $sku_product = $stockCollection
+                    ? $stockCollection->where('name', $data->variation)->first()
+                    : null;
+
+//                info($data->product);
+
                 return [
                     'id'                    => $data->id,
                     'product_name'          => substr($data->product->product_name, 0, 21),

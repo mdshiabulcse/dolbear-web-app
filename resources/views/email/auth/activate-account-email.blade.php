@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
@@ -17,7 +18,7 @@
     </style>
     <![endif]-->
 
-@php $color = settingHelper('primary_color'); @endphp
+    @php $color = settingHelper('primary_color'); @endphp
     <style>
         html,
         body {
@@ -29,9 +30,10 @@
             font-size: 14px;
             margin-bottom: 10px;
             line-height: 24px;
-            color:#8094ae;
+            color: #8094ae;
             font-weight: 400;
         }
+
         * {
             -ms-text-size-adjust: 100%;
             -webkit-text-size-adjust: 100%;
@@ -39,11 +41,13 @@
             padding: 0;
             font-family: 'Poppins', sans-serif !important;
         }
+
         table,
         td {
             mso-table-lspace: 0pt !important;
             mso-table-rspace: 0pt !important;
         }
+
         table {
             border-spacing: 0 !important;
             border-collapse: collapse !important;
@@ -54,29 +58,54 @@
         table table table {
             table-layout: auto;
         }
+
         a {
             text-decoration: none;
-            color: {{$color}} !important;
+
+            color: {
+                    {
+                    $color
+                }
+            }
+
+            !important;
             word-break: break-all;
         }
+
         img {
-            -ms-interpolation-mode:bicubic;
+            -ms-interpolation-mode: bicubic;
         }
+
         .email-body {
             width: 96%;
             margin: 0 auto;
             background: #ffffff;
             padding: 10px !important;
         }
+
         .email-heading {
             font-size: 18px;
-            color: {{$color}};
+
+            color: {
+                    {
+                    $color
+                }
+            }
+
+            ;
             font-weight: 600;
             margin: 0;
             line-height: 1.4;
         }
+
         .email-btn {
-            background: {{$color}};
+            background: {
+                    {
+                    $color
+                }
+            }
+
+            ;
             border-radius: 4px;
             color: #ffffff !important;
             display: inline-block;
@@ -88,91 +117,85 @@
             text-transform: uppercase;
             padding: 0 30px;
         }
+
         .email-heading-s2 {
             font-size: 16px;
-            color: {{$color}};
+
+            color: {
+                    {
+                    $color
+                }
+            }
+
+            ;
             font-weight: 600;
             margin: 0;
             text-transform: uppercase;
             margin-bottom: 10px;
         }
+
         .link-block {
             display: block;
         }
+
         p {
             margin-top: 0;
             margin-bottom: 1rem;
         }
+
         .email-note {
             margin: 0;
             font-size: 13px;
             line-height: 22px;
-            color: {{$color}};
+
+            color: {
+                    {
+                    $color
+                }
+            }
+
+            ;
         }
     </style>
 </head>
 
 <body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #f5f6fa;">
-<center style="width: 100%; background-color: #f5f6fa;">
-    <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#f5f6fa">
-        <tr>
-            <td style="padding: 40px 0;">
-                <table style="width:100%;max-width:620px;margin:0 auto;">
-                    <tbody>
-                    <tr>
-                        @php
-                            $logo = settingHelper('invoice_logo');
-                        @endphp
-                        <td style="text-align: center; padding-bottom:25px">
-                            <a href="{{ url('/') }}">
-                                <img src="{{($logo != [] && @is_file_exists($logo['image_118x45'])) ? static_asset($logo['image_118x45']) : static_asset('images/default/dark-logo.png') }}" alt="Logo">
-                            </a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                <table style="width:100%;max-width:620px;margin:0 auto;background-color:#ffffff;">
-                    <tbody class="email-body">
-                    <tr>
-                        <td style="text-align: center; padding: 50px 30px 10px 30px;">
-                            <h2 class="email-heading">{{ __('Confirm Your Email Address') }}</h2>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 15px 30px">
-                            <p>{{__('hi')}} {{ $content->first_name .' '.$content->last_name }},</p>
-                            <p>{{ __('Welcome to ').settingHelper('system_name',App::getLocale()) }}</p>
-                            <a href="{{ $url }}" class="email-btn">{{ __('verify_email') }}</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 5px 30px;">
-                            <h4 class="email-heading-s2">or</h4>
-                            <p>{{ __('If button does not work, Just copy bellow URL then paste to your browser address bar.') }}</p>
-                            <a href="{{ $url }}" class="link-block">{{ $url }}</a>
-                        </td>
-                    </tr>
-                    @if(!blank(settingHelper('mail_signature') || settingHelper('mail_signature') != ''))
-                        <tr>
-                            <td style="text-align:left;padding: 20px 30px 40px">
-                                {!! settingHelper('mail_signature') !!}
-                            </td>
-                        </tr>
-                    @endif
-                    </tbody>
-                </table>
-                <table style="width:100%;max-width:620px;margin:0 auto;">
-                    <tbody>
-                    <tr>
-                        <td style="text-align: center; padding:25px 20px 0;">
-                            <p style="font-size: 13px;">{{ settingHelper('copyright') }}</p>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </td>
-        </tr>
-    </table>
-</center>
+    <center style="width: 100%; background-color: #f5f6fa;">
+        <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#f5f6fa">
+            <tr>
+                <td style="padding: 40px 0;">
+                    <table style="width:100%;max-width:620px;margin:0 auto;">
+                        <tbody>
+                            <tr>
+                                @php
+                                $logo = settingHelper('invoice_logo');
+                                @endphp
+                                <td style="text-align: center; padding-bottom:25px">
+                                    <div style="background-color: black; margin-bottom: 30px; padding: 10px 0;">
+                                        <a href="{{ url('/') }}">
+                                            <img src="{{($logo != [] && @is_file_exists($logo['image_118x45'])) ? static_asset($logo['image_118x45']) : static_asset('images/default/logo.png') }}" alt="Logo">
+                                        </a>
+                                    </div>
+                                    <div style="font-size: 30px; text-transform: capitalized; color: black; font-weight: 700; margin-bottom: 20px; ">{{ __('Confirm Your Email Address') }}</div>
+                                    <div style="font-size: 23px; color: black; font-weight: 500; margin-bottom: 10px;">{{__('hi')}} {{ $content->first_name .' '.$content->last_name }},</div>
+                                    <div style=" font-size: 20px; color: black; margin-bottom: 10px;">{{ __('Welcome to ').settingHelper('system_name',App::getLocale()) }}</div>
+                                    <div style="margin: auto; width: 200px; height: 35px; background-color: black; color: white; font-size: 20px; line-height: 35px; border-radius: 5px; cursor: pointer; margin-bottom: 15px; ">
+                                        <a href="{{ $url }}" style="color: white;">{{ __('verify_email') }}</a>
+                                    </div>
+                                    <div style="font-size: 20px; color: black; margin-bottom: 10px;">OR</div>
+                                    <div style="color: black; font-size: 20px; margin-bottom: 15px;">If button does not work, Just copy bellow URL then paste to your browser address bar.</div>
+                                    <div style="color: black; font-size: 15px; margin-bottom: 30px; word-break: break-all;">{{ $url }}</div>
+                                    <div style="color: black; font-size: 20px; margin-bottom: 10px;">Think Tech, Think Dolbear</div>
+                                    <div style="color: black; font-size: 16px;">{{ settingHelper('copyright') }}</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </td>
+            </tr>
+        </table>
+    </center>
 </body>
+
 </html>

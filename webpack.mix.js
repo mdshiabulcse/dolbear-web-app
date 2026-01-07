@@ -1,5 +1,6 @@
 const mix = require('laravel-mix');
 const CompressionPlugin = require("compression-webpack-plugin");
+const webpack = require('webpack');  // Add this import
 
 let css_plugin = 'public/frontend/css/';
 let js_plugin = 'public/frontend/js/';
@@ -23,19 +24,46 @@ mix.js('resources/js/app.js', 'public/frontend/js')
         publicPath: 'auto',
     },
     plugins: [
-        // new BundleAnalyzerPlugin(),      // load this package to see which plugins with its size detail
-        new CompressionPlugin({             // very import to compress the assets
+        new CompressionPlugin({
             filename: "[path][base].gz",
             algorithm: "gzip",
             test: /\.js$|\.css$|\.html$|\.svg$/,
             threshold: 10240,
             minRatio: 0.8
+        }),
+        new webpack.ProvidePlugin({
+            process: 'process/browser',
+            Buffer: ['buffer', 'Buffer']
         })
-    ]
+    ],
+    resolve: {
+        extensions: [".wasm", ".mjs", ".js", ".jsx", ".json", ".vue"],
+        fallback: {
+            "path": false,
+            "crypto": false,
+            "stream": false,
+            "assert": false,
+            "buffer": false,
+            "util": false,
+            "os": false,
+            "https": false,
+            "zlib": false,
+            fs: false,
+            http: false,
+            worker_threads: false,
+            vm: false,
+            querystring: false,
+            constants: false,
+            child_process: false,
+            inspector: false,
+            "tty": false,
+            "@swc/core": false,
+            "esbuild": false
+        }
+    }
 });
 
 mix.js('resources/js/admin.js', 'public/admin/js/app.js').vue();
-
 
 mix.version();
 mix.disableNotifications();

@@ -57,7 +57,8 @@
                                         <th>#</th>
                                         <th>{{ __('Name') }}</th>
                                         <th>{{ __('Phone') }}</th>
-                                        <th>{{ __('Current Balance') }}</th>
+                                        {{-- <th>{{ __('Current Balance') }}</th> --}}
+{{--                                        <th>Purchase Points</th>--}}
                                         <th>{{ __('Last Login') }}</th>
                                         <th>{{ __('Status') }}</th>
                                         @if (hasPermission('customer_update') || hasPermission('customer_delete'))
@@ -82,16 +83,16 @@
                                                         </figure>
                                                         <div class="ml-1">
                                                             {{ $user->first_name . ' ' . $user->last_name }}<br/>
-                                                            <i class='bx bx-check-circle
-                                                            {{ \Cartalyst\Sentinel\Laravel\Facades\Activation::completed($user) == true ? "text-success" : "text-warning" }} '>
-                                                            </i>
-                                                            {{ config('app.demo_mode') ? emailAddressMask($user->email) : $user->email }}
+{{--                                                            <i class='bx bx-check-circle--}}
+{{--                                                            {{ \Cartalyst\Sentinel\Laravel\Facades\Activation::completed($user) == true ? "text-success" : "text-warning" }} '>--}}
+{{--                                                            </i>--}}
+{{--                                                            {{ config('app.demo_mode') ? emailAddressMask($user->email) : $user->email }}--}}
                                                         </div>
                                                     </div>
                                                 </a>
                                             </td>
                                             <td> {{ config('app.demo_mode') ? Str::of($user->phone)->mask('*', 0, strlen($user->phone)-3) : @$user->phone }}</td>
-                                            <td>{{ get_price($user->balance) }}</td>
+{{--                                            <td>{{ $user->point }}</td>--}}
                                             <td>{{ $user->last_login != '' ? date('M d, Y h:i a', strtotime($user->last_login)) : '' }}</td>
                                             <td>
                                                 @if($user->is_user_banned == 1)

@@ -34,7 +34,7 @@ class SubscriberRepository implements SubscriberInterface
         DB::beginTransaction();
         try {
             $subscriber = new Subscriber();
-            $subscriber->email        = $request;
+            $subscriber->email        = $request->email;
             $subscriber->save();
 
             DB::commit();

@@ -116,7 +116,7 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" style="display: none; ">
                                     <label for="commission">{{ __('Commission Rate') }}</label>
                                     <input id="commission" type="number" class="form-control" step="any"
                                         name="commission"
@@ -201,7 +201,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="logo">{{ __('Banner') }} ({{ __('835*200') }})</label>
+                                    <label for="logo">{{ __('Banner') }} (1266*188)</label>
                                     <div class="form-group">
                                         <div class="input-group gallery-modal" id="btnSubmit" data-for="image"
                                             data-selection="single" data-target="#galleryModal" data-dismiss="modal">

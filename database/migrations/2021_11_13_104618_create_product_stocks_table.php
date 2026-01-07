@@ -26,20 +26,21 @@ class CreateProductStocksTable extends Migration
             $table->timestamps();
         });
 
-        $now = now();
+        // $now = now();
 
-        \App\Models\ProductStock::insert([
-            'variant_ids' => NULL,
-            'product_id' => 1,
-            'name' => '',
-            'sku' => 'Q59GQLJDJY9YKOQP',
-            'current_stock' => 200,
-            'price' => 9,
-            'image' => '[]',
-            'image_id' => NULL,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        // \App\Models\ProductStock::insert([
+        //     'variant_ids' => NULL,
+        //     'product_id' => 1,
+        //     'name' => '',
+        //     'sku' => 'Q59GQLJDJY9YKOQP',
+        //     'current_stock' => 200,
+        //     'price' => 9,
+        //     'image' => '[]',
+        //     'image_id' => NULL,
+        //     'created_at' => $now,
+        //     'updated_at' => $now,
+        //     'store_id' => 1,
+        // ]);
     }
 
     /**

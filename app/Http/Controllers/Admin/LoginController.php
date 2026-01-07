@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Cart;
 use App\Models\CompareProduct;
+use App\Models\DeliveryAddress;
 use App\Models\LogActivity as LogActivityModel;
 use App\Models\User;
+use App\Repositories\Erp\CustomerRepository;
 use App\Repositories\Interfaces\Admin\OrderInterface;
 use App\Repositories\Interfaces\Admin\Product\ProductInterface;
 use App\Repositories\Interfaces\Site\CartInterface;
 use App\Repositories\Interfaces\Site\WishlistInterface;
+use App\Services\ElitbuzzSmsService;
 use App\Traits\GetUserBrowser;
 use App\Traits\HomePage;
 use App\Traits\SendMailTrait;
@@ -47,24 +50,17 @@ class LoginController extends Controller
     public function postlogin(Request $request, ProductInterface $product, WishlistInterface $wishlist, CartInterface $cart)
     {
         try {
-            if (settingHelper('is_recaptcha_activated') == 1 && !$request->has('phone') && !$request->captcha) {
-                return response()->json([
-                    'captcha' => __('Recaptcha Verification is Required')
-                ]);
-            }
             $phone = '';
-            $user = null;
 
             if($request->phone):
                 $phone = str_replace(' ','',$request->phone);
             endif;
-            if ($request->has('email') && $request->email != ''):
-                $user = User::where('email', $request->email)->first();
-            elseif ($request->has('phone') && $phone != ''):
-                $user = User::where('phone', $phone)->first();
-            endif;
 
-            if (blank($user)):
+            $phone = preg_replace('/^(?:\+88|88)/', '', $phone);
+
+            $user = User::where('phone', $phone)->first();
+
+            if (!$user):
                 return response()->json([
                     'error' => __('User Not found')
                 ]);
@@ -72,7 +68,7 @@ class LoginController extends Controller
 
             if ($user->status == 0):
                 return response()->json([
-                    'error' => __('You Are not Activated Yet')
+                    'error' => __('You Are not Verified Yet')
                 ]);
             endif;
 
@@ -88,43 +84,6 @@ class LoginController extends Controller
                 ]);
             endif;
 
-            if ($user->user_type == 'seller'):
-                if (empty($user->sellerProfile->verified_at)):
-                    if (request()->ajax())
-                    {
-                        return response()->json([
-                            'error' => __('Registration is successful, Wait for the Approval')
-                        ]);
-                    }
-                    else{
-                        Toastr::error(__('Please Verify Your Mail First'));
-                        return back()->withInput();
-                    }
-
-                endif;
-
-                if (settingHelper('seller_system') != 1):
-                    if (request()->ajax())
-                    {
-                        return response()->json([
-                            'error' => __('You Are Not Allowed to Login')
-                        ]);
-                    }
-                    else {
-                        Toastr::error(__('You Are Not Allowed to Login'));
-                        return back()->withInput();
-                    }
-                endif;
-            endif;
-
-            if ($request->has('otp') && settingHelper('disable_otp_verification') != 1):
-                if ($user->otp != $request->otp):
-                    return response()->json([
-                        'error' => __("OTP did not match. Please provide correct OTP")
-                    ]);
-                endif;
-            endif;
-
             if ($user->status == 0):
                 return response()->json([
                     'error' => __('Your account status is inactive')
@@ -135,14 +94,12 @@ class LoginController extends Controller
                 ]);
             endif;
 
-            if ($request->has('email')):
-                if (!Hash::check($request->get('password'), $user->password)):
-                    return response()->json([
-                        'error' => __('Invalid Credentials')
-                    ]);
-                endif;
-                $credentials = ['email' => $request->email, 'password' => $request->password];
+            if (!Hash::check($request->get('password'), $user->password)):
+                return response()->json([
+                    'error' => __('Invalid Credentials')
+                ]);
             endif;
+            $credentials = ['email' => $request->email, 'password' => $request->password];
 
             $remember_me = $request->remember == 1 ? 1 : 0;
             try {
@@ -279,6 +236,27 @@ class LoginController extends Controller
     {
         $user       = User::whereEmail($email)->first();
         if (Activation::complete($user, $activationCode)) :
+
+            $res = app(CustomerRepository::class)->store([
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+            ]);
+
+            if(isset($res['data']['name'])){
+                $user->code = $res['data']['name'];
+                $user->save();
+            }
+
+            $delivery_address = [
+                'name' => $user->first_name,
+                'phone_no' => $user->last_name,
+                'email' => $user->email
+            ];
+
+            DeliveryAddress::create($delivery_address);
+
             $this->sendmail($user->email, 'Verify Email', $user, 'email.auth.activate-account-email','');
 //            sendMail($user, '', 'verify_email_success', '');
             Toastr::success(__('Your account is active now.'));
@@ -327,33 +305,22 @@ class LoginController extends Controller
                 ]);
             endif;
 
-            $sms_templates  = AppSettingUtility::smsTemplates();
+            // Instantiate the service
+            $smsService = new ElitbuzzSmsService();
 
-            $sms_template   = $sms_templates->where('tab_key','login')->first();
-            $otp            = rand(10000,99999);
-            $sms_body       = str_replace('{otp}', $otp, $sms_template->sms_body);
-            if (addon_is_activated('otp_system')):
-                $query = $this->send($request->phone, $sms_body, @$sms_template->template_id);
-                if (is_string($query))
-                {
-                    return response()->json([
-                        'error' => __('Something went wrong')
-                    ]);
-                }
-                if ($query):
-                    $user->otp  = $otp;
-                    $user->save();
-                    return response()->json([
-                        'success' => __('Otp send successfully'),
-                    ]);
-                else:
-                    return response()->json([
-                        'error' => __('Unable to send otp')
-                    ]);
-                endif;
+            // Send SMS
+            $otp = rand(10000,99999);
+            $query = $smsService->login($request->phone, ['otp' => $otp]);
+
+            if ($query):
+                $user->otp  = $otp;
+                $user->save();
+                return response()->json([
+                    'success' => __('Otp send successfully'),
+                ]);
             else:
                 return response()->json([
-                    'error'     => __('Service is unavailable')
+                    'error' => __('Unable to send otp')
                 ]);
             endif;
         } catch (\Exception $e){

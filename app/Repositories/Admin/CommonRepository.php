@@ -1,35 +1,39 @@
 <?php
 
 namespace App\Repositories\Admin;
-use App\Models\Cart;
-use App\Models\CompareProduct;
-use App\Models\CouponLanguage;
-use App\Models\DeliveryHero;
-use App\Models\OfflineMethodLanguage;
-use App\Models\PageLanguage;
-use App\Models\ServiceLanguage;
-use App\Models\VideoShoppingLanguage;
-use App\Models\Wishlist;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
+use Sentinel;
 use App\Models\Blog;
+use App\Models\Cart;
 use App\Models\User;
+use App\Models\Store;
 use App\Models\Product;
+use App\Models\Wishlist;
 use App\Models\PickupHub;
 use App\Traits\ImageTrait;
 use App\Models\OrderDetail;
+use App\Models\DeliveryHero;
+use App\Models\PageLanguage;
+use App\Models\PointSetting;
+use App\Models\ProductStock;
 use App\Models\BrandLanguage;
+use App\Models\CompareProduct;
+use App\Models\CouponLanguage;
 use App\Models\CampaignProduct;
+use App\Models\ServiceLanguage;
 use App\Models\AppIntroLanguage;
 use App\Models\CampaignLanguage;
 use App\Models\CategoryLanguage;
 use App\Models\PickupHubLanguage;
 use App\Models\SupportDepartment;
+use Illuminate\Support\Facades\DB;
 use App\Models\BlogCategoryLanguage;
+use App\Models\OfflineMethodLanguage;
+use App\Models\PopupAd;
+use App\Models\VideoShoppingLanguage;
+use Illuminate\Support\Facades\Artisan;
 use App\Models\SupportDepartmentLanguages;
 use App\Repositories\Interfaces\UserInterface;
 use App\Repositories\Interfaces\Admin\CommonInterface;
-use Sentinel;
 
 class CommonRepository implements CommonInterface{
     use ImageTrait;
@@ -58,6 +62,15 @@ class CommonRepository implements CommonInterface{
             elseif($table == 'brands'):
                 BrandLanguage::where('brand_id',$id)->delete();
                 DB::table($table)->delete($id);
+            elseif($table == 'stores'):
+                $store = Store::query()->find($id);
+
+                if ($store->productStocks()->exists()) {
+                    return "stock";
+                }
+
+                $store->delete();
+
             elseif($table == 'categories'):
                 CategoryLanguage::where('category_id',$id)->delete();
                 DB::table($table)->delete($id);
@@ -81,9 +94,10 @@ class CommonRepository implements CommonInterface{
                 Wishlist::where('product_id',$id)->delete();
                 CompareProduct::where('product_id',$id)->delete();
                 Cart::where('product_id',$id)->delete();
-                if($product->status == 'trash'):
-//                    ProductLanguage::where('product_id',$id)->delete();
-//                    ProductStock::where('product_id',$id)->delete();
+
+//                if($product->status == 'trash'):
+                //    Product::where('product_id',$id)->delete();
+                   ProductStock::where('product_id',$id)->delete();
                     CampaignProduct::where('product_id',$id)->delete();
 
                     $product->is_deleted = 1;
@@ -96,12 +110,12 @@ class CommonRepository implements CommonInterface{
                     }
 
                     $product->save();
-//                    $product->forceDelete();
-                else:
-                    $product->status = 'trash';
-                    $product->save();
-                    Product::find($id)->delete();
-                endif;
+                   $product->forceDelete();
+//                else:
+//                    $product->status = 'trash';
+//                    $product->save();
+//                    Product::find($id)->delete();
+//                endif;
             elseif($table == 'campaigns'):
                 CampaignLanguage::where('campaign_id',$id)->delete();
                 $campaign_products = CampaignProduct::where('campaign_id', $id)->get();
@@ -154,6 +168,10 @@ class CommonRepository implements CommonInterface{
                 DB::table($table)->delete($id);
                 cache()->flush();
                 Artisan::call('optimize:clear');
+            // point settings
+            elseif($table ==  'point_settings'):
+                PointSetting::where('id',$id)->delete();
+                DB::table($table)->delete($id);
             else:
                 DB::table($table)->delete($id);
             endif;

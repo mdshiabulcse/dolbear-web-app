@@ -31,10 +31,10 @@
 									{{ product.product_name }}
 								</a>
 							</h1>
-							<div class="sg-rating" v-if="!addons.includes('ishopet')">
-								<star-rating v-model:rating="product.rating" :read-only="true" :star-size="12" :round-start-rating="false"></star-rating>
-								<span class="reviews" v-if="product.reviews_count > 0">({{ product.reviews_count }} {{ lang.reviews }})</span>
-							</div>
+<!--							<div class="sg-rating" v-if="!addons.includes('ishopet')">-->
+<!--								<star-rating v-model:rating="product.rating" :read-only="true" :star-size="12" :round-start-rating="false"></star-rating>-->
+<!--								<span class="reviews" v-if="product.reviews_count > 0">({{ product.reviews_count }} {{ lang.reviews }})</span>-->
+<!--							</div>-->
 						</div>
 						<div class="icons">
 							<ul class="global-list">
@@ -44,22 +44,22 @@
 										<span class="mdi mdi-name mdi-shopping-outline"></span> <span class="btn_text">{{lang.add_o_cart}}</span>
 									</a>
 								</li>
-								<li v-if="authUser && $store.getters.isThisWishlisted(product.id)"
-									><a href="javaScript:void(0)" @click="removeWishlist(product.id)"><span class="mdi mdi-name mdi-heart"></span></a
-								></li>
-								<li v-else-if="authUser"
-									><a href="javaScript:void(0)" :class="{ disable_btn: is_disabled == true }" @click="addToWishlist(product.id)"><span class="mdi mdi-name mdi-heart-outline"></span></a
-								></li>
+<!--								<li v-if="authUser && $store.getters.isThisWishlisted(product.id)"-->
+<!--									><a href="javaScript:void(0)" @click="removeWishlist(product.id)"><span class="mdi mdi-name mdi-heart"></span></a-->
+<!--								></li>-->
+<!--								<li v-else-if="authUser"-->
+<!--									><a href="javaScript:void(0)" :class="{ disable_btn: is_disabled == true }" @click="addToWishlist(product.id)"><span class="mdi mdi-name mdi-heart-outline"></span></a-->
+<!--								></li>-->
 
-								<li v-if="compareCheck(product)"
-									><a class="active_compare" :class="{ disable_btn: is_disabled == true }" @click="removeCompare(product.id)" href="javaScript:void(0)"><span class="mdi mdi-name mdi-scale-balance"></span></a
-								></li>
-								<li v-else
-									><a @click="addToCompare(product)" :class="{ disable_btn: is_disabled == true }" href="javaScript:void(0)"><span class="mdi mdi-name mdi-scale-balance"></span></a
-								></li>
-								<li
-									><a href="javaScript:void(0)" @click="productFetch(product.slug)"><span class="mdi mdi-name mdi-magnify"></span></a
-								></li>
+<!--								<li v-if="compareCheck(product)"-->
+<!--									><a class="active_compare" :class="{ disable_btn: is_disabled == true }" @click="removeCompare(product.id)" href="javaScript:void(0)"><span class="mdi mdi-name mdi-scale-balance"></span></a-->
+<!--								></li>-->
+<!--								<li v-else-->
+<!--									><a @click="addToCompare(product)" :class="{ disable_btn: is_disabled == true }" href="javaScript:void(0)"><span class="mdi mdi-name mdi-scale-balance"></span></a-->
+<!--								></li>-->
+<!--								<li-->
+<!--									><a href="javaScript:void(0)" @click="productFetch(product.slug)"><span class="mdi mdi-name mdi-magnify"></span></a-->
+<!--								></li>-->
 							</ul>
 						</div>
 					</div>
@@ -70,7 +70,7 @@
 </template>
 
 <script>
-import StarRating from "vue-star-rating";
+import StarRating from "../partials/StarRating.vue";
 import FlipCountdown from "vue2-flip-countdown";
 import shimmer from "../partials/shimmer";
 import detailsView from "../partials/details-view";

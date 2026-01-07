@@ -28,7 +28,7 @@ class Category extends Model
 
     public function childCategories()
     {
-        return $this->hasMany(Category::class, 'parent_id')->with('childCategories');
+        return $this->hasMany(Category::class, 'parent_id');
     }
 
     public function categoryLanguage(): \Illuminate\Database\Eloquent\Relations\HasMany

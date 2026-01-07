@@ -72,6 +72,20 @@ class AddressController extends Controller
         }
     }
 
+    public function divisions(ShippingInterface $shipping): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $data = [
+                'divisions' => CountryResource::collection($shipping->getAllDivision()),
+            ];
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
     public function getStates($id, ShippingInterface $shipping): \Illuminate\Http\JsonResponse
     {
         try {
@@ -124,6 +138,20 @@ class AddressController extends Controller
                 'success' => __('Address Created Successfully'),
             ];
             return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function deliveryAddress()
+    {
+        try {
+
+            $address =  authUser() ? authUser()->deliveryAddresses : (session()->has('guest_delivery_address') ? session()->get('guest_delivery_address') : []);
+
+            return response()->json($address);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()

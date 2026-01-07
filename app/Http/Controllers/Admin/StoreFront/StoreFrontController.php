@@ -134,6 +134,13 @@ class StoreFrontController extends Controller
         return view('admin.store-front.website-popup', compact('languages', 'lang'));
     }
 
+    public function videoSetting(Request $request)
+    {
+        $languages = $this->languages->all()->orderBy('id', 'asc')->get();
+        $lang = $request->lang == '' ? app()->getLocale() : $request->lang;
+        return view('admin.store-front.video', compact('languages', 'lang'));
+    }
+
 
     //Header content
     public function header(Request $request)
@@ -340,6 +347,7 @@ class StoreFrontController extends Controller
                 return response()->json($response);
             endif;
         endif;
+
         if ($request->has('label')):
             $menu           = array();
             $parent = 0;
@@ -348,13 +356,18 @@ class StoreFrontController extends Controller
                 if ($request['menu_lenght'][$i] == 1):
                     $menu[] = array(
                         'label' => $request['label'][$i],
-                        'url' => $request['url'][$i] == '#' ? 'javascript:void(0)' : (preg_match("/^http/", $request['url'][$i]) ? $request['url'][$i] : ($request['url'][$i][0] == '/' ? $request['url'][$i] : '/'.$request['url'][$i])),
+                        'url' => (preg_match("/^http/", $request['url'][$i])
+                                ? $request['url'][$i]
+                                : ($request['url'][$i][0] == '/' ? $request['url'][$i]
+                                    : '/'.$request['url'][$i]
+                                )),
+//                        'url' => $request['url'][$i] == '#' ? 'javascript:void(0)' : (preg_match("/^http/", $request['url'][$i]) ? $request['url'][$i] : ($request['url'][$i][0] == '/' ? $request['url'][$i] : '/'.$request['url'][$i])),
                     );
                     $parent++;
                 else:
                     $menu[count($menu) -1][] =  array(
                         'label' => $request['label'][$i],
-                        'url' => $request['url'][$i] == '#' ? 'javascript:void(0)' : (preg_match("/^http/", $request['url'][$i]) ? $request['url'][$i] : ($request['url'][$i][0] == '/' ? $request['url'][$i] : '/'.$request['url'][$i])),
+                        'url' => (preg_match("/^http/", $request['url'][$i]) ? $request['url'][$i] : ($request['url'][$i][0] == '/' ? $request['url'][$i] : '/'.$request['url'][$i])),
                     );
                 endif;
 

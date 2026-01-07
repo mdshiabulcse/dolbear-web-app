@@ -67,6 +67,11 @@ class RepositoryServiceProvider extends ServiceProvider{
             'App\Repositories\Admin\Product\ColorRepository'
         );
 
+        $this->app->bind(
+            'App\Repositories\Interfaces\Admin\FlashMessageInterface',
+            'App\Repositories\Admin\FlashMessageRepository'
+        );
+
         //Media management
         $this->app->bind(
             'App\Repositories\Interfaces\Admin\MediaInterface',
@@ -216,6 +221,18 @@ class RepositoryServiceProvider extends ServiceProvider{
             'App\Repositories\Admin\OrderRepository'
         );
 
+        //point setting
+        $this->app->bind(
+            'App\Repositories\Interfaces\Admin\PointSettingInterface',
+            'App\Repositories\Admin\PointSettingRepository'
+        );
+
+        //Store
+        $this->app->bind(
+            'App\Repositories\Interfaces\Admin\StoreInterface',
+            'App\Repositories\Admin\StoreRepository'
+        );
+
         //pickup hub
         $this->app->bind(
             'App\Repositories\Interfaces\Admin\Order\PickupHubInterface',
@@ -262,6 +279,11 @@ class RepositoryServiceProvider extends ServiceProvider{
         $this->app->bind(
             'App\Repositories\Interfaces\Admin\DeliveryHero\DeliveryHeroInterface',
             'App\Repositories\Admin\DeliveryHero\DeliveryHeroRepository'
+        );
+        //pathao courier
+        $this->app->bind(
+            'App\Repositories\Interfaces\Admin\PathaoCourier\PathaoCourierInterface',
+            'App\Repositories\Admin\PathaoCourier\PathaoCourierRepository'
         );
         //pages
         $this->app->bind(
@@ -350,6 +372,12 @@ class RepositoryServiceProvider extends ServiceProvider{
         $this->app->bind(
             'App\Repositories\Interfaces\Admin\FontInterface',
             'App\Repositories\Admin\FontRepository'
+        );
+
+        //Recommended
+        $this->app->bind(
+            'App\Repositories\Interfaces\Admin\Recommended\RecommendedInterface',
+            'App\Repositories\Admin\Recommended\RecommendedRepository'
         );
     }
 }

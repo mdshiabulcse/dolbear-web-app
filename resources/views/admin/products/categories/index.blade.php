@@ -51,10 +51,10 @@
                                             <th>{{ __('#') }}</th>
                                             <th>{{ __('Title') }}</th>
                                             <th>{{ __('Root Category') }}</th>
-                                            <th>{{ __('Order') }}</th>
+                                            {{-- <th>{{ __('Order') }}</th> --}}
                                             <th>{{ __('Thumbnail') }}</th>
                                             <th>{{ __('Banner') }}</th>
-                                            <th>{{ __('Commission') }}</th>
+                                            {{-- <th>{{ __('Commission') }}</th> --}}
                                             <th>{{ __('Featured') }}</th>
                                             <th>{{ __('Status') }}</th>
                                             @if (hasPermission('category_update') || hasPermission('category_delete'))
@@ -78,9 +78,9 @@
                                                         {{ $parent_cat != null ? $parent_cat->getTranslation('title', \App::getLocale()) : '––' }}
                                                     </div>
                                                 </td>
-                                                <td>
-                                                    {{ $category->ordering }}
-                                                </td>
+{{--                                                <td>--}}
+{{--                                                    {{ $category->ordering }}--}}
+{{--                                                </td>--}}
                                                 <td>
                                                     @if (@$category->logo != [] && @is_file_exists(@$category->logo['image_40x40'], $category->logo['storage']))
                                                         <img src="{{ get_media(@$category->logo['image_40x40'], $category->logo['storage']) }}"
@@ -99,7 +99,7 @@
                                                             alt="{{ $title }}" class="mr-3 rounded">
                                                     @endif
                                                 </td>
-                                                <td>{{ $category->commission }} %</td>
+{{--                                                <td>{{ $category->commission }} %</td>--}}
                                                 <td>
                                                     <label
                                                         class="custom-switch mt-2 {{ hasPermission('category_update') ? '' : 'cursor-not-allowed' }}">
@@ -220,7 +220,7 @@
                                             </div>
                                         @endif
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group" style="display: none;">
                                         <label for="commission">{{ __('Commission Rate') }}</label>
                                         <input id="commission" type="number" class="form-control" step="any"
                                             name="commission" value="{{ old('commission') }}"
@@ -304,7 +304,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="logo">{{ __('Banner') }} ({{ __('835*200') }})</label>
+                                        <label for="logo">{{ __('Banner') }} (1266*188)</label>
                                         <div class="form-group">
                                             <div class="input-group gallery-modal" id="btnSubmit" data-for="image"
                                                 data-selection="single" data-target="#galleryModal" data-dismiss="modal">

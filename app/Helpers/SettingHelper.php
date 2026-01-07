@@ -10,11 +10,17 @@ if (!function_exists('settingHelper')) {
             $settings = AppSettingUtility::settings();
             if (!blank($title)):
                 if (in_array($title, get_yrsetting('setting_array')) || in_array($title, get_yrsetting('setting_image'))):
+                    
+                    
+
                     $data = $settings->where('title', $title)->first();
+
+                    
                     if (!blank($data)):
                         return $data->value ? unserialize($data->value) : [];
                     endif;
                 else:
+
                     if (in_array($title, get_yrsetting('setting_by_lang'))) :
                         $data = $settings->where('title', $title)->where('lang', $lang)->first();
 

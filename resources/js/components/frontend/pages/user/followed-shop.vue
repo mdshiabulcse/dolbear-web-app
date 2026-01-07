@@ -57,7 +57,7 @@
 <script>
 import user_sidebar from "../../partials/user_sidebar";
 import shimmer from "../../partials/shimmer";
-import StarRating from "vue-star-rating";
+import StarRating from "../../partials/StarRating.vue";
 import seller from "../../partials/seller";
 
 export default {

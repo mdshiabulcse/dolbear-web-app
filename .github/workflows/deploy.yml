@@ -1,0 +1,42 @@
+name: Deploy Project X Test
+
+on:
+  push:
+    branches:
+      - final_v_2.0.1
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
+
+    steps:
+      # Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Set up Node.js 16
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'  # Use Node.js version 16
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install  # This installs dependencies from package.json
+
+      # Copy environment variables from .env.testing to .env.production
+      - name: Copy .env.production to .env
+        run: cp .env.production .env
+
+      # Build the Vue.js project
+      - name: Build
+        run: npm run production
+
+      - name: Deploy to FTP server
+        uses: SamKirkland/FTP-Deploy-Action@4.3.2
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./public/  # Local directory to deploy (usually the `dist` folder after build)
+          server-dir: ./public/

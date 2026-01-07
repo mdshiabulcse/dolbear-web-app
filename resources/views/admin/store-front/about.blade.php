@@ -72,7 +72,7 @@
                                             </div>
                                             <div class="form-group row mb-12">
                                                 <div class="col-sm-12 col-md-12">
-                                                    <textarea name="about_description" class="summernote" id="about_description" placeholder="{{__('About Description')}}">{{old('about_description') ? old('about_description') : settingHelper('about_description', App::getLocale())}}</textarea>
+                                                    <textarea name="about_description" class="form-control summernote"  id="about_description" placeholder="{{__('About Description')}}">{{old('about_description') ? old('about_description') : settingHelper('about_description', App::getLocale())}}</textarea>
                                                 </div>
                                             </div>
                                         </div>

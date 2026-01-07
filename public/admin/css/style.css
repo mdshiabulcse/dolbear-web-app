@@ -5370,3 +5370,7 @@ span.badge.custom-badge::after {
     height: 400px;
 }
 /* Payment Method Modal Style END======= */
+
+.container-min-height{
+    min-height: 50vh;
+}

@@ -8,11 +8,11 @@ use Cartalyst\Sentinel\Laravel\Facades\Reminder;
 trait ResetPasswordTrait
 {
 
-    public function resetPassword($email, $resetCode)
+    public function resetPassword($phone, $otp)
     {
-        $user = User::byEmail($email);
-        $reminder = Reminder::exists($user, $resetCode);
-        if (!$reminder) {
+        $user = User::where('phone', $phone)->first();
+
+        if ($user->otp !== $otp) {
             return redirect()->route('login');
         }
     }

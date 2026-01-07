@@ -1,0 +1,3 @@
+- column for users table - otp_sent - timestamp
+- php artisan queue:table
+- erp_code for delivery_address

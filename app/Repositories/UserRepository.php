@@ -2,8 +2,13 @@
 
 namespace App\Repositories;
 
+use App\Models\City;
+use App\Models\DeliveryAddress;
+use App\Models\Division;
 use App\Models\Language;
+use App\Models\State;
 use App\Models\User;
+use App\Repositories\Erp\CustomerRepository;
 use App\Repositories\Interfaces\UserInterface;
 use App\Traits\ImageTrait;
 use App\Traits\SendMailTrait;
@@ -51,9 +56,10 @@ class UserRepository implements UserInterface
         }
 
         $user = new User();
+        $user->code           = $request->code;
         $user->first_name   = $request->first_name;
         $user->last_name    = $request->last_name;
-        $user->email        = $request->email;
+//        $user->email        = $request->email;
         $user->phone        = $request->phone;
         $user->gender       = $request->gender;
         $user->password     = bcrypt($request->password);
@@ -61,6 +67,23 @@ class UserRepository implements UserInterface
         $user->images       = $image_response['images'] ?? [];
         $user->country_id   = $request->country_id;
         $user->save();
+
+        if(empty($request->code)){
+            $res = app(CustomerRepository::class)->store($request->validated());
+        }
+
+        if(isset($res['data']['name'])){
+            $user->code = $res['data']['name'];
+            $user->save();
+        }
+
+        $delivery_address = [
+            'name' => $request->first_name,
+            'phone_no' => $request->phone,
+            'email' => $request->email ?? ''
+        ];
+
+        DeliveryAddress::create($delivery_address);
 
         $activation = Activation::create($user);
         if(settingHelper('disable_email_confirmation') == 1)
@@ -92,9 +115,10 @@ class UserRepository implements UserInterface
             $user->images   = $image_response['images'];
         }
 
+        $user->code           = $request->code;
         $user->first_name           = $request->first_name;
         $user->last_name            = $request->last_name;
-        $user->email                = $request->email;
+//        $user->email                = $request->email;
         $user->phone                = $request->phone;
         $user->gender               = $request->gender;
         $user->date_of_birth        = $request->date_of_birth;
@@ -118,31 +142,43 @@ class UserRepository implements UserInterface
     public function emailVerify($user_id)
     {
         DB::beginTransaction();
+
         try {
             $user = User::find($user_id);
-            if(Activation::completed($user) == true):
+
+            if (!$user) {
+                Toastr::error(__('User not found'));
+                return false;
+            }
+
+            if (Activation::completed($user)) {
+
                 Activation::remove($user);
-                Toastr::success(__('User Email Inactivated'));
-            else:
-                 $activation = Activation::exists($user);
 
-                if($activation):
-                    Activation::remove($user);
-                    $activationCreate = Activation::create($user);
-                    Activation::complete($user, $activationCreate->code);
-                else:
-                    $activationCreate = Activation::create($user);
-                    Activation::complete($user, $activationCreate->code);
-                endif;
+                $user->status = 0;
+                $user->save();
 
-                Toastr::success(__('User Email Activated'));
+                Toastr::success(__('User Email Deactivated Successfully'));
+            }
+            else {
 
-            endif;
+                Activation::remove($user);
+
+                $activation = Activation::create($user);
+                Activation::complete($user, $activation->code);
+
+                $user->status = 1;
+                $user->save();
+
+                Toastr::success(__('User Email Activated Successfully'));
+            }
+
             DB::commit();
             return true;
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::rollBack();
             Toastr::error(__('Something went wrong, please try again'));
+            \Log::error("Email Verify Error: " . $e->getMessage());
             return false;
         }
     }

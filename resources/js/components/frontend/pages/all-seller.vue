@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import StarRating from "vue-star-rating";
+import StarRating from "../partials/StarRating.vue";
 import seller from "../partials/seller";
 
 export default {

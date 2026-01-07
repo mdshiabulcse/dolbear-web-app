@@ -50,6 +50,13 @@
                                         <input type="text" class="form-control" name="popup_title" id="popup_title" placeholder="{{__('PopUp Title')}}" value="{{ old('popup_title') ? old('popup_title') : settingHelper('popup_title', $lang) }}">
                                         <input type="hidden" value="{{ $lang }}" name="site_lang">
                                     </div>
+
+                                    <div class="form-group">
+                                        <label for="popup_title">URL</label>
+                                        <input type="url" class="form-control" name="popup_url" id="popup_url" placeholder="https://dolbear.tech/" value="{{ old('popup_url') ? old('popup_url') : settingHelper('popup_url', $lang) }}">
+                                        <input type="hidden" value="{{ $lang }}" name="site_lang">
+                                    </div>
+
                                     <div class="form-group">
                                         <label for="popup_image">{{ __('PopUp Image') }}</label>
                                         <div class="form-group">

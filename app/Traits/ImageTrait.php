@@ -716,7 +716,7 @@ trait ImageTrait
         return false;
     }
 
-    public function getImageWithRecommendedSize($id, $width = 40, $height = 40, $slider = false, $avater = false)
+    public function getImageWithRecommendedSize($id, $width = 40, $height = 40, $slider = false, $avater = false) //old
     {
         $image = Media::find($id);
 
@@ -730,22 +730,21 @@ trait ImageTrait
                 $url = $directory . $size;
                 if ($image->storage == 'local'):
 
-                    if (!$slider):
-
-                        
+                    if (app()->environment('production')) {
+                        $imagePath = public_path($image->original_file);
+                    } else {
                         $imagePath = "/public/" . $image->original_file;
                         $imagePath = public_path($imagePath);
+                    }
 
+
+                    if (!$slider):
 
                         Image::make($imagePath)->resize($width, $height, function ($constraint) {
                             $constraint->aspectRatio();
                         }, true)->resizeCanvas($width, $height, 'center', false, 'rgba(255, 255, 255, 0.00)')->save('public/' . $url, $this->getEncodePercentage(), 'webp');
                     else:
 
-
-                        $imagePath = "/public/" . $image->original_file;
-                        $imagePath = public_path($imagePath);
-                        
                         Image::make($imagePath)->resize($width, $height,
                             function ($constraint) {
                                 $constraint->aspectRatio();

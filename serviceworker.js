@@ -1,15 +1,15 @@
 var staticCacheName = "pwa-v" + new Date().getTime();
 var filesToCache = [
-    'public/frontend/css/app.css',
-    'public/frontend/js/app.js',
-    'public/images/ico/favicon-72x72.png',
-    'public/images/ico/favicon-96x96.png',
-    'public/images/ico/favicon-128x128.png',
-    'images/ico/favicon-144x144.png',
-    'public/images/ico/favicon-152x152.png',
-    'public/images/ico/favicon-192x192.png',
-    'public/images/ico/favicon-384x384.png',
-    'public/images/ico/favicon-512x512.png',
+    '/frontend/css/app.css',
+    '/frontend/js/app.js',
+    '/images/ico/favicon-72x72.png',
+    '/images/ico/favicon-96x96.png',
+    '/images/ico/favicon-128x128.png',
+    '/images/ico/favicon-144x144.png',
+    '/images/ico/favicon-152x152.png',
+    '/images/ico/favicon-192x192.png',
+    '/images/ico/favicon-384x384.png',
+    '/images/ico/favicon-512x512.png',
 ];
 
 // Cache on install

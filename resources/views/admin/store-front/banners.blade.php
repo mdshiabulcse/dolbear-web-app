@@ -89,41 +89,41 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        @if(settingHelper('seller_system') == 1)
-                                            <div class="form-group">
-                                            <label for="logo">{{ __('Seller SingUp Banner') }} {{__('(320x852)')}}</label>
-                                            <div class="form-group">
-                                                <div class="input-group gallery-modal" id="btnSubmit"  data-for="image" data-selection="single"
-                                                     data-target="#galleryModal" data-dismiss="modal">
-                                                    <input type="hidden" name="seller_sing_up_banner" value="{{ @settingHelper('seller_sing_up_banner')['id'] }}" class="image-selected">
-                                                    <span class="form-control"><span class="counter">{{ @settingHelper('seller_sing_up_banner')['id'] ? 1 : 0 }}</span> {{ __('file chosen') }}</span>
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            {{ __('Choose File') }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="selected-media-box">
-                                                    <div class="mt-4 gallery gallery-md d-flex">
-                                                        <div class="selected-media mt-0 m-2" data-id="{{ @settingHelper('seller_sing_up_banner')['id'] }}">
-                                                            @if (@settingHelper('seller_sing_up_banner')['images'] != [] && @is_file_exists(@settingHelper('seller_sing_up_banner')['images']['image_72x72'], @settingHelper('seller_sing_up_banner')['images']['storage']))
-                                                                <img src="{{ @get_media(settingHelper('seller_sing_up_banner')['images']['image_72x72'], @settingHelper('seller_sing_up_banner')['images']['storage']) }}" alt=""
-                                                                     class="img-thumbnail logo-profile">
-                                                            @else
-                                                                <img src="{{ static_asset('images/default/default-image-72x72.png') }}" alt=""
-                                                                     class="img-thumbnail logo-profile">
-                                                            @endif
-                                                            @if(@settingHelper('seller_sing_up_banner')['id'] != null)
-                                                                <div class="image-remove">
-                                                                    <a href="javascript:void(0)" class="remove"><i class="bx bx-x"></i></a>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @endif
+{{--                                        @if(settingHelper('seller_system') == 1)--}}
+{{--                                            <div class="form-group">--}}
+{{--                                            <label for="logo">{{ __('Seller SingUp Banner') }} {{__('(320x852)')}}</label>--}}
+{{--                                            <div class="form-group">--}}
+{{--                                                <div class="input-group gallery-modal" id="btnSubmit"  data-for="image" data-selection="single"--}}
+{{--                                                     data-target="#galleryModal" data-dismiss="modal">--}}
+{{--                                                    <input type="hidden" name="seller_sing_up_banner" value="{{ @settingHelper('seller_sing_up_banner')['id'] }}" class="image-selected">--}}
+{{--                                                    <span class="form-control"><span class="counter">{{ @settingHelper('seller_sing_up_banner')['id'] ? 1 : 0 }}</span> {{ __('file chosen') }}</span>--}}
+{{--                                                    <div class="input-group-prepend">--}}
+{{--                                                        <div class="input-group-text">--}}
+{{--                                                            {{ __('Choose File') }}--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                                <div class="selected-media-box">--}}
+{{--                                                    <div class="mt-4 gallery gallery-md d-flex">--}}
+{{--                                                        <div class="selected-media mt-0 m-2" data-id="{{ @settingHelper('seller_sing_up_banner')['id'] }}">--}}
+{{--                                                            @if (@settingHelper('seller_sing_up_banner')['images'] != [] && @is_file_exists(@settingHelper('seller_sing_up_banner')['images']['image_72x72'], @settingHelper('seller_sing_up_banner')['images']['storage']))--}}
+{{--                                                                <img src="{{ @get_media(settingHelper('seller_sing_up_banner')['images']['image_72x72'], @settingHelper('seller_sing_up_banner')['images']['storage']) }}" alt=""--}}
+{{--                                                                     class="img-thumbnail logo-profile">--}}
+{{--                                                            @else--}}
+{{--                                                                <img src="{{ static_asset('images/default/default-image-72x72.png') }}" alt=""--}}
+{{--                                                                     class="img-thumbnail logo-profile">--}}
+{{--                                                            @endif--}}
+{{--                                                            @if(@settingHelper('seller_sing_up_banner')['id'] != null)--}}
+{{--                                                                <div class="image-remove">--}}
+{{--                                                                    <a href="javascript:void(0)" class="remove"><i class="bx bx-x"></i></a>--}}
+{{--                                                                </div>--}}
+{{--                                                            @endif--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                        @endif--}}
                                         <div class="form-group">
                                             <label for="logo">{{ __('Forgot Password Banner') }} {{__('(320x520)')}}</label>
                                             <div class="form-group">
@@ -157,173 +157,6 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="logo">{{ __('User Dashboard Banner') }} {{__('(940x110)')}}</label>
-                                            <div class="form-group">
-                                                <div class="input-group gallery-modal" id="btnSubmit"  data-for="image" data-selection="single"
-                                                     data-target="#galleryModal" data-dismiss="modal">
-                                                    <input type="hidden" name="user_dashboard_banner" value="{{ @settingHelper('user_dashboard_banner')['id'] }}" class="image-selected">
-                                                    <span class="form-control"><span class="counter">{{ @settingHelper('user_dashboard_banner')['id'] ? 1 : 0 }}</span> {{ __('file chosen') }}</span>
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            {{ __('Choose File') }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="selected-media-box">
-                                                    <div class="mt-4 gallery gallery-md d-flex">
-                                                        <div class="selected-media mt-0 m-2" data-id="{{ @settingHelper('user_dashboard_banner')['id'] }}">
-                                                            @if (@settingHelper('user_dashboard_banner')['images'] != [] && @is_file_exists(@settingHelper('user_dashboard_banner')['images']['image_72x72'], @settingHelper('user_dashboard_banner')['images']['storage']))
-                                                                <img src="{{ @get_media(settingHelper('user_dashboard_banner')['images']['image_72x72'], @settingHelper('user_dashboard_banner')['images']['storage']) }}" alt=""
-                                                                     class="img-thumbnail logo-profile">
-                                                            @else
-                                                                <img src="{{ static_asset('images/default/default-image-72x72.png') }}" alt=""
-                                                                     class="img-thumbnail logo-profile">
-                                                            @endif
-                                                                @if(@settingHelper('user_dashboard_banner')['id'] != null)
-                                                                <div class="image-remove">
-                                                                    <a href="javascript:void(0)" class="remove"><i class="bx bx-x"></i></a>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="logo">{{ __('Product Details Site Banner') }} {{__('(263x263)')}}</label>
-                                            <div class="form-group">
-                                                <div class="input-group gallery-modal" id="btnSubmit"  data-for="image" data-selection="single"
-                                                     data-target="#galleryModal" data-dismiss="modal">
-                                                    <input type="hidden" name="product_details_site_banner" value="{{ @settingHelper('product_details_site_banner')['id'] }}" class="image-selected">
-                                                    <span class="form-control"><span class="counter">{{ @settingHelper('product_details_site_banner')['id'] ? 1 : 0 }}</span> {{ __('file chosen') }}</span>
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            {{ __('Choose File') }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="selected-media-box">
-                                                    <div class="mt-4 gallery gallery-md d-flex">
-                                                        <div class="selected-media mt-0 m-2" data-id="{{ @settingHelper('product_details_site_banner')['id'] }}">
-                                                            @if (@settingHelper('product_details_site_banner')['images'] != [] && @is_file_exists(@settingHelper('product_details_site_banner')['images']['image_72x72'], @settingHelper('product_details_site_banner')['images']['storage']))
-                                                                <img src="{{ @get_media(settingHelper('product_details_site_banner')['images']['image_72x72'], @settingHelper('product_details_site_banner')['images']['storage']) }}" alt=""
-                                                                     class="img-thumbnail logo-profile">
-                                                            @else
-                                                                <img src="{{ static_asset('images/default/default-image-72x72.png') }}" alt=""
-                                                                     class="img-thumbnail logo-profile">
-                                                            @endif
-                                                            @if(@settingHelper('product_details_site_banner')['id'] != null)
-                                                                <div class="image-remove">
-                                                                    <a href="javascript:void(0)" class="remove"><i class="bx bx-x"></i></a>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="logo">{{ __('Default Category Banner') }} {{__('(835x200)')}}</label>
-                                            <div class="form-group">
-                                                <div class="input-group gallery-modal" id="btnSubmit"  data-for="image" data-selection="single"
-                                                     data-target="#galleryModal" data-dismiss="modal">
-                                                    <input type="hidden" name="category_default_banner" value="{{ @settingHelper('category_default_banner')['id'] }}" class="image-selected">
-                                                    <span class="form-control"><span class="counter">{{ @settingHelper('category_default_banner')['id'] ? 1 : 0 }}</span> {{ __('file chosen') }}</span>
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            {{ __('Choose File') }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="selected-media-box">
-                                                    <div class="mt-4 gallery gallery-md d-flex">
-                                                        <div class="selected-media mt-0 m-2" data-id="{{ @settingHelper('category_default_banner')['id'] }}">
-                                                            @if (@settingHelper('category_default_banner')['images'] != [] && @is_file_exists(@settingHelper('category_default_banner')['images']['image_72x72'], @settingHelper('category_default_banner')['images']['storage']))
-                                                                <img src="{{ @get_media(settingHelper('category_default_banner')['images']['image_72x72'], @settingHelper('category_default_banner')['images']['storage']) }}" alt=""
-                                                                     class="img-thumbnail logo-profile">
-                                                            @else
-                                                                <img src="{{ static_asset('images/default/default-image-72x72.png') }}" alt=""
-                                                                     class="img-thumbnail logo-profile">
-                                                            @endif
-                                                            @if(@settingHelper('category_default_banner')['id'] != null)
-                                                                <div class="image-remove">
-                                                                    <a href="javascript:void(0)" class="remove"><i class="bx bx-x"></i></a>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="logo">{{ __('Topbar Banner') }} {{__('(1600x100)')}}</label>
-                                            <div class="form-group">
-                                                <div class="input-group gallery-modal" id="btnSubmit"  data-for="image" data-selection="single"
-                                                     data-target="#galleryModal" data-dismiss="modal">
-                                                    <input type="hidden" name="top_bar_banner" value="{{ settingHelper('top_bar_banner') && settingHelper('top_bar_banner')['id'] }}" class="image-selected">
-                                                    <span class="form-control"><span class="counter">{{ settingHelper('top_bar_banner') && settingHelper('top_bar_banner')['id'] ? 1 : 0 }}</span> {{ __('file chosen') }}</span>
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            {{ __('Choose File') }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="selected-media-box">
-                                                    <div class="mt-4 gallery gallery-md d-flex">
-                                                        <div class="selected-media mt-0 m-2" data-id="{{ settingHelper('top_bar_banner') && settingHelper('top_bar_banner')['id'] }}">
-                                                            @if (settingHelper('top_bar_banner') && settingHelper('top_bar_banner')['images'] != [] && @is_file_exists(@settingHelper('top_bar_banner')['images']['image_72x72'], @settingHelper('top_bar_banner')['images']['storage']))
-                                                                <img src="{{ @get_media(settingHelper('top_bar_banner')['images']['image_72x72'], @settingHelper('top_bar_banner')['images']['storage']) }}" alt=""
-                                                                     class="img-thumbnail logo-profile">
-                                                            @else
-                                                                <img src="{{ static_asset('images/default/default-image-72x72.png') }}" alt=""
-                                                                     class="img-thumbnail logo-profile">
-                                                            @endif
-                                                            @if(settingHelper('top_bar_banner') && settingHelper('top_bar_banner')['id'] != null)
-                                                                <div class="image-remove">
-                                                                    <a href="javascript:void(0)" class="remove"><i class="bx bx-x"></i></a>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @if(addon_is_activated('affiliate'))
-                                            <div class="form-group">
-                                                <label for="logo">{{ __('Affiliate SingUp Banner') }} {{__('(320x852)')}}</label>
-                                                <div class="form-group">
-                                                    <div class="input-group gallery-modal" id="btnSubmit"  data-for="image" data-selection="single"
-                                                         data-target="#galleryModal" data-dismiss="modal">
-                                                        <input type="hidden" name="affiliate_sing_up_banner" value="{{ @settingHelper('affiliate_sing_up_banner')['id'] }}" class="image-selected">
-                                                        <span class="form-control"><span class="counter">{{ @settingHelper('affiliate_sing_up_banner')['id'] ? 1 : 0 }}</span> {{ __('file chosen') }}</span>
-                                                        <div class="input-group-prepend">
-                                                            <div class="input-group-text">
-                                                                {{ __('Choose File') }}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="selected-media-box">
-                                                        <div class="mt-4 gallery gallery-md d-flex">
-                                                            <div class="selected-media mt-0 m-2" data-id="{{ @settingHelper('affiliate_sing_up_banner')['id'] }}">
-                                                                @if (@settingHelper('affiliate_sing_up_banner')['images'] != [] && @is_file_exists(@settingHelper('affiliate_sing_up_banner')['images']['image_72x72'], @settingHelper('affiliate_sing_up_banner')['images']['storage']))
-                                                                    <img src="{{ @get_media(settingHelper('affiliate_sing_up_banner')['images']['image_72x72'], @settingHelper('affiliate_sing_up_banner')['images']['storage']) }}" alt=""
-                                                                         class="img-thumbnail logo-profile">
-                                                                @else
-                                                                    <img src="{{ static_asset('images/default/default-image-72x72.png') }}" alt=""
-                                                                         class="img-thumbnail logo-profile">
-                                                                @endif
-                                                                @if(@settingHelper('affiliate_sing_up_banner')['id'] != null)
-                                                                    <div class="image-remove">
-                                                                        <a href="javascript:void(0)" class="remove"><i class="bx bx-x"></i></a>
-                                                                    </div>
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
                                         <div class="text-right btn-margin">
                                             <button class="btn btn-outline-primary" id="save-btn">{{__('Update')}}</button>
                                         </div>

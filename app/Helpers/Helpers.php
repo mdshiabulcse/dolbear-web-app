@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Cartalyst\Sentinel\Laravel\Facades\Activation;
+use Illuminate\Support\Facades\Log;
 
 if (!defined('STDIN')) {
     define('STDIN', fopen('php://stdin', 'r'));
@@ -251,12 +252,17 @@ if (!function_exists('static_asset')) {
 
     function static_asset($path = null, $secure = null)
     {
-        if (strpos(php_sapi_name(), 'cli') !== false || defined('LARAVEL_START_FROM_PUBLIC')) :
+        // Get prefix from .env (default empty string if not set)
+        $prefix = env('PUBLIC_PATH_PREFIX', '');
+
+        if (strpos(php_sapi_name(), 'cli') !== false || defined('LARAVEL_START_FROM_PUBLIC')) {
             return app('url')->asset($path, $secure);
-        else:
+        } else {
             return app('url')->asset('public/' . $path, $secure);
-        endif;
+//            return app('url')->asset(trim($prefix, '/') . '/' . ltrim($path, '/'), $secure);
+        }
     }
+
 }
 
 if (!function_exists('baseUrlForApi')) {
@@ -273,7 +279,7 @@ if (!function_exists('baseUrlForApi')) {
 
 if (!function_exists('get_price')) {
 
-    function get_price($price, $curr = null)
+    function get_price($price, $curr = 'null')
     {
         return format_price(convert_price($price, $curr), $curr);
     }
@@ -303,6 +309,35 @@ if (!function_exists('format_price')) {
         else:
             $price = number_format($price, 3, $decimal_separator, $thousands_separator);
         endif;
+
+        if ($currency_symbol_format == 'amount_symbol'):
+            return $price . get_symbol($curr);
+        elseif ($currency_symbol_format == 'symbol_amount'):
+            return get_symbol($curr) . $price;
+        elseif ($currency_symbol_format == 'amount__symbol'):
+            return $price . ' ' . get_symbol($curr);
+        elseif ($currency_symbol_format == 'symbol__amount'):
+            return get_symbol($curr) . ' ' . $price;
+        endif;
+    }
+}
+
+if (!function_exists('format_price_without_symbol')) {
+
+    function format_price_without_symbol($price, $curr = null)
+    {
+        $no_of_decimals = settingHelper('no_of_decimals');
+        $decimal_separator = settingHelper('decimal_separator') ? settingHelper('decimal_separator') : '.';
+        $thousands_separator = $decimal_separator == ',' ? '.' : ',';
+        $currency_symbol_format = settingHelper('currency_symbol_format') ? settingHelper('currency_symbol_format') : 'amount_symbol';
+
+        if ($no_of_decimals != ''):
+            $price = number_format($price, $no_of_decimals, $decimal_separator, $thousands_separator);
+        else:
+            $price = number_format($price, 3, $decimal_separator, $thousands_separator);
+        endif;
+
+        return $price;
 
         if ($currency_symbol_format == 'amount_symbol'):
             return $price . get_symbol($curr);
@@ -346,6 +381,8 @@ if (!function_exists('get_symbol')) {
 
     function get_symbol($curr = null)
     {
+        return '৳ ';
+        
         if (addon_is_activated('ishopet')) {
             $symbol = $curr;
         } else {
@@ -367,7 +404,6 @@ if (!function_exists('get_symbol')) {
                 }
             }
         }
-
 
         return $symbol;
     }

@@ -158,7 +158,14 @@ class AttributeRepository implements AttributeInterface
         return AttributeValues::whereIn('id',$ids)->get()->makeHidden(['created_at','updated_at']);
     }
 
-    public function findStock($id,$product_id)
+    public function findStocks($id,$product_id)
+    {
+        return ProductStock::where('variant_ids', $id)
+            ->where('product_id', $product_id)
+            ->sum('current_stock');
+    }
+
+    public function firstStock($id,$product_id)
     {
         return ProductStock::where('variant_ids',$id)->where('product_id',$product_id)->first();
     }

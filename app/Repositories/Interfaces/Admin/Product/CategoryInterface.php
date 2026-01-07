@@ -12,7 +12,10 @@ interface CategoryInterface
 
     public function all();
 
+    public function popular();
+
     public function allCategory();
+    
     public function ajaxCategoryFilter($term);
 
     public function paginate($limit,$request);

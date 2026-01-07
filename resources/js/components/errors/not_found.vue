@@ -1,6 +1,6 @@
 <template>
     <section class="section">
-        <div class="container mt-5">
+        <div class="container container-min-height mt-5">
             <div class="page-error">
                 <div class="page-inner">
                     <h1>404</h1>

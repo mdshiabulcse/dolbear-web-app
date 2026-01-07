@@ -69,7 +69,7 @@
                                     $size = addon_is_activated('ishopet') ? __('726X350') : __('970x400');
                                 @endphp
                                 <div class="form-group">
-                                    <label for="logo">{{ __('Background Image') }} ({{ $size }})</label>
+                                    <label for="logo">{{ __('Background Image') }} (1920x580)</label>
                                     <div class="form-group">
                                         <div class="input-group gallery-modal" id="btnSubmit" data-for="image"
                                              data-selection="single" data-size="{{ $size }}"

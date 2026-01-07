@@ -38,7 +38,7 @@ class UserController extends Controller
     {
         $request->validate([
             'phone' => 'required|unique:users',
-            'email' => 'required|email|unique:users',
+//            'email' => 'required|email|unique:users',
             'password'  => 'required|confirmed',
         ]);
         DB::beginTransaction();
@@ -78,7 +78,7 @@ class UserController extends Controller
         endif;
         $request->validate([
             'phone' => 'required|unique:users,phone,'.$request->id,
-            'email' => 'required|email|unique:users,email,'.$request->id,
+//            'email' => 'required|email|unique:users,email,'.$request->id,
         ]);
 
         DB::beginTransaction();

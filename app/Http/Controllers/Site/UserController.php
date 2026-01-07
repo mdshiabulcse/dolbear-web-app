@@ -14,6 +14,7 @@ use App\Repositories\Interfaces\Admin\Marketing\CouponInterface;
 use App\Repositories\Interfaces\Admin\SellerInterface;
 use App\Repositories\Interfaces\Site\AddressInterface;
 use App\Repositories\Interfaces\UserInterface;
+use App\Services\ElitbuzzSmsService;
 use App\Traits\SendMailTrait;
 use Carbon\Carbon;
 use Cartalyst\Sentinel\Laravel\Facades\Reminder;
@@ -78,15 +79,48 @@ class UserController extends Controller
     public function resetPassword(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
-            'email' => 'required|exists:users,email'
+            'phone'      => [
+                'required',
+                'regex:/^(?:\+88|88)?01[3-9]\d{8}$/',
+            ],
         ]);
-        try {
-            $user = User::whereEmail($request->email)->first();
 
-            $remainder = Reminder::create($user);
-            $this->sendmail($request->email, 'Forgot Password', $user, 'email.auth.forgot-password-email', url('/') . '/reset/' . $request->email . '/' . $remainder->code);
+        try {
+            $phone = str_replace(' ', '', $request->phone);
+            $phone = preg_replace('/^(?:\+88|88)/', '', $phone);
+            $user = User::where('phone', $phone)->first();
+
+            if (!$user || $user->status != 1) {
+                return response()->json([
+                    'error' => __('User not found.'),
+                ], 404);
+            }
+
+            if ($user->otp_sent_at &&
+                now()->diffInMinutes($user->otp_sent_at) < 2) {
+                return response()->json([
+                    'error' => __('Verification code was already sent. Please wait a few minutes.'),
+                ], 429);
+            }
+
+            $otp = rand(10000, 99999);
+            $smsService = new ElitbuzzSmsService();
+            $sent = $smsService->resetPassword($phone, [
+                'otp'  => $otp,
+            ]);
+
+            if (!$sent) {
+                return response()->json([
+                    'error' => __('Failed to send OTP. Please try again later.'),
+                ], 500);
+            }
+
+            $user->otp = $otp;
+            $user->otp_sent_at = now();
+            $user->save();
+
             return response()->json([
-                'success' => __('You have received an email for reset your password')
+                'success' => __('You have received an sms for reset your password')
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -108,32 +142,93 @@ class UserController extends Controller
 
     public function createNewPassword(ResetPasswordPostRequest $request)
     {
+        try {
+            // Phone + OTP flow
+            if ($request->filled('phone')) {
+                $phone = str_replace(' ', '', $request->phone);
+                $user = User::where('phone', $phone)->first();
 
-        $user       = User::byEmail($request->email);
-        if ($reminder = Reminder::exists($user, $request->resetCode)) {
+                if (!$user || $user->status != 1) {
+                    return response()->json([
+                        'error' => __('User not found.'),
+                    ], 404);
+                }
 
-            Reminder::complete($user, $request->resetCode, $request->newPassword);
-//            sendMail($user, '', 'reset_password', $request->newPassword);
-            $this->sendmail($request->email, 'Forgot Password', $user, 'email.auth.reset-success-email', '');
+                // Verify OTP if OTP verification is enabled
+                if (function_exists('settingHelper') ? settingHelper('disable_otp_verification') != 1 : true) {
+                    if (!$request->filled('otp')) {
+                        return response()->json([
+                            'error' => __('Invalid OTP.'),
+                        ], 422);
+                    }
 
+                    if ((string)$user->otp !== (string)$request->otp) {
+                        return response()->json([
+                            'error' => __('OTP does not match.'),
+                        ], 422);
+                    }
 
+                    if (!empty($user->otp_sent_at)) {
+                        try {
+                            if (now()->diffInMinutes($user->otp_sent_at) > 5) {
+                                return response()->json([
+                                    'error' => __('OTP has expired. Please request a new one.'),
+                                ], 422);
+                            }
+                        } catch (\Throwable $t) {
+                        }
+                    }
+                }
+
+                if (!$request->filled('newPassword')) {
+                    return response()->json([
+                        'success' => __('OTP Verified Successfully'),
+                    ]);
+                }
+
+                // Update password and clear OTP
+                $user->password = bcrypt($request->newPassword);
+                $user->otp = null;
+                if (isset($user->otp_sent_at)) {
+                    $user->otp_sent_at = null;
+                }
+                $user->save();
+
+                return response()->json([
+                    'success' => __('Successfully Password Changed')
+                ]);
+            }
+        } catch (\Exception $e) {
             return response()->json([
-                'success' => __('Successfully Password Changed')
-            ]);
-        } else {
-            return redirect()->route('login');
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
     public function coupons(CouponInterface $coupon): \Illuminate\Http\JsonResponse
     {
+
         try {
             $data = [
-                'coupons' => $coupon->couponPage()
+                'coupons' => 100,
             ];
             return response()->json($data);
         } catch (\Exception $e) {
 
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function points(CouponInterface $points)
+    {
+        try {
+            $data = [
+                'points' => $points->pointPage()
+            ];
+            return response()->json($data);
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
             ]);

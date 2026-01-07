@@ -404,7 +404,7 @@
 
 <script>
 import shimmer from "../partials/shimmer";
-import StarRating from "vue-star-rating";
+import StarRating from "../partials/StarRating.vue";
 import addBanner from "../homepage/add-banner";
 import new_arrival from "../homepage/new_arrival";
 import best_selling_product from "../homepage/best_selling_product";

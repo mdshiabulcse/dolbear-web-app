@@ -45,8 +45,6 @@ class SliderController extends Controller
             return redirect()->back();
         endif;
 
-        info($request);
-
         DB::beginTransaction();
         try {
             $this->slider->store($request->all());

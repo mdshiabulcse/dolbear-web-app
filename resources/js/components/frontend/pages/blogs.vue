@@ -1,5 +1,5 @@
 <template>
-  <section class="sg-blog-section sg-filter" :class="activeClass">
+  <section class="sg-blog-section sg-filter" :class="activeClass" style="min-height: 55vh;">
     <div class="container">
       <div class="title blog-header justify-content-between">
         <h1>Blog News</h1>
@@ -32,7 +32,7 @@
       </div>
       <div class="row" v-if="is_shimmer">
         <div class="col-md-6 col-lg-3" v-for="(blog,i) in blogs.data" :key="i">
-          <div class="post">
+          <div class="post blog_post">
             <div class="entry-header">
               <div class="entry-thumbnail">
                 <router-link :to="{ name: 'blog.details',params:{slug:blog.slug}}"><img
@@ -44,8 +44,8 @@
               <router-link :to="{ name: 'blog.details',params:{slug:blog.slug}}">
                 <h1 class="entry-title text-ellipse">{{ blog.title }}</h1>
               </router-link>
-              <p class="text-ellipse">{{ blog.short_description }}</p>
-              <router-link :to="{ name: 'blog.details',params:{slug:blog.slug}}">
+              <p class="text-ellipse blog_short_description">{{ blog.short_description }}</p>
+              <router-link :to="{ name: 'blog.details',params:{slug:blog.slug}}" class="read_more_text">
                 {{ lang.read_more }}
               </router-link>
             </div>
@@ -142,6 +142,8 @@ export default {
       this.page = 1;
       this.allBlogs(this.form);
     },
+
+    
     allBlogs() {
       this.loading = true;
       let url = this.getUrl('home/blogs?page=1')
@@ -169,6 +171,41 @@ export default {
       })
     },
   }
-
 }
 </script>
+
+<style>
+.blog_post{
+  border: 1px solid #c7c7c7;
+  padding: 10px;
+  width: 100%;
+  min-height: 370px !important;
+  position: relative !important;
+  transition: transform 0.3s ease ;
+}
+
+.blog_post:hover{
+  transform: translateY(-5px);
+ }
+
+.blog_short_description{
+  color: black !important;
+  margin-bottom: 30px !important;
+}
+
+.read_more_text{
+  background-color: #333333;
+  color: #FFFFFF !important;
+  padding: 7px 10px;
+  border-radius: 5px;
+  position: absolute !important;
+  bottom: 10px !important;
+  border: 1px solid #333333;
+}
+
+.read_more_text:hover{
+  background-color: #575757;
+}
+
+
+</style>

@@ -32,8 +32,13 @@ class CartController extends Controller
             $carts = $this->cart->all()->where('is_buy_now',0);
         }
 
+        $hasFreeShipping = $carts->contains(function ($cartItem) {
+            return isset($cartItem->product) && $cartItem->product->free_shipping == 1;
+        });
+
         return [
             'carts'     => $this->cartList($carts),
+            'free_shipping'     => $hasFreeShipping,
             'checkouts' => count($carts) > 0 ? $this->cart->checkoutCoupon($carts, ['coupon'],authUser()) : [],
             'coupons'   => count($carts) > 0 && settingHelper('coupon_system') == 1 ? $this->cart->appliedCoupons(['trx_id' => $carts->first()->trx_id]) : [],
         ];
@@ -130,7 +135,8 @@ class CartController extends Controller
     public function applyCoupon(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            $coupon_apply = $this->cart->applyCoupon($request->all(),authUser());
+
+            $coupon_apply = $this->cart->applyCoupon($request->all(),authUser() ?? getWalkInCustomer());
             if (is_string($coupon_apply)) {
                 $data = [
                     'error' => $coupon_apply
@@ -174,6 +180,29 @@ class CartController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function applyPoints(Request $request)
+    {
+        try {
+
+            $response = $this->cart->applyPoints($request->all(),authUser());
+
+            if (is_string($response)) {
+                $data = [
+                    'error' => $response
+                ];
+            } else {
+                $data = $this->carts(session()->get('is_buy_now') == 1);
+                $data['success'] = "Points applied";
+            }
+            return response()->json($data);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'error' => $e
             ]);
         }
     }

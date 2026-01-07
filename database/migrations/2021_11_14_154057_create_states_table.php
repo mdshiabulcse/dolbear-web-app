@@ -17,6 +17,7 @@ class CreateStatesTable extends Migration
             $table->id();
             $table->string('name',100);
             $table->bigInteger('country_id')->unsigned();
+            $table->bigInteger('division_id')->unsigned();
             $table->decimal('latitude',10,8)->nullable();
             $table->decimal('longitude',11,8)->nullable();
             $table->tinyInteger('status')->default(1);

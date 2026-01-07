@@ -2,29 +2,32 @@
 
 namespace App\Http\Controllers\Admin\Product;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Product\ProductStoreRequest;
+use App\Http\Requests\Admin\Product\ProductUpdateRequest;
+use Carbon\Carbon;
 use App\Models\City;
+use App\Models\Store;
 use App\Models\ProductCity;
-use App\Models\ProductStock;
 use App\Models\ReviewReply;
+use App\Models\ProductStock;
+use Illuminate\Http\Request;
 use App\Models\ShippingClass;
-use App\Repositories\Admin\Addon\ShippingClassRepository;
-use App\Repositories\Interfaces\Site\ReviewInterface;
 use App\Utility\VariantUtility;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\Validator;
 use App\Repositories\Admin\VatTaxRepository;
+use App\Repositories\Interfaces\Admin\StoreInterface;
+use App\Repositories\Interfaces\Site\ReviewInterface;
+use App\Repositories\Interfaces\Admin\SellerInterface;
+use App\Http\Requests\Admin\Product\ProductStoreRequest;
 use App\Repositories\Interfaces\Admin\LanguageInterface;
-use App\Repositories\Interfaces\Admin\Product\AttributeInterface;
+use App\Repositories\Admin\Addon\ShippingClassRepository;
 use App\Repositories\Interfaces\Admin\Product\BrandInterface;
-use App\Repositories\Interfaces\Admin\Product\CategoryInterface;
 use App\Repositories\Interfaces\Admin\Product\ColorInterface;
 use App\Repositories\Interfaces\Admin\Product\ProductInterface;
-use App\Repositories\Interfaces\Admin\SellerInterface;
-use Brian2694\Toastr\Facades\Toastr;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use App\Repositories\Interfaces\Admin\Product\CategoryInterface;
+use App\Repositories\Interfaces\Admin\Product\AttributeInterface;
 
 class ProductController extends Controller
 {
@@ -36,6 +39,7 @@ class ProductController extends Controller
     protected $vat_tax;
     protected $languages;
     protected $sellers;
+    protected $store;
 
     public function __construct(
         ProductInterface $products,
@@ -45,7 +49,8 @@ class ProductController extends Controller
         AttributeInterface $attributes,
         VatTaxRepository $vat_tax,
         SellerInterface $sellers,
-        LanguageInterface $languages
+        LanguageInterface $languages,
+        StoreInterface $store
     ) {
         $this->products         = $products;
         $this->categories       = $categories;
@@ -55,6 +60,7 @@ class ProductController extends Controller
         $this->vat_tax          = $vat_tax;
         $this->languages        = $languages;
         $this->sellers          = $sellers;
+        $this->store            = $store;
     }
     public function index(Request $request, $status = null)
     {
@@ -145,6 +151,7 @@ class ProductController extends Controller
         try {
             $data = [
                 'categories' => $this->categories->allCategory()->where('parent_id', null)->where('status', 1),
+                'stores' => $this->store->allStore(),
                 'brands' => $this->brands->all()->where('lang', 'en')->where('status', 1)->get(),
                 'colors' => $this->colors->all()->where('lang', 'en')->get(),
                 'attributes' => $this->attributes->all()->where('lang', 'en')->get(),
@@ -215,6 +222,7 @@ class ProductController extends Controller
             if ($this->products->get($id) && $product_language = $this->products->getByLang($id, $lang)) :
                 $data = [
                     'categories'        => $this->categories->allCategory()->where('parent_id', null)->where('status', 1),
+                    'stores'            => $this->store->allStore(),
                     'brands'            => $this->brands->all()->where('lang', 'en')->where('status', 1)->get(),
                     'colors'            => $this->colors->all()->where('lang', 'en')->get(),
                     'attributes'        => $this->attributes->all()->where('lang', 'en')->get(),
@@ -266,11 +274,6 @@ class ProductController extends Controller
 
     public function store(ProductStoreRequest $request)
     {
-
-        info($request);
-
-        // dd($request);
-
         if (config('app.demo_mode')) :
             Toastr::info(__('This function is disabled in demo server.'));
             return redirect()->back();
@@ -278,82 +281,31 @@ class ProductController extends Controller
 
         DB::beginTransaction();
         try {
+
             $this->products->store($request);
             Toastr::success(__('Created Successfully'));
             session()->forget('attributes');
             DB::commit();
             return redirect()->route('products');
         } catch (\Exception $e) {
+            info($e);
             DB::rollBack();
             Toastr::error($e->getMessage());
             return back();
         }
     }
 
-    public function update(Request $request)
+    public function update(ProductUpdateRequest $request)
     {
-        if (config('app.demo_mode')) :
-            Toastr::info(__('This function is disabled in demo server.'));
-            return redirect()->back();
-        endif;
-
-        DB::beginTransaction();
-        try {
-
-            session()->forget('attributes');
-            if ($request->variant_ids && count($request->variant_ids)) {
-                ProductStock::where('product_id', $request->id)->delete();
-                session()->put('attributes', count($request->variant_ids));
-            }
-
-            $product = $this->products->get($request->id);
-
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|max:190',
-                'slug' => 'nullable|nullable|max:190|unique:products,slug,' . $request->id,
-                'category' => 'required',
-                'price' => 'numeric|required',
-                'unit' => 'required',
-                'variant_sku.*' => 'required_if:has_variant,1|distinct|unique:product_stocks,sku',
-                'video_url' => 'required_with:video_provider',
-                'minimum_order_quantity' => 'numeric|min:1',
-                'low_stock_to_notify' => 'numeric|min:0',
-                'shipping_fee' => 'required_if:shipping_type,flat_rate',
-                'special_discount_period' => 'required_with:special_discount_type',
-                'special_discount' => 'required_with:special_discount_type',
-                'campaign_discount' => 'required_with:campaign',
-                'campaign_discount_type' => 'required_with:campaign'
-            ]);
-
-            DB::commit();
-
-            if ($validator->fails()) {
-                DB::rollBack();
-                return back()->withInput()->withErrors($validator);
-            }
-
-            if (!$request->has_variant && $product->stock()->first()) {
-                $sku_validator = Validator::make($request->all(), [
-                    'sku' => 'required_without_all:has_variant,is_classified|unique:product_stocks,sku,' . $product->stock()->first()->id,
-                ]);
-
-                if ($sku_validator->fails()) {
-                    DB::rollBack();
-                    return back()->withInput()->withErrors($sku_validator);
-                }
-            }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withInput()->withErrors($validator);
+        session()->forget('attributes');
+        if ($request->variant_ids && count($request->variant_ids)) {
+            ProductStock::where('product_id', $request->id)->delete();
+            session()->put('attributes', count($request->variant_ids));
         }
 
-        if (config('app.demo_mode')) :
-            Toastr::info(__('This function is disabled in demo server.'));
-            return redirect()->back();
-        endif;
-
         DB::beginTransaction();
         try {
+
             $this->products->update($request);
             Toastr::success(__('Updated Successfully'));
             session()->forget('attributes');
@@ -361,6 +313,7 @@ class ProductController extends Controller
             return redirect($request->r);
         } catch (\Exception $e) {
             DB::rollBack();
+            info($e);
             Toastr::error($e->getMessage());
             return back();
         }
@@ -532,6 +485,8 @@ class ProductController extends Controller
 
     public function StoreCloneProduct(ProductStoreRequest $request)
     {
+
+
         if (config('app.demo_mode')) :
             Toastr::info(__('This function is disabled in demo server.'));
             return redirect()->back();

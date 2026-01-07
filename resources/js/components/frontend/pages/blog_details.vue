@@ -151,8 +151,8 @@
                                         </ul>
                                     </div>
                                     <div v-if="lengthCounter(blogDetails)>0">
-                                        <h1 class="entry-title">{{ blogDetails.title }}</h1>
-                                        <div v-html="blogDetails.description"></div>
+                                        <h1 class="entry-title">{{ blogDetails.title }} </h1>
+                                        <div v-html="blogDetails.description" class="blog-description"></div>
                                     </div>
                                     <div v-else-if="shimmer">
                                         <shimmer :height="30" ></shimmer>
@@ -308,3 +308,17 @@ export default {
     }
 }
 </script>
+
+<style>
+.entry-title{
+    color: black !important;
+}
+
+.blog-description{
+    color: #333333 !important;
+}
+
+.blog-description p {
+    color: #333333 !important;
+}
+</style>

@@ -40,8 +40,14 @@ class CommonController extends Controller
         if (addon_is_activated('ramdhani') && $currentSegment == 'shipping-class'):
             $currentSegment = 'shipping_classes';
         endif;
+        
         if ($status = $this->common->delete($currentSegment, $id)):
-            if ($status === 'used'):
+            if ($status === 'stock'):
+                $response['message'] = __('Unable to delete because this store has stocks');
+                $response['status']  = 'error';
+                $response['title']   = __('Ops..!');
+
+            elseif ($status === 'used'):
                 $response['message'] = __('Unable to delete because this type is already used');
                 $response['status']  = 'error';
                 $response['title']   = __('Ops..!');

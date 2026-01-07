@@ -4,6 +4,7 @@ namespace App\Repositories\Admin;
 
 use App\Models\City;
 use App\Models\Country;
+use App\Models\Division;
 use App\Models\ProductCity;
 use App\Models\State;
 use App\Repositories\Interfaces\Admin\ShippingInterface;
@@ -14,14 +15,37 @@ class ShippingRepository implements ShippingInterface
     {
         return Country::orderBy('name');
     }
+
+
+    public function divisions()
+    {
+        return Division::orderBy('name');
+    }
     public function getAllCountries()
     {
         return Country::with('flag')->where('status',1)->get();
     }
 
+    public function getAllDivision()
+    {
+        return Division::where('status',1)->get();
+    }
+
     public function userCountries()
     {
         return Country::where('status',1)->selectRaw('name,id')->orderBy('name')->get();
+    }
+
+    public function divisionsPaginate($request, $limit)
+    {
+        $divisionData =  Division::where('country_id', 19);
+
+        return $divisionData
+            ->when($request->q != null, function ($query) use ($request){
+                $query->where('name', 'like', '%'.$request->q.'%');
+            })
+            ->paginate($limit);
+
     }
 
     public function countriesPaginate($request, $limit)
@@ -44,11 +68,11 @@ class ShippingRepository implements ShippingInterface
     //state
     public function states()
     {
-        return State::with('country')->orderBy('name');
+        return State::with('division')->orderBy('name');
     }
     public function getStateByCountry($id)
     {
-        return State::where('status',1)->where('country_id',$id)->orderBy('name')->get();
+        return State::where('status',1)->where('division_id',$id)->orderBy('name')->get();
     }
     public function getState($id)
     {
@@ -76,17 +100,32 @@ class ShippingRepository implements ShippingInterface
     {
             $state              = new State();
             $state->name        = $request->name;
-            $state->country_id  = $request->country_id;
+            $state->country_id  = 19;
+            $state->division_id  = $request->division_id;
             $state->save();
             return true;
     }
     public function stateUpdate($request)
     {
-            $state              = State::find($request->id);
-            $state->name        = $request->name;
-            $state->country_id  = $request->country_id;
-            $state->save();
-            return true;
+        logger($request->all());
+
+        logger('All State:');
+        $stateData = State::all();
+        logger($stateData);
+
+        $state              = State::find($request->id);
+
+        logger('Before save:');
+        logger($state);
+
+        $state->name        = $request->name;
+        $state->division_id  = $request->division_id;
+        $state->save();
+
+        logger('After save');
+        logger($state);
+
+        return true;
     }
 
     //city
@@ -139,6 +178,7 @@ class ShippingRepository implements ShippingInterface
         $city->state_id    = $request->state_id;
         $city->country_id  = $state->country_id;
         $city->cost        = priceFormatUpdate($request->cost,settingHelper('default_currency'));
+        $city->express_delivery_cost        = priceFormatUpdate($request->express_delivery_cost,settingHelper('default_currency'));
         $city->save();
         return true;
     }
@@ -150,6 +190,7 @@ class ShippingRepository implements ShippingInterface
         $city->state_id    = $request->state_id;
         $city->country_id  = $state->country_id;
         $city->cost        = priceFormatUpdate($request->cost,settingHelper('default_currency'));
+        $city->express_delivery_cost        = priceFormatUpdate($request->express_delivery_cost,settingHelper('default_currency'));
         $city->save();
         return true;
     }

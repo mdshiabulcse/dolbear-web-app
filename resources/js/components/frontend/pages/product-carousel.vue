@@ -99,7 +99,7 @@
                     ><span class="mdi mdi-name mdi-shopping-outline"></span
                   ></a>
                 </li>
-                <!-- <div v-if="authUser">
+                <div v-if="authUser">
                     <li v-if="$store.getters.isThisWishlisted(product.id)"><a href="javaScript:void(0)"
                                                                               @click="removeWishlist(product.id)"><span
                         class="mdi mdi-name mdi-heart"></span></a></li>
@@ -107,7 +107,7 @@
                                   :class="{ 'disable_btn' :  is_disabled == true }"
                                   @click="addToWishlist(product.id)"><span
                         class="mdi mdi-name mdi-heart-outline"></span></a></li>
-                  </div> -->
+                  </div>
                 <!-- <li v-if="compareCheck(product)"><a class="active_compare"
                                                       :class="{ 'disable_btn' :  is_disabled == true }"
                                                       @click="removeCompare(product.id)"
@@ -141,7 +141,7 @@
 </template>
 
 <script>
-import StarRating from "vue-star-rating";
+import StarRating from "../partials/StarRating.vue";
 import FlipCountdown from "vue2-flip-countdown";
 import shimmer from "../partials/shimmer";
 import detailsView from "../partials/details-view";

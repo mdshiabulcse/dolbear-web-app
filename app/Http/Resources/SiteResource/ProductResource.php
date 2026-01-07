@@ -32,8 +32,12 @@ class ProductResource extends JsonResource
             'has_variant'                           => (bool)$this->has_variant,
             'user_wishlist'                         => (bool)$this->userWishlist,
             'is_catalog'                            => (bool)$this->is_catalog,
+            'is_featured'                           => (bool)$this->is_featured,
+            'is_new_arrived'                        => (bool)$this->is_new_arrived,
+            'is_best_seller'                        => (bool)$this->is_best_seller,
+            'is_bundle_deals'                       => (bool)$this->is_bundle_deals,
             'is_classified'                         => (bool)$this->is_classified,
-            'stock'                              => ProductStockResource::collection($this->stock),
+            'stock'                                 => ProductStockResource::collection($this->stock),
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Site;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AdminResource\PosOfflineMethodResource;
 use App\Http\Resources\SiteResource\OrderResource;
+use App\Models\Cart;
 use App\Models\City;
 use App\Models\ProductCity;
 use App\Repositories\Interfaces\Admin\Addon\OfflineMethodInterface;
@@ -123,7 +124,7 @@ class OrderController extends Controller
     {
         try {
             $data = [
-                'deleteOrder' => $orderList->deleteOrder($id),
+                'deleteOrder' => $orderList->deleteOrder($id, authUser()),
                 'success' => __('Order Removed Successfully'),
             ];
 
@@ -210,7 +211,7 @@ class OrderController extends Controller
         }
     }
 
-    public function confirmOrder(Request $request): \Illuminate\Http\JsonResponse
+    public function confirmOrder(Request $request)
     {
         DB::beginTransaction();
         try {
@@ -219,27 +220,38 @@ class OrderController extends Controller
             }else{
                 $carts = $this->cart->all()->where('is_buy_now',0);
             }
+
             $checkout = $this->cart->checkoutCoupon($carts, ['coupon'],authUser());
+
             $order = $this->order->confirmOrder($checkout, $carts, $request->all(),authUser());
 
-
-            if (is_array($order)) {
-                $data = [
-                    'success' => __('Order done')
-                ];
-            } else {
-                $data = [
-                    'error' => $order
-                ];
-            }
+            // if (is_array($order)) {
+            //     $data = [
+            //         'success' => __('Order done')
+            //     ];
+            // } else {
+            //     $data = [
+            //         'error' => $order
+            //     ];
+            // }
             DB::commit();
-            return response()->json($data);
+            // return response()->json($data);
         } catch (\Exception $e) {
             DB::rollBack();
+
+            info($e);
+
             return response()->json([
                 'error' => $e->getMessage()
             ]);
         }
+    }
+
+    public function deliveryAddress(Request $request)
+    {
+        $this->order->deliveryAddress($request->all());
+
+        return true;
     }
 
     public function userLastOrder(OrderInterface $order, CurrencyInterface $currency, OfflineMethodInterface $offlineMethod, Request $request): \Illuminate\Http\JsonResponse
@@ -254,10 +266,12 @@ class OrderController extends Controller
                 }
             } else {
                 if(session()->get('is_buy_now') == 1) {
+
                     $carts = $this->cart->all()->where('is_buy_now',session()->get('is_buy_now'));
                 }else{
                     $carts = $this->cart->all()->where('is_buy_now',0);
                 }
+
                 $trx_id = count($carts) > 0 ?  $carts->first()->trx_id : '';
                 $orders = $order->takePaymentOrder($trx_id);
                 if (!addon_is_activated('ramdhani'))
@@ -265,6 +279,7 @@ class OrderController extends Controller
                     $check_code = $order->checkCodByTrx($trx_id);
                 }
             }
+
 
             if (count($orders) > 0 && ($orders->first()->user_id == authId() || $orders->first()->user_id == getWalkInCustomer()->id))
             {
@@ -308,14 +323,6 @@ class OrderController extends Controller
         DB::beginTransaction();
         try {
             $request_data = $request->all();
-
-            if ($request->payment_type == 'amarpay')
-            {
-                $request_data['guest'] = $request->opt_a;
-                $request_data['trx_id'] = $request->opt_b;
-                $request_data['code'] = $request->opt_c;
-                $request_data['token'] = $request->opt_d;
-            }
 
             $order = $order->completeOrder($request_data, authUser(), $offlineMethod);
 
@@ -415,11 +422,11 @@ class OrderController extends Controller
             foreach ($orders as $item) {
                 $item->is_mailed = 1;
                 $item->save();
-//                sendMail(authUser(), $item->code, 'invoice', null, $item);
+//                $this->sendMail(authUser(), $item->code, 'invoice', null, $item);
 //                sendMail($item->seller, $item->code, 'seller_invoice', null, $item);
 
-                $this->sendMail(authUser()->email,'invoice', $item, 'email.order-complete-email','',$item);
-                $this->sendMail($item->seller->email, 'seller_invoice', $item, 'email.order-complete-email','',$item);
+                $this->sendMail(authUser()->email ?? ($item->shipping_address['email'] ?? ""),'invoice', $item, 'email.order-complete-email','',$item);
+//                $this->sendMail($item->seller->email, 'seller_invoice', $item, 'email.order-complete-email','',$item);
 
             }
             DB::commit();
@@ -456,7 +463,7 @@ class OrderController extends Controller
         }
     }
 
-    public function invoiceDownload($id): \Illuminate\Http\JsonResponse
+    public function invoiceDownload($id)
     {
         $order = $this->order->get($id);
 
@@ -477,6 +484,7 @@ class OrderController extends Controller
         if ($pdf):
             return $pdf;
         else:
+
             return response()->json([
                 'error' => __('Oops.....Something Went Wrong')
             ]);

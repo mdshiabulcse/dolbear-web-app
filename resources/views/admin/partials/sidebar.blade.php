@@ -48,6 +48,59 @@
                     </ul>
                 </li>
             @endif
+
+            {{-- point settings starts--}}
+            <li class="nav-item dropdown @yield('point_setting_active')">
+                <a href="javaScript:void(0)" class="nav-link has-dropdown" data-toggle="dropdown">
+                    <i class="bx bx-dollar"></i>
+                    <span>Point Settings</span>
+                </a>
+                <ul class="dropdown-menu">
+                    {{-- @if (hasPermission('order_read')) --}}
+                        <li class="@yield('point_list_active')"><a class="nav-link"
+                                href="{{ route('point.setting') }}">Purchase Point</a></li>
+                       
+                    {{-- @endif --}}
+                   
+                </ul>
+            </li>
+            {{-- point settings ends--}}
+
+            {{-- Stores starts--}}
+            <li class="nav-item dropdown @yield('store_active')">
+                <a href="javaScript:void(0)" class="nav-link has-dropdown" data-toggle="dropdown">
+                    <i class="bx bx-store-alt"></i>
+                    <span>Stores</span>
+                </a>
+                <ul class="dropdown-menu">
+                    {{-- @if (hasPermission('order_read')) --}}
+                    <li class="@yield('all_store_active')"><a class="nav-link"
+                        href="{{ route('store.index') }}">All Store</a></li>
+
+                        <li class="@yield('store_create_active')"><a class="nav-link"
+                                href="{{ route('store.create') }}">Add New Store</a></li>
+                       
+                    {{-- @endif --}}
+                   
+                </ul>
+            </li>
+            {{-- Stores ends--}}
+
+
+            <li class="@yield('recommended_active')">
+                <a class="nav-link" href="{{ route('recommended.index') }}"><i
+                        class="bx bx-news"></i><span>Recommended By</span>
+                </a>
+            </li>
+
+            {{-- Recommended By Ends--}}
+
+            <li class="@yield('flash_message_active')">
+                <a class="nav-link" href="{{ route('flash-message.index') }}"><i
+                        class="bx bx-chat"></i><span>From Fan</span>
+                </a>
+            </li>
+
             @if (addon_is_activated('pos_system') && (hasPermission('pos_order') || hasPermission('pos_config_update')))
                 <li class="nav-item dropdown @yield('pos_services_active')">
                     <a href="javaScript:void(0)" class="nav-link has-dropdown" data-toggle="dropdown">
@@ -201,12 +254,12 @@
                                 <a class="nav-link" href="{{ route('customers') }}">{{ __('All Customer') }}</a>
                             </li>
                         @endif
-                        @if (hasPermission('customer_create'))
+                        {{-- @if (hasPermission('customer_create'))
                             <li class="@yield('customer_import')">
                                 <a class="nav-link"
                                     href="{{ route('admin.customer.import') }}">{{ __('Import Customers') }}</a>
                             </li>
-                        @endif
+                        @endif --}}
                     </ul>
                 </li>
             @endif
@@ -363,30 +416,30 @@
                         <span>{{ __('Reports') }}</span>
                     </a>
                     <ul class="dropdown-menu">
-                        @if (hasPermission('admin_product_sale_read'))
+                        {{-- @if (hasPermission('admin_product_sale_read'))
                             <li class="@yield('admin_report_active')"><a class="nav-link"
                                     href="{{ route('admin.product.sale') }}">{{ __('Admin Product Sale') }}</a>
                             </li>
-                        @endif
-                        @if (settingHelper('seller_system') == 1)
+                        @endif --}}
+                        {{-- @if (settingHelper('seller_system') == 1)
                             @if (hasPermission('seller_product_sale_read'))
                                 <li class="@yield('seller_report_active')"><a class="nav-link"
                                         href="{{ route('admin.seller.product.sale') }}">{{ __('Seller Product Sale') }}</a>
                                 </li>
                             @endif
-                        @endif
-                        @if (settingHelper('seller_system') == 1)
+                        @endif --}}
+                        {{-- @if (settingHelper('seller_system') == 1)
                             @if (hasPermission('commission_history_read'))
                                 <li class="@yield('commission_history')"><a class="nav-link"
                                         href="{{ route('commission.history') }}">{{ __('Commission History') }}</a>
                                 </li>
                             @endif
-                        @endif
-                        @if (hasPermission('wallet_recharge_history_read'))
+                        @endif --}}
+                        {{-- @if (hasPermission('wallet_recharge_history_read'))
                             <li class="@yield('wallet_recharge_history')"><a class="nav-link"
                                     href="{{ route('wallet.recharge.history') }}">{{ __('Wallet Recharge History') }}</a>
                             </li>
-                        @endif
+                        @endif --}}
                         @if (hasPermission('product_stock_read'))
                             <li class="@yield('product_stock')"><a class="nav-link"
                                     href="{{ route('stock.product.report') }}">{{ __('Products Stock') }}</a>
@@ -397,11 +450,11 @@
                                     href="{{ route('product.wishlist') }}">{{ __('Product Wishlist') }}</a>
                             </li>
                         @endif
-                        @if (hasPermission('user_searches_read'))
+                        {{-- @if (hasPermission('user_searches_read'))
                             <li class="@yield('user_searches')"><a class="nav-link"
                                     href="{{ route('user.searches') }}">{{ __('User Searches') }}</a>
                             </li>
-                        @endif
+                        @endif --}}
                     </ul>
                 </li>
             @endif
@@ -478,11 +531,11 @@
                                 </li>
                             @endif
                         @endif
-                        @if (hasPermission('subscriber_read'))
+                        <!-- @if (hasPermission('subscriber_read')) -->
                             <li class="@yield('subscriber')"><a class="nav-link"
                                     href="{{ route('subscribers') }}">{{ __('Subscriber') }}</a>
                             </li>
-                        @endif
+                        <!-- @endif -->
                         @if (settingHelper('coupon_system') == 1)
                             @if (hasPermission('coupon_read'))
                                 <li class="@yield('coupon')"><a class="nav-link"
@@ -493,10 +546,12 @@
                     </ul>
                 </li>
             @endif
-            @if (hasPermission('all_page_read'))
+            
+            {{-- TODO: all_page_read permission not working --}}
+            {{-- @if (hasPermission('all_page_read')) --}}
                 <li class="@yield('other_page')"><a class="nav-link" href="{{ route('other.pages') }}"><i
                             class="bx bx-news"></i><span>{{ __('Pages') }}</span></a></li>
-            @endif
+            {{-- @endif --}}
             @if (hasPermission('blog_read') || hasPermission('blog_category_read'))
                 <li class="nav-item dropdown @yield('blogs_active')">
                     <a href="javaScript:void(0)" class="nav-link has-dropdown" data-toggle="dropdown">
@@ -707,17 +762,17 @@
                         @endif
                         @if (hasPermission('country_read'))
                             <li class="@yield('available-countries')"><a class="nav-link" href="{{ route('countries') }}">
-                                    {{ __('Available Countries') }}</a>
+                                    {{ __('Available Divisions') }}</a>
                             </li>
                         @endif
                         @if (hasPermission('state_read'))
                             <li class="@yield('available-states')"><a class="nav-link" href="{{ route('states') }}">
-                                    {{ __('Available States') }}</a>
+                                    {{ __('Available District') }}</a>
                             </li>
                         @endif
                         @if (hasPermission('city_read'))
                             <li class="@yield('available-cities')"><a class="nav-link" href="{{ route('cities') }}">
-                                    {{ __('Available Cities') }}</a>
+                                    {{ __('Available Thana') }}</a>
                             </li>
                         @endif
                     </ul>
@@ -750,7 +805,7 @@
                         @endif
                         @if (hasPermission('header_content_update'))
                             <li class="@yield('header_content')"><a class="nav-link"
-                                    href="{{ route('header') }}">{{ __('Header Content') }}</a>
+                                    href="{{ route('menu') }}">{{ __('Header Content') }}</a>
                             </li>
                         @endif
                         @if (hasPermission('footer_content_update'))
@@ -772,6 +827,11 @@
                         @if (hasPermission('website_popup_update'))
                             <li class="@yield('website-popup')"><a class="nav-link"
                                     href="{{ route('website.popup') }}">{{ __('Website Popup') }}</a>
+                            </li>
+                        @endif
+                        @if (hasPermission('website_video_update'))
+                            <li class="@yield('video')"><a class="nav-link"
+                                    href="{{ route('website.video') }}">Website Video</a>
                             </li>
                         @endif
                         @if (hasPermission('custom_css_update'))
@@ -808,18 +868,18 @@
                                 </a>
                             </li>
                         @endif
-                        @if (hasPermission('service_read'))
-                            <li class="@yield('service_active')">
-                                <a class="nav-link"
-                                    href="{{ route('services.index') }}"><span>{{ __('Benefits') }}</span>
-                                </a>
-                            </li>
-                        @endif
-                        {{-- <li class="@yield('banners')">
+{{--                        @if (hasPermission('service_read'))--}}
+{{--                            <li class="@yield('service_active')">--}}
+{{--                                <a class="nav-link"--}}
+{{--                                    href="{{ route('services.index') }}"><span>{{ __('Benefits') }}</span>--}}
+{{--                                </a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
+                        <li class="@yield('banners')">
                             <a class="nav-link"
-                                href="{{ route('admin.banners') }}"><span>{{ __('Banners') }}</span>
+                               href="{{ route('admin.banners') }}"><span>{{ __('Banners') }}</span>
                             </a>
-                        </li> --}}
+                        </li>
                     </ul>
                 </li>
             @endif
@@ -845,73 +905,73 @@
                                     href="{{ route('general.setting') }}">{{ __('General Settings') }}</a>
                             </li>
                         @endif
-                        @if (hasPermission('preference_setting_update'))
-                            <li class="@yield('preference_active')"><a class="nav-link"
-                                    href="{{ route('preference') }}">{{ __('Preference') }}</a>
-                            </li>
-                        @endif
-                        @if (hasPermission('email_setting_update'))
-                            <li class="@yield('email_setting_active')"><a class="nav-link"
-                                    href="{{ route('email.setting') }}">{{ __('Email Setting') }}</a>
-                            </li>
-                        @endif
-                        @if (hasPermission('language_read'))
-                            <li class="@yield('languages')"><a class="nav-link"
-                                    href="{{ route('language') }}">{{ __('Languages') }}</a>
-                            </li>
-                        @endif
-                        @if (hasPermission('currency_setting_update'))
-                            <li class="@yield('currency_active')"><a class="nav-link"
-                                    href="{{ route('currency') }}">{{ __('Currency') }}</a>
-                            </li>
-                        @endif
+{{--                        @if (hasPermission('preference_setting_update'))--}}
+{{--                            <li class="@yield('preference_active')"><a class="nav-link"--}}
+{{--                                    href="{{ route('preference') }}">{{ __('Preference') }}</a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
+{{--                        @if (hasPermission('email_setting_update'))--}}
+{{--                            <li class="@yield('email_setting_active')"><a class="nav-link"--}}
+{{--                                    href="{{ route('email.setting') }}">{{ __('Email Setting') }}</a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
+{{--                        @if (hasPermission('language_read'))--}}
+{{--                            <li class="@yield('languages')"><a class="nav-link"--}}
+{{--                                    href="{{ route('language') }}">{{ __('Languages') }}</a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
+{{--                        @if (hasPermission('currency_setting_update'))--}}
+{{--                            <li class="@yield('currency_active')"><a class="nav-link"--}}
+{{--                                    href="{{ route('currency') }}">{{ __('Currency') }}</a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
                         @if (hasPermission('vat_tax_setting_update'))
                             <li class="@yield('vat_tax_active')"><a class="nav-link"
                                     href="{{ route('vat.tax') }}">{{ __('VAT & Tax') }}</a>
                             </li>
                         @endif
-                        @if (hasPermission('storage_setting_update'))
-                            <li class="@yield('storage_setting_active')"><a class="nav-link"
-                                    href="{{ route('storage.setting') }}">{{ __('Storage') }}</a>
-                            </li>
-                        @endif
-                        @if (hasPermission('cache_update'))
-                            <li class="@yield('cache_active')"><a class="nav-link"
-                                    href="{{ route('cache') }}">{{ __('Cache') }}</a></li>
-                        @endif
-                        @if (hasPermission('google_service_update'))
-                            <li class="@yield('google_recaptcha_active')"><a href="{{ route('settings.google.recaptcha') }}"
-                                    class="nav-link">{{ __('Google reCaptcha') }}</a>
-                            </li>
-                        @endif
-                        @if (hasPermission('admin_panel_setting_update'))
-                            <li class="@yield('white_level')"><a class="nav-link"
-                                    href="{{ route('admin.panel.setting') }}">{{ __('Admin Panel Setting') }}</a>
-                            </li>
-                        @endif
+{{--                        @if (hasPermission('storage_setting_update'))--}}
+{{--                            <li class="@yield('storage_setting_active')"><a class="nav-link"--}}
+{{--                                    href="{{ route('storage.setting') }}">{{ __('Storage') }}</a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
+{{--                        @if (hasPermission('cache_update'))--}}
+{{--                            <li class="@yield('cache_active')"><a class="nav-link"--}}
+{{--                                    href="{{ route('cache') }}">{{ __('Cache') }}</a></li>--}}
+{{--                        @endif--}}
+{{--                        @if (hasPermission('google_service_update'))--}}
+{{--                            <li class="@yield('google_recaptcha_active')"><a href="{{ route('settings.google.recaptcha') }}"--}}
+{{--                                    class="nav-link">{{ __('Google reCaptcha') }}</a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
+{{--                        @if (hasPermission('admin_panel_setting_update'))--}}
+{{--                            <li class="@yield('white_level')"><a class="nav-link"--}}
+{{--                                    href="{{ route('admin.panel.setting') }}">{{ __('Admin Panel Setting') }}</a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
 
 
-                        @if (hasPermission('pusher_notification_update'))
-                            <li class="@yield('pusher_notification')">
-                                <a class="nav-link"
-                                    href="{{ route('settings.pusher.notification') }}">{{ __('Pusher Notification') }}</a>
-                            </li>
-                        @endif
-                        @if (hasPermission('pusher_notification_update'))
-                            <li class="@yield('firebase_update')"><a href="{{ route('settings.firebase') }}"
-                                    class="nav-link">{{ __('Firebase') }}</a>
-                            </li>
-                        @endif
-                        @if (hasPermission('miscellaneous_setting_update'))
-                            <li class="@yield('miscellaneous_active')"><a class="nav-link"
-                                    href="{{ route('miscellaneous') }}">{{ __('Misc') }}</a>
-                            </li>
-                        @endif
-                        @if (hasPermission('font_update'))
-                            <li class="@yield('pdf_font')"><a class="nav-link"
-                                    href="{{ route('admin.get.fonts') }}">{{ __('Pdf Font') }}</a>
-                            </li>
-                        @endif
+{{--                        @if (hasPermission('pusher_notification_update'))--}}
+{{--                            <li class="@yield('pusher_notification')">--}}
+{{--                                <a class="nav-link"--}}
+{{--                                    href="{{ route('settings.pusher.notification') }}">{{ __('Pusher Notification') }}</a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
+{{--                        @if (hasPermission('pusher_notification_update'))--}}
+{{--                            <li class="@yield('firebase_update')"><a href="{{ route('settings.firebase') }}"--}}
+{{--                                    class="nav-link">{{ __('Firebase') }}</a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
+{{--                        @if (hasPermission('miscellaneous_setting_update'))--}}
+{{--                            <li class="@yield('miscellaneous_active')"><a class="nav-link"--}}
+{{--                                    href="{{ route('miscellaneous') }}">{{ __('Misc') }}</a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
+{{--                        @if (hasPermission('font_update'))--}}
+{{--                            <li class="@yield('pdf_font')"><a class="nav-link"--}}
+{{--                                    href="{{ route('admin.get.fonts') }}">{{ __('Pdf Font') }}</a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
                     </ul>
                 </li>
             @endif

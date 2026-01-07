@@ -10,6 +10,8 @@ interface ProductInterface
 
     public function all();
 
+    public function allAvailableProducts();
+
     public function paginate($request, $status, $limit, $product_for);
 
     public function store($request);
@@ -102,4 +104,6 @@ interface ProductInterface
     public function productReviewCount($data);
 
     public function search($key, $paginate,$user=null);
+
+    public function productByFeatured();
 }

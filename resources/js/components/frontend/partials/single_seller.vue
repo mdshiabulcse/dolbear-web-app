@@ -47,7 +47,7 @@
 
 <script>
 
-import StarRating from 'vue-star-rating';
+import StarRating from './StarRating.vue';
 
 export default {
   name: "single_seller",

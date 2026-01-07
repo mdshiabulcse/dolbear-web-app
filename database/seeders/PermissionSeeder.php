@@ -59,8 +59,8 @@ class PermissionSeeder extends Seeder
                 'update'                    => 'customer_update',
 //                'delete'                    => 'customer_delete',
                 'ban'                       => 'customer_ban',
-                'user_reward_read'          => 'user_reward_read',
-                'user_reward_update'        => 'user_reward_update'
+                // 'user_reward_read'          => 'user_reward_read',
+                // 'user_reward_update'        => 'user_reward_update'
             ],
             'seller'                => [
                 'read'                      => 'seller_read',
@@ -99,13 +99,13 @@ class PermissionSeeder extends Seeder
                 'delete'                    =>'media_delete'
             ],
             'report'                => [
-                'admin_product_sale'        => 'admin_product_sale_read',
-                'seller_product_sale'       => 'seller_product_sale_read',
+                // 'admin_product_sale'        => 'admin_product_sale_read',
+                // 'seller_product_sale'       => 'seller_product_sale_read',
                 'product_stock'             => 'product_stock_read',
                 'product_wishlist'          =>'product_wishlist_read',
-                'user_searches'             => 'user_searches_read',
-                'commission_history'        => 'commission_history_read',
-                'wallet_recharge_history'   =>'wallet_recharge_history_read'
+                // 'user_searches'             => 'user_searches_read',
+                // 'commission_history'        => 'commission_history_read',
+                // 'wallet_recharge_history'   =>'wallet_recharge_history_read'
             ],
             'refund'                => ['read' => 'refund_read','approve' => 'refund_approve', 'process' => 'refund_process', 'reject' => 'refund_reject','refund_setting_read'=> 'refund_setting_read','refund_setting_update' => 'refund_setting_update'],
             'bulk_sms'              => ['read' => 'bulk_sms_read', 'send_sms' => 'send_bulk_sms','otp_setting_read'=> 'otp_setting_read','otp_setting_update'=> 'otp_setting_update','sms_template_read'=> 'sms_template_read','sms_template_update'=> 'sms_template_update'],

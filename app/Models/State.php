@@ -9,9 +9,15 @@ class State extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['name', 'country_id'];
+
     public function country()
     {
         return $this->belongsTo(Country::class);
+    }
+    public function division()
+    {
+        return $this->belongsTo(Division::class, 'division_id');
     }
     public function cities()
     {

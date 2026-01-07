@@ -10,11 +10,14 @@
             <div class="modal-body">
               <div class="row align-items-center">
                 <div class="col-md-6">
-                  <img :src="settings.popup_image" :alt="settings.popup_title" class="img-fluid">
+                  <a :href="settings.popup_url">
+                    <img :src="settings.popup_image" :alt="settings.popup_title" class="img-fluid">
+                  </a>
+
                 </div>
                 <div class="col-md-6">
                   <h2>{{ settings.popup_title }}</h2>
-                  <p class="text-start">{{ settings.popup_description }}</p>
+                  <p class="text-start" style="color: #212529;" >{{ settings.popup_description }}</p>
                   <form @submit.prevent="submit">
                     <div class="form-group">
                       <input type="email" v-model="form.email" class="form-control"
@@ -25,7 +28,7 @@
                       {{ lang.subscribe }}
                     </button>
                   </form>
-                  <div class="social">
+                  <!-- <div class="social">
                     <ul class="global-list">
                       <li v-if="settings.facebook_link"><a :href="settings.facebook_link"><span
                           class="mdi mdi-name mdi-facebook"></span></a></li>
@@ -38,7 +41,7 @@
                       <li v-if="settings.youtube_link"><a :href="settings.youtube_link"><span
                           class="mdi mdi-youtube"></span></a></li>
                     </ul>
-                  </div>
+                  </div> -->
                   <div class="left-content">
                     <form class="form-checkbox">
                       <div class="form-group">

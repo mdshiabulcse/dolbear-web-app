@@ -74,7 +74,7 @@
                                         </div>
                                         <div>
                                             @if(@$icon !='' && is_file_exists(@$icon['image_72x72']))
-                                            <img src="{{ static_asset($icon['image_72x72'])}}" alt="" id="img_profile" class="img-thumbnail site-icon">
+                                            <img src="{{ get_media(settingHelper('og_image')['image_72x72']) }}" alt="" id="img_profile" class="img-thumbnail site-icon">
                                             @else
                                                 <img src="{{ static_asset('images/default/default-image-72x72.png') }}" alt="{{ @$user->first_name }}" id="img_profile" class="img-thumbnail site-icon ">
                                             @endif

@@ -34,8 +34,13 @@ class SliderRepository implements SliderInterface {
 
     public function store($request)
     {
-        $width = addon_is_activated('ishopet') ? '726' : '970';
-        $height = addon_is_activated('ishopet') ? '350' : '400';
+//        $width = addon_is_activated('ishopet') ? '726' : '970';
+//        $height = addon_is_activated('ishopet') ? '350' : '400';
+
+        $width = '1920';
+        $height = '580';
+
+
         if ($request['bg_image'] != ''):
             $request['bg_image_id']     = $request['bg_image'];
             $request['bg_image']        = $this->getImageWithRecommendedSize($request['bg_image'], $width,$height,true);
@@ -73,7 +78,7 @@ class SliderRepository implements SliderInterface {
         $height = addon_is_activated('ishopet') ? '350' : '400';
         $slider = Slider::find($id);
         if ($request['bg_image'] != ''):
-            $this->deleteSingleFile($slider->bg_image,'image_970x400');
+            $this->deleteSingleFile($slider->bg_image,'image_1920x580');
             $request['bg_image_id']     = $request['bg_image'];
             $request['bg_image']        = $this->getImageWithRecommendedSize($request['bg_image'], $width,$height, true);
         else:

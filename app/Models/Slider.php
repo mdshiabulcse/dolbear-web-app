@@ -36,6 +36,6 @@ class Slider extends Model
 
     public function getSliderBgImageAttribute()
     {
-        return config('app.demo_mode') ? getFileLink('1940x800',$this->bg_image) : (addon_is_activated('ishopet') ? getFileLink('726x350',$this->bg_image) : getFileLink('970x400',$this->bg_image));
+        return getFileLink('1920x580',$this->bg_image);
     }
 }

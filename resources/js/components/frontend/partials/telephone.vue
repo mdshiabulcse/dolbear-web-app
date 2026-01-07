@@ -1,6 +1,10 @@
 <template>
+<div>
   <div class="yoori__signup--form" :class="{ error_border: phone_error }">
-    <div class="country__code--config" @click.stop="activeDropDown">
+
+
+    <div class="country__code--config">
+      <!--    <div class="country__code&#45;&#45;config" @click.stop="activeDropDown">-->
       <div class="country__code--config-details">
         <span class="country__code--flag">
           <img :src="defaultCountry.flag" alt="Flag" class="img-fluid" />
@@ -9,22 +13,22 @@
       </div>
       <ul @click.stop class="country__code--list" :class="activeClass">
         <input
-          placeholder="Search"
-          v-model="search_key"
-          @keyup="countrySearch"
-          type="text"
-          class="country__search"
+            placeholder="Search"
+            v-model="search_key"
+            @keyup="countrySearch"
+            type="text"
+            class="country__search"
         />
         <li
-          v-for="(country, index) in filtered_countries"
-          @click="getCountryCode(country)"
+            v-for="(country, index) in filtered_countries"
+            @click="getCountryCode(country)"
         >
           <span class="country__code--flag">
             <img
-              loading="lazy"
-              :src="country.flag_icon"
-              alt="Flag"
-              class="img-fluid"
+                loading="lazy"
+                :src="country.flag_icon"
+                alt="Flag"
+                class="img-fluid"
             />
           </span>
           <span class="country__name">
@@ -40,20 +44,37 @@
     </div>
     <!-- /.country__code--config -->
     <input
-      type="tel"
-      class="number"
-      @keyup="$emit('phone_no', phone_no)"
-      v-model="phone_no"
+        :disabled="!isEditable"
+        type="tel"
+        class="number"
+        @keyup="$emit('phone_no', phone_no)"
+        v-model="phone_no"
     />
+
     <input type="hidden" v-model="country_id" />
   </div>
+</div>
 </template>
 
 <script>
 export default {
   name: "telephone",
-  props: ["phone_error"],
-
+  watch: {
+    phone(newVal) {
+      this.phone_no = newVal;
+    }
+  },
+  props: {
+    phone: {
+      type: String,
+      default: "01",
+    },
+    phone_error: Boolean,
+    editable: {
+      type: Boolean,
+      default: true,
+    },
+  },
   data() {
     return {
       dropdown_active: false,
@@ -65,26 +86,23 @@ export default {
         name: "",
       },
       activeClass: "hideShow",
-      phone_no: "",
+      phone_no: this.phone,
+      test: "",
       count: 1,
       filtered_countries: [],
       country_id: [],
     };
-  },
-
-  watch: {
-    phone() {
-      this.phone_no = this.phone;
-    },
   },
   mounted() {
     this.country();
     this.country_id = this.settings.default_country;
   },
   computed: {
-    phone() {
-      return this.$store.getters.getMobileNo;
+
+    isEditable() {
+      return this.editable;
     },
+
     countries() {
       return this.$store.getters.getCountryList;
     },
@@ -108,7 +126,7 @@ export default {
         this.defaultCountry.flag = this.getUrl("images/flags/bd.png");
       }
 
-      let code = "+880";
+      let code = "01";
 
       if (!country) {
         this.defaultCountry.code = code;
@@ -122,7 +140,7 @@ export default {
         }
         this.defaultCountry.name = country.name;
       }
-      this.phone_no = this.defaultCountry.code;
+      this.phone_no = "01";
     },
     activeDropDown() {
       if (this.activeClass == "hideShow") {
@@ -149,7 +167,7 @@ export default {
       return this.filtered_countries;
     },
     getNum() {
-      this.$emit("phone_no", this.phone_no);
+      this.$emit("phone_no", this.phone);
       this.count++;
     },
     country() {

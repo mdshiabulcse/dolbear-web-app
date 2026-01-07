@@ -109,6 +109,6 @@ class SupportController extends Controller
              DB::rollBack();
              Toastr::error($e->getMessage());
             return redirect()->back();
-    }
+        }
     }
 }

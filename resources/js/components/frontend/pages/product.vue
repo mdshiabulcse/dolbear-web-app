@@ -23,34 +23,34 @@
 								{{ product.product_name }}
 							</a>
 						</h1>
-						<div class="sg-rating" v-if="!addons.includes('ishopet')">
-							<star-rating v-model:rating="product.rating" :read-only="true" :star-size="12" :round-start-rating="false"></star-rating>
-							<span class="reviews" v-if="product.reviews_count > 0">({{ product.reviews_count }} {{ lang.reviews }})</span>
-						</div>
-						<div class="icons">
-							<ul class="global-list">
-								<li v-if="product.minimum_order_quantity <= product.current_stock && !product.is_catalog && !product.is_classified" >
-									<a href="javaScript:void(0)" @click="cartBtn(product, index)"><span class="mdi mdi-name mdi-shopping-outline"></span></a>
-								</li>
-								<div v-if="authUser">
-									<li v-if="$store.getters.isThisWishlisted(product.id)">
-										<a href="javaScript:void(0)" @click="removeWishlist(product.id)"><span class="mdi mdi-name mdi-heart"></span></a>
-									</li>
-									<li v-else>
-										<a href="javaScript:void(0)" :class="{ disable_btn: is_disabled == true }" @click="addToWishlist(product.id)"><span class="mdi mdi-name mdi-heart-outline"></span></a>
-									</li>
-								</div>
-								<li v-if="compareCheck(product)">
-									<a class="active_compare" :class="{ disable_btn: is_disabled == true }" @click="removeCompare(product.id)" href="javaScript:void(0)"><span class="mdi mdi-name mdi-scale-balance"></span></a>
-								</li>
-								<li v-else>
-									<a @click="addToCompare(product)" :class="{ disable_btn: is_disabled == true }" href="javaScript:void(0)"><span class="mdi mdi-name mdi-scale-balance"></span></a>
-								</li>
-								<li>
-									<a href="javaScript:void(0)" @click="productFetch(product.slug)"><span class="mdi mdi-name mdi-magnify"></span></a>
-								</li>
-							</ul>
-						</div>
+<!--						<div class="sg-rating" v-if="!addons.includes('ishopet')">-->
+<!--							<star-rating v-model:rating="product.rating" :read-only="true" :star-size="12" :round-start-rating="false"></star-rating>-->
+<!--							<span class="reviews" v-if="product.reviews_count > 0">({{ product.reviews_count }} {{ lang.reviews }})</span>-->
+<!--						</div>-->
+<!--						<div class="icons">-->
+<!--							<ul class="global-list">-->
+<!--								<li v-if="product.minimum_order_quantity <= product.current_stock && !product.is_catalog && !product.is_classified" >-->
+<!--									<a href="javaScript:void(0)" @click="cartBtn(product, index)"><span class="mdi mdi-name mdi-shopping-outline"></span></a>-->
+<!--								</li>-->
+<!--								<div v-if="authUser">-->
+<!--									<li v-if="$store.getters.isThisWishlisted(product.id)">-->
+<!--										<a href="javaScript:void(0)" @click="removeWishlist(product.id)"><span class="mdi mdi-name mdi-heart"></span></a>-->
+<!--									</li>-->
+<!--									<li v-else>-->
+<!--										<a href="javaScript:void(0)" :class="{ disable_btn: is_disabled == true }" @click="addToWishlist(product.id)"><span class="mdi mdi-name mdi-heart-outline"></span></a>-->
+<!--									</li>-->
+<!--								</div>-->
+<!--								<li v-if="compareCheck(product)">-->
+<!--									<a class="active_compare" :class="{ disable_btn: is_disabled == true }" @click="removeCompare(product.id)" href="javaScript:void(0)"><span class="mdi mdi-name mdi-scale-balance"></span></a>-->
+<!--								</li>-->
+<!--								<li v-else>-->
+<!--									<a @click="addToCompare(product)" :class="{ disable_btn: is_disabled == true }" href="javaScript:void(0)"><span class="mdi mdi-name mdi-scale-balance"></span></a>-->
+<!--								</li>-->
+<!--								<li>-->
+<!--									<a href="javaScript:void(0)" @click="productFetch(product.slug)"><span class="mdi mdi-name mdi-magnify"></span></a>-->
+<!--								</li>-->
+<!--							</ul>-->
+<!--						</div>-->
 					</div>
 				</div><!-- /.sg-product -->
 			</li>
@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import StarRating from "vue-star-rating";
+import StarRating from "../partials/StarRating.vue";
 import FlipCountdown from "vue2-flip-countdown";
 import shimmer from "../partials/shimmer";
 import detailsView from "../partials/details-view";
@@ -217,7 +217,6 @@ export default {
 						toastr.error(response.data.error, this.lang.Error + " !!");
 					} else {
 						let products = response.data.products;
-            // console.log(products);
 						for (let i = 0; i < products.length; i++) {
 							let compare = products[i];
 							if (compare) {

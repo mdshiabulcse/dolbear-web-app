@@ -12,6 +12,7 @@ use App\Models\ProductStock;
 use App\Models\ProductView;
 use App\Models\Review;
 use App\Models\Search;
+use App\Models\Store;
 use App\Repositories\Interfaces\Admin\Product\ProductInterface;
 use App\Repositories\Interfaces\Admin\Product\ProductLanguageInterface;
 use App\Repositories\Interfaces\Admin\SellerInterface;
@@ -164,6 +165,9 @@ class ProductRepository implements ProductInterface
                 $products->orderBy('id', 'desc');
                 break;
         }
+
+        info($products->paginate($limit));
+
         return $products->paginate($limit);
     }
 
@@ -226,6 +230,7 @@ class ProductRepository implements ProductInterface
     public function store($request)
     {
         $product = new Product();
+
         $product->description_images = $this->saveMultipleImage($request->description_images,$product);
         if ($request->thumbnail):
             $files     = $this->getImageWithRecommendedSize($request->thumbnail,190,230);
@@ -254,6 +259,8 @@ class ProductRepository implements ProductInterface
         else:
             $product->images = [];
         endif;
+        $product->free_shipping     = $request->free_shipping;
+        $product->code     = $request->code;
         $product->slug              = $this->getSlug($request->name, $request->slug);
         $product->category_id       = $request->category != '' ? $request->category : null;
         $product->brand_id          = $request->brand != '' ? $request->brand : null;
@@ -294,11 +301,14 @@ class ProductRepository implements ProductInterface
         if ($request->campaign) :
             $product->special_discount         = priceFormatUpdate($request->campaign_discount,settingHelper('default_currency'));
         endif;
+
+        $product->current_stock = 0;
+
         if ($request->has_variant == 1):
             $product->has_variant   = 1;
             $product->current_stock = 0;
         else:
-            $product->current_stock = $request->current_stock != '' ? $request->current_stock : 0;
+            $product->current_stock = 0;
         endif;
 
         $product->colors            = $request->colors ?? [];
@@ -355,6 +365,18 @@ class ProductRepository implements ProductInterface
             endif;
         else:
             $product->estimated_shipping_days = $request->estimated_shipping_days != '' ? $request->estimated_shipping_days : 0;
+        endif;
+
+        if ($request->has('question')):
+            $product->question = $request->question;
+        else:
+            $product->question = '';
+        endif;
+
+        if ($request->has('warrenty')):
+            $product->warrenty = $request->warrenty;
+        else:
+            $product->warrenty = '';
         endif;
 
         if ($request->has('todays_deal')):
@@ -417,28 +439,45 @@ class ProductRepository implements ProductInterface
         endif;
         if ($product->has_variant == 1 && $request->has('variant_name')):
             $total_stock = 0;
+            $loopCount = 0;
+
             foreach ($request->variant_name as $key => $variant):
                 if ($request['variant_name'][$key]):
-                    $product_stock                  = new ProductStock();
-                    $product_stock->product_id      = $product->id;
-                    $product_stock->name            = $request['variant_name'][$key];
-                    $product_stock->variant_ids     = $request['variant_ids'][$key];
-                    $product_stock->sku             = $request['variant_sku'][$key];
-                    $product_stock->current_stock   = $request['variant_stock'][$key];
-                    $product_stock->price           = priceFormatUpdate($request['variant_price'][$key],settingHelper('default_currency'));
-                    if ($request['variant_image'][$key] != ''):
-                        $files  = $this->getImage($request['variant_image'][$key]);
-                        if ($files):
-                            $product_stock->image       = $files;
-                            $product_stock->image_id    = $request['variant_image'][$key];
+
+                    //loop will run for store
+                    $storeCount = Store::count();
+
+                    //loop of store
+//                    for ($i = 0; $i < $storeCount; $i++) {
+
+                        $product_stock                  = new ProductStock();
+                        $product_stock->product_id      = $product->id;
+                        $product_stock->name            = $request['variant_name'][$key];
+                        $product_stock->variant_ids     = $request['variant_ids'][$key];
+                        $product_stock->sku             = $request['variant_sku'][$key];
+
+                        $product_stock->store_id        = $request['variant_store'][$key];
+                        $product_stock->current_stock   = $request['variant_stock'][$key];
+
+                        $product_stock->price           = priceFormatUpdate($request['variant_price'][$key],settingHelper('default_currency'));
+                        if ($request['variant_image'][$key] != ''):
+                            $files  = $this->getImage($request['variant_image'][$key]);
+                            if ($files):
+                                $product_stock->image       = $files;
+                                $product_stock->image_id    = $request['variant_image'][$key];
+                            else:
+                                $product_stock->image       = [];
+                            endif;
                         else:
                             $product_stock->image       = [];
                         endif;
-                    else:
-                        $product_stock->image       = [];
-                    endif;
-                    $total_stock                    += $product_stock->current_stock;
-                    $product_stock->save();
+                        $total_stock                    += $product_stock->current_stock;
+                        $product_stock->save();
+
+                        $loopCount++;
+
+//                    }
+
                 endif;
 
                 $selected_variants = array();
@@ -464,13 +503,34 @@ class ProductRepository implements ProductInterface
             $product->current_stock         = $total_stock;
             $product->save();
         else:
-            $product_stock                  = new ProductStock();
-            $product_stock->product_id      = $product->id;
-            $product_stock->sku             = $request->sku;
-            $product_stock->name            = '';
-            $product_stock->price           = $product->price;
-            $product_stock->current_stock   = $product->current_stock;
-            $product_stock->save();
+            $productStockCount = 0;
+            foreach ($request->store as $key => $store) {
+                try {
+                        $product_stock = new ProductStock();
+                        $product_stock->product_id = $product->id;
+                        $product_stock->sku = $request->sku;
+                        $product_stock->name = '';
+                        $product_stock->price = $product->price;
+                        $product_stock->current_stock = $request->current_stock[$key];
+                        $product_stock->store_id = $store;
+                        $product_stock->save();
+
+                } catch (\Exception $e) {
+                    throw $e;
+                }
+
+                $productStockCount += $product_stock->current_stock;
+            }
+
+            try {
+            $product = Product::find($product->id);
+            $product->current_stock = $productStockCount;
+            $product->save();
+            } catch (\Exception $e) {
+                throw $e;
+            }
+
+
         endif;
 
         return true;
@@ -478,7 +538,10 @@ class ProductRepository implements ProductInterface
 
     public function update($request)
     {
+        try {
+
         $product = $this->get($request->id);
+
         if (addon_is_activated('ramdhani'))
         {
             $product->shipping_class_id = $request->shipping_class_id;
@@ -517,8 +580,11 @@ class ProductRepository implements ProductInterface
             $product->image_ids = null;
         endif;
 
-        $product->slug = $this->getSlug($request->name, $request->slug);
-        $product->category_id = $request->category != '' ? $request->category : null;
+
+            $product->slug = $this->getSlug($request->name, $request->slug);
+            $product->code     = $request->code;
+        $product->free_shipping     = $request->free_shipping;
+            $product->category_id = $request->category != '' ? $request->category : null;
         $product->brand_id = $request->brand != '' ? $request->brand : null;
 //            $product->created_by                = Sentinel::getUser()->id;
 
@@ -566,7 +632,7 @@ class ProductRepository implements ProductInterface
             $product->has_variant = 0;
             $product->colors = [];
             $product->attribute_sets = [];
-            $product->current_stock = $request->current_stock != '' ? $request->current_stock : 0;
+            $product->current_stock = array_sum($request->current_stock);
         endif;
 
 
@@ -611,11 +677,7 @@ class ProductRepository implements ProductInterface
         else:
             $product->is_catalog = 0;
         endif;
-        if ($request->has('is_featured')):
-            $product->is_featured = 1;
-        else:
-            $product->is_featured = 0;
-        endif;
+
         //digital product will not get delivered
         if ($request->has('is_digital')):
             $product->is_digital = 1;
@@ -635,6 +697,20 @@ class ProductRepository implements ProductInterface
             $product->is_digital = 0;
             $product->estimated_shipping_days = $request->estimated_shipping_days != '' ? $request->estimated_shipping_days : 0;
         endif;
+
+
+        if ($request->has('question')):
+            $product->question = $request->question;
+        else:
+            $product->question = '';
+        endif;
+
+        if ($request->has('warrenty')):
+            $product->warrenty = $request->warrenty;
+        else:
+            $product->warrenty = '';
+        endif;
+        
 
         if ($request->has('todays_deal')):
             $product->todays_deal = $request->todays_deal;
@@ -677,6 +753,7 @@ class ProductRepository implements ProductInterface
 
             $product->contact_info = $contact_details;
         endif;
+
         $product->save();
 
         $request['product_id'] = $product->id;
@@ -704,76 +781,103 @@ class ProductRepository implements ProductInterface
             $product->special_discount_start    = $campaign->start_date;
             $product->special_discount_end      = $campaign->end_date;
         endif;
-        foreach ($product->stock as $key => $stock):
-            $stock->delete();
-        endforeach;
-        if ($product->has_variant == 1 && $request->has('variant_name')):
-            $total_stock = 0;
-            foreach ($request->variant_name as $key => $variant):
-                if ($request['variant_name'][$key]):
-                    $product_stock = ProductStock::where('product_id', $product->id)->where('name', $request['variant_name'][$key])->first();
-                    if ($product_stock == ''):
-                        $product_stock = new ProductStock();
+
+//        foreach ($product->stock as $key => $stock):
+//            $stock->delete();
+//        endforeach;
+
+
+
+            if ($product->has_variant == 1 && $request->has('variant_name')):
+                $total_stock = 0;
+                $loopCount = 0;
+                foreach ($request->variant_name as $key => $variant):
+                    if ($request['variant_name'][$key]):
+
+                        //loop will run for store
+                        $storeCount = Store::count();
+
+                        //loop of store
+                        // for ($i = 0; $i < $storeCount; $i++) {
+
+                            $product_stock = new ProductStock();
+                            $product_stock->product_id = $product->id;
+                            $product_stock->name = $request['variant_name'][$key];
+                            $product_stock->variant_ids = $request['variant_ids'][$key];
+                            $product_stock->sku = $request['variant_sku'][$key];
+
+                            $product_stock->store_id = $request['variant_store'][$loopCount];
+                            $product_stock->current_stock = $request['variant_stock'][$loopCount];
+
+                            $priceLoop = count($request['variant_name'] ?? []) !== count($request['variant_stock'] ?? []) ? $key : $loopCount ;
+                            $product_stock->price = priceFormatUpdate($request['variant_price'][$priceLoop], settingHelper('default_currency'));
+                            if ($request['variant_image'][$key] != ''):
+                                $files = $this->getImage($request['variant_image'][$key]);
+                                if ($files):
+                                    $product_stock->image = $files;
+                                    $product_stock->image_id = $request['variant_image'][$key];
+                                else:
+                                    $product_stock->image = [];
+                                endif;
+                            else:
+                                $product_stock->image = [];
+                            endif;
+                            $total_stock += (int)$product_stock->current_stock;
+                            $product_stock->save();
+
+                            $loopCount++;
+
+                        // }
+
                     endif;
-                    $product_stock->product_id      = $product->id;
-                    $product_stock->variant_ids     = $request['variant_ids'][$key];
-                    $product_stock->name            = $request['variant_name'][$key];
-                    $product_stock->sku             = $request['variant_sku'][$key];
-                    $product_stock->current_stock   = $request['variant_stock'][$key];
-                    $product_stock->price           = priceFormatUpdate($request['variant_price'][$key],settingHelper('default_currency'));
-                    if ($request['variant_image'][$key] != ''):
-                        $files = $this->getImage($request['variant_image'][$key]);
-                        if ($files):
-                            $product_stock->image = $files;
-                            $product_stock->image_id = $request['variant_image'][$key];
-                        else:
-                            $product_stock->image = [];
-                            $product_stock->image_id = null;
-                        endif;
-                    else:
-                        $product_stock->image = [];
-                        $product_stock->image_id = null;
+
+                    $selected_variants = array();
+                    $selected_variants_ids = array();
+
+                    if ($request->has('attribute_sets')):
+                        foreach ($request->attribute_sets as $attribute_set):
+                            $attribute_values = 'attribute_values_' . $attribute_set;
+                            $values = array();
+                            if ($request->has($attribute_values)):
+                                foreach ($request[$attribute_values] as $value):
+                                    array_push($values, $value);
+                                    array_push($selected_variants_ids, $value);
+                                endforeach;
+                                $selected_variants[$attribute_set] = $values;
+                            endif;
+                        endforeach;
                     endif;
-                    $total_stock += $product_stock->current_stock;
-                    $product_stock->save();
-                endif;
+                    $product->selected_variants = $selected_variants;
+                    $product->selected_variants_ids = $selected_variants_ids;
+                endforeach;
 
-                $selected_variants      = array();
-                $selected_variants_ids  = array();
-
-                if ($request->has('attribute_sets')):
-                    foreach ($request->attribute_sets as $attribute_set):
-                        $attribute_values = 'attribute_values_' . $attribute_set;
-                        $values = array();
-                        if ($request->has($attribute_values)):
-                            foreach ($request[$attribute_values] as $value):
-                                array_push($values, $value);
-                                array_push($selected_variants_ids, $value);
-                            endforeach;
-                            $selected_variants[$attribute_set] = $values;
+                $product->current_stock = $total_stock;
+                $product->save();
+            else:
+                foreach ($request->store as $key => $store) {
+                    try {
+                        $product_stock = ProductStock::where('product_id', $product->id)->where('store_id', $store)->first();
+                        if ($product_stock == ''):
+                            $product_stock = new ProductStock();
                         endif;
-                    endforeach;
-                endif;
-                $product->selected_variants         = $selected_variants;
-                $product->selected_variants_ids     = $selected_variants_ids;
-            endforeach;
+                        $product_stock->product_id = $product->id;
+                        $product_stock->sku = $request->sku;
+                        $product_stock->name = '';
+                        $product_stock->price = $product->price;
+                        $product_stock->current_stock = $request->current_stock[$key];
+                        $product_stock->store_id = $store;
+                        $product_stock->save();
+                    } catch (\Exception $e) {
+                        throw $e;
+                    }
+                }
 
-            $product->current_stock                 = $total_stock;
-            $product->save();
-        else:
-            $product_stock                          = $product->stock->first();
-            if ($product_stock == ''):
-                $product_stock                      = new ProductStock();
             endif;
-            $product_stock->product_id              = $product->id;
-            $product_stock->sku                     = $request->sku;
-            $product_stock->name                    = '';
-            $product_stock->price                   = $product->price;
-            $product_stock->image                   = [];
-            $product_stock->image_id                = null;
-            $product_stock->current_stock           = $product->current_stock;
-            $product_stock->save();
-        endif;
+
+        }catch (\Exception $e){
+            info($e->getMessage());
+            throw $e;
+        }
         return true;
     }
 
@@ -853,7 +957,7 @@ class ProductRepository implements ProductInterface
     {
         return Product::with('userWishlist')->withAvg('reviews','rating')->withCount('reviews')->UserCheck()->IsWholesale()->IsStockOut()
             ->selectRaw('id,price,special_discount,minimum_order_quantity,current_stock,special_discount_type,special_discount_start,special_discount_end,rating,total_sale,thumbnail,slug,reward,current_stock')
-            ->ProductPublished()->orderBy('total_sale', 'desc')->latest()->take(12)->get();
+            ->ProductPublished()->orderBy('total_sale', 'desc')->where('is_featured', 1)->latest()->take(12)->get();
     }
 
     public function offerEndingSoon($limit = null)
@@ -967,112 +1071,112 @@ class ProductRepository implements ProductInterface
             $products->whereHas('productLanguages', function ($query) use ($data) {
                 $query->where('name', 'like', '%' . $data['key'] . '%');
             });
-        } else {
-            if (!addon_is_activated('ramdhani') && $data['route'] == 'product.by.brand') {
-                $products->whereHas('brand', function ($q) use ($data) {
-                    $q->where('slug', $data['slug']);
-                });
-            }
-            if ($data['route'] == 'product.by.category' || $data['route'] == 'product.by.gadget') {
+        }
 
-                $category = Category::where('slug', $data['slug'])->first();
-                $category_ids = \App\Utility\CategoryUtility::getMyAllChildIds($category->id);
-                $category_ids[] = $category->id;
-                $all_nested_category = array();
-                if ($category) {
-                    if (array_key_exists('child_category', $data) && count($data['child_category']) > 0) {
-                        foreach ($data['child_category'] as $child) {
-                            $nested_category = \App\Utility\CategoryUtility::getMyAllChildIds($child);
-                            $nested_category[] = (int)$child;
-                            $all_nested_category[] = $nested_category;
-                        }
-                        $all_nested_category[] = [(int)$category->id];
-                        $products->whereIn('category_id', array_merge(...$all_nested_category));
-                    } else {
-                        $products->whereIn('category_id', $category_ids);
+        if (!addon_is_activated('ramdhani') && $data['route'] == 'product.by.brand') {
+            $products->whereHas('brand', function ($q) use ($data) {
+                $q->where('slug', $data['slug']);
+            });
+        }
+        if ($data['route'] == 'product.by.category' || $data['route'] == 'product.by.gadget') {
+
+            $category = Category::where('slug', $data['slug'])->first();
+            $category_ids = \App\Utility\CategoryUtility::getMyAllChildIds($category->id);
+            $category_ids[] = $category->id;
+            $all_nested_category = array();
+            if ($category) {
+                if (array_key_exists('child_category', $data) && count($data['child_category']) > 0) {
+                    foreach ($data['child_category'] as $child) {
+                        $nested_category = \App\Utility\CategoryUtility::getMyAllChildIds($child);
+                        $nested_category[] = (int)$child;
+                        $all_nested_category[] = $nested_category;
                     }
-                }
-            }
-            if ($data['route'] == 'product.by.offer') {
-                $products->where('special_discount', '>', 0)->where('special_discount_end', '!=', null);
-            }
-            if ($data['route'] == 'shop') {
-                $products->whereHas('sellerProfile', function ($q) use ($data) {
-                    $q->where('slug', $data['slug']);
-                });
-            }
-            if (array_key_exists('category', $data) && count($data['category']) > 0) {
-                $all_nested_category = [];
-                foreach ($data['category'] as $child) {
-                    $nested_category = \App\Utility\CategoryUtility::getMyAllChildIds($child);
-                    $nested_category[] = (int)$child;
-                    $all_nested_category[] = $nested_category;
-                }
-                $products->whereIn('category_id', array_merge(...$all_nested_category));
-            }
-            if (array_key_exists('brand', $data) && count($data['brand']) > 0) {
-                $products->whereIn('brand_id', $data['brand']);
-            }
-            if (array_key_exists('price', $data)) {
-                $price = json_decode($data['price']);
-                if ($price->min == 0 && $price->max == 0)
-                {
-                    $max = $price_range['max'];
-                    $min = $price_range['min'];
-                }
-                else{
-                    $max = priceFormatUpdate($price->max,currencyCheck());
-                    $min = priceFormatUpdate($price->min,currencyCheck());
-                }
-                if (!$min)
-                {
-                    $min = 0;
-                }
-                if (!$max) {
-                    $products->where('price', '>', $min);
+                    $all_nested_category[] = [(int)$category->id];
+                    $products->whereIn('category_id', array_merge(...$all_nested_category));
                 } else {
-                    $products->whereBetween('price', [$min, $max]);
+                    $products->whereIn('category_id', $category_ids);
                 }
             }
-            if (array_key_exists('color', $data) && count($data['color']) > 0) {
-
-                $products->where(function ($query) use ($data) {
-                    foreach ($data['color'] as $color) {
-                        $query->where('colors', 'like', "%\"{$color}\"%");
-                    }
-                });
+        }
+        if ($data['route'] == 'product.by.offer') {
+            $products->where('special_discount', '>', 0)->where('special_discount_end', '!=', null);
+        }
+        if ($data['route'] == 'shop') {
+            $products->whereHas('sellerProfile', function ($q) use ($data) {
+                $q->where('slug', $data['slug']);
+            });
+        }
+        if (array_key_exists('category', $data) && count($data['category']) > 0) {
+            $all_nested_category = [];
+            foreach ($data['category'] as $child) {
+                $nested_category = \App\Utility\CategoryUtility::getMyAllChildIds($child);
+                $nested_category[] = (int)$child;
+                $all_nested_category[] = $nested_category;
             }
-            $length = array_key_exists('rating', $data) ? count($data['rating']) : 0;
-            if ($length > 0) {
-                sort($data['rating']);
+            $products->whereIn('category_id', array_merge(...$all_nested_category));
+        }
+        if (array_key_exists('brand', $data) && count($data['brand']) > 0) {
+            $products->whereIn('brand_id', $data['brand']);
+        }
+        if (array_key_exists('price', $data)) {
+            $price = json_decode($data['price']);
+            if ($price->min == 0 && $price->max == 0)
+            {
+                $max = $price_range['max'];
+                $min = $price_range['min'];
+            }
+            else{
+                $max = priceFormatUpdate($price->max,currencyCheck());
+                $min = priceFormatUpdate($price->min,currencyCheck());
+            }
+            if (!$min)
+            {
+                $min = 0;
+            }
+            if (!$max) {
+                $products->where('price', '>', $min);
+            } else {
+                $products->whereBetween('price', [$min, $max]);
+            }
+        }
+        if (array_key_exists('color', $data) && count($data['color']) > 0) {
 
-                if ($length > 1) {
-                    $products->whereBetween('rating', [(int)$data['rating'][0], (int)$data['rating'][$length - 1]]);
-                } else {
-                    $products->whereBetween('rating', [$data['rating'][0] - 0.5, (int)$data['rating'][0]]);
+            $products->where(function ($query) use ($data) {
+                foreach ($data['color'] as $color) {
+                    $query->where('colors', 'like', "%\"{$color}\"%");
                 }
-            }
-            if (array_key_exists('attribute_value_id', $data) && count($data['attribute_value_id']) > 0) {
-                $products->where(function ($query) use ($data) {
-                    foreach ($data['attribute_value_id'] as $attribute_value) {
-                        $query->orWhere('selected_variants_ids', 'like', "%\"{$attribute_value}\"%");
-                    }
-                });
-            }
+            });
+        }
+        $length = array_key_exists('rating', $data) ? count($data['rating']) : 0;
+        if ($length > 0) {
+            sort($data['rating']);
 
-            if ($data['sort'] == 'newest') {
-                if ($data['route'] == 'product.by.selling') {
-                    $products->orderByRaw("total_sale DESC, id DESC");
-                } else {
-                    $products->latest();
-                }
-            } elseif ($data['sort'] == 'oldest') {
-                $products->oldest();
-            } elseif ($data['sort'] == 'top_rated') {
-                $products->orderBy('rating', 'desc');
-            } elseif ($data['sort'] == 'top_selling') {
-                $products->withCount('orders')->orderBy('orders_count', 'desc');
+            if ($length > 1) {
+                $products->whereBetween('rating', [(int)$data['rating'][0], (int)$data['rating'][$length - 1]]);
+            } else {
+                $products->whereBetween('rating', [$data['rating'][0] - 0.5, (int)$data['rating'][0]]);
             }
+        }
+        if (array_key_exists('attribute_value_id', $data) && count($data['attribute_value_id']) > 0) {
+            $products->where(function ($query) use ($data) {
+                foreach ($data['attribute_value_id'] as $attribute_value) {
+                    $query->orWhere('selected_variants_ids', 'like', "%\"{$attribute_value}\"%");
+                }
+            });
+        }
+
+        if ($data['sort'] == 'newest') {
+            if ($data['route'] == 'product.by.selling') {
+                $products->orderByRaw("total_sale DESC, id DESC");
+            } else {
+                $products->latest();
+            }
+        } elseif ($data['sort'] == 'oldest') {
+            $products->oldest();
+        } elseif ($data['sort'] == 'top_rated') {
+            $products->orderBy('rating', 'desc');
+        } elseif ($data['sort'] == 'top_selling') {
+            $products->withCount('orders')->orderBy('orders_count', 'desc');
         }
 
         return  $products->with('userWishlist')->withAvg('reviews','rating')->withCount('reviews')
@@ -1194,6 +1298,13 @@ class ProductRepository implements ProductInterface
             ->selectRaw('id,brand_id,category_id,status,price,special_discount,special_discount_type,special_discount_start,special_discount_end,rating,slug,thumbnail,minimum_order_quantity,has_variant,reward,current_stock')
             ->UserCheck()->IsWholesale()->IsStockOut()->latest()->take(6)->get();
     }
+
+    public function allAvailableProducts()
+    {
+        return Product::withAvg('reviews','rating')->withCount('reviews')->ProductPublished()
+            ->selectRaw('id,brand_id,category_id,status,price,special_discount,special_discount_type,special_discount_start,special_discount_end,rating,slug,thumbnail,minimum_order_quantity,has_variant,reward,current_stock')
+            ->UserCheck()->IsWholesale()->IsStockOut()->latest()->get();
+    }
     public function businessProducts()
     {
         return Product::withAvg('reviews','rating')->withCount('reviews')->ProductPublished()
@@ -1267,11 +1378,13 @@ class ProductRepository implements ProductInterface
         return Product::with('stock')->withAvg('reviews','rating')->withCount('reviews')
             ->whereHas('productLanguages', function ($query) use ($key) {
             $query->where('name', 'like', '%' . $key . '%');
-        })->orWhereHas('stock', function ($query) use ($key) {
-                $query->where('name', 'like', '%' . $key . '%');
+        })->orWhereHas('category.categoryLanguage', function ($query) use ($key) {
+                $query->where('title', 'like', '%' . $key . '%');
             })->selectRaw('id,brand_id,category_id,status,price,special_discount,special_discount_type,special_discount_start,special_discount_end,rating,slug,thumbnail,minimum_order_quantity,has_variant,reward,current_stock')
             ->ProductPublished()->UserCheck()->IsWholesale()->IsStockOut()->latest()->take(20)->get();
     }
+
+
     //api end
 
     //mobileApi
@@ -1412,5 +1525,10 @@ class ProductRepository implements ProductInterface
                 $q->where('user_id',$data['user_id']);
             });
         })->count();
+    }
+
+    public function productByFeatured()
+    {
+        return Product::where('is_featured',1)->ProductPublished()->UserCheck()->IsWholesale()->IsStockOut()->latest()->get();
     }
 }

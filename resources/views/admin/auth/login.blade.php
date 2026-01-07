@@ -20,31 +20,31 @@
         $icon = settingHelper('favicon');
     @endphp
     <link rel="apple-touch-icon" sizes="57x57"
-          href="{{ ($icon != [] && @is_file_exists($icon['image_57x57_url'])) ? static_asset($icon['image_57x57_url']) : static_asset('images/ico/favicon-57x57.png') }}">
+          href="{{ $icon != [] && @is_file_exists($icon['image_57x57_url']) ? get_media($icon['image_57x57_url']) : static_asset('images/ico/favicon-57x57.png') }}">
     <link rel="apple-touch-icon" sizes="60x60"
-          href="{{ ($icon != [] && @is_file_exists($icon['image_60x60_url'])) ? static_asset($icon['image_60x60_url']) : static_asset('images/ico/favicon-60x60.png') }}">
+          href="{{ $icon != [] && @is_file_exists($icon['image_60x60_url']) ? get_media($icon['image_60x60_url']) : static_asset('images/ico/favicon-60x60.png') }}">
     <link rel="apple-touch-icon" sizes="72x72"
-          href="{{ ($icon != [] && @is_file_exists($icon['image_72x72_url'])) ? static_asset($icon['image_72x72_url']) : static_asset('images/ico/favicon-72x72.png') }}">
+          href="{{ $icon != [] && @is_file_exists($icon['image_72x72_url']) ? get_media($icon['image_72x72_url']) : static_asset('images/ico/favicon-72x72.png') }}">
     <link rel="apple-touch-icon" sizes="76x76"
-          href="{{ ($icon != [] && @is_file_exists($icon['image_76x76_url'])) ? static_asset($icon['image_76x76_url']) : static_asset('images/ico/favicon-76x76.png') }}">
+          href="{{ $icon != [] && @is_file_exists($icon['image_76x76_url']) ? get_media($icon['image_76x76_url']) : static_asset('images/ico/favicon-76x76.png') }}">
     <link rel="apple-touch-icon" sizes="114x114"
-          href="{{ ($icon != [] && @is_file_exists($icon['image_114x114_url'])) ? static_asset($icon['image_114x114_url']) : static_asset('images/ico/favicon-114x114.png') }}">
+          href="{{ $icon != [] && @is_file_exists($icon['image_114x114_url']) ? get_media($icon['image_114x114_url']) : static_asset('images/ico/favicon-114x114.png') }}">
     <link rel="apple-touch-icon" sizes="120x120"
-          href="{{ ($icon != [] && @is_file_exists($icon['image_120x120_url'])) ? static_asset($icon['image_120x120_url']) : static_asset('images/ico/favicon-120x120.png') }}">
+          href="{{ $icon != [] && @is_file_exists($icon['image_120x120_url']) ? get_media($icon['image_120x120_url']) : static_asset('images/ico/favicon-120x120.png') }}">
     <link rel="apple-touch-icon" sizes="144x144"
-          href="{{ ($icon != [] && @is_file_exists($icon['image_144x144_url'])) ? static_asset($icon['image_144x144_url']) : static_asset('images/ico/favicon-144x144.png') }}">
+          href="{{ $icon != [] && @is_file_exists($icon['image_144x144_url']) ? get_media($icon['image_144x144_url']) : static_asset('images/ico/favicon-144x144.png') }}">
     <link rel="apple-touch-icon" sizes="152x152"
-          href="{{ ($icon != [] && @is_file_exists($icon['image_152x152_url'])) ? static_asset($icon['image_152x152_url']) : static_asset('images/ico/favicon-152x152.png') }}">
+          href="{{ $icon != [] && @is_file_exists($icon['image_152x152_url']) ? get_media($icon['image_152x152_url']) : static_asset('images/ico/favicon-152x152.png') }}">
     <link rel="apple-touch-icon" sizes="180x180"
-          href="{{ ($icon != [] && @is_file_exists($icon['image_180x180_url'])) ? static_asset($icon['image_180x180_url']) : static_asset('images/ico/favicon-180x180.png') }}">
+          href="{{ $icon != [] && @is_file_exists($icon['image_180x180_url']) ? get_media($icon['image_180x180_url']) : static_asset('images/ico/favicon-180x180.png') }}">
     <link rel="icon" type="image/png" sizes="192x192"
-          href="{{ ($icon != [] && @is_file_exists($icon['image_192x192_url'])) ? static_asset($icon['image_192x192_url']) : static_asset('images/favicon-192x192.png') }}">
+          href="{{ $icon != [] && @is_file_exists($icon['image_192x192_url']) ? get_media($icon['image_192x192_url']) : static_asset('images/favicon-192x192.png') }}">
     <link rel="icon" type="image/png" sizes="32x32"
-          href="{{ ($icon != [] && @is_file_exists($icon['image_32x32_url'])) ? static_asset($icon['image_32x32_url']) : static_asset('images/ico/favicon-32x32.png') }}">
+          href="{{ $icon != [] && @is_file_exists($icon['image_32x32_url']) ? get_media($icon['image_32x32_url']) : static_asset('images/ico/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="96x96"
-          href="{{ ($icon != [] && @is_file_exists($icon['image_96x96_url'])) ? static_asset($icon['image_96x96_url']) : static_asset('images/ico/favicon-96x96.png') }}">
+          href="{{ $icon != [] && @is_file_exists($icon['image_96x96_url']) ? get_media($icon['image_96x96_url']) : static_asset('images/ico/favicon-96x96.png') }}">
     <link rel="icon" type="image/png" sizes="16x16"
-          href="{{ ($icon != [] && @is_file_exists($icon['image_16x16_url'])) ? static_asset($icon['image_16x16_url']) : static_asset('images/ico/favicon-16x16.png') }}">
+          href="{{ $icon != [] && @is_file_exists($icon['image_16x16_url']) ? get_media($icon['image_16x16_url']) : static_asset('images/ico/favicon-16x16.png') }}">
     <link rel="manifest" href="{{ static_asset('images/ico/manifest.json') }}">
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage"

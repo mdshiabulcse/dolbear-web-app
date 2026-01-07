@@ -6,7 +6,6 @@
   |--------------------------------------------------------------------------
  */
 
-use App\Http\Controllers\Admin\Addons\ShippingClassController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\FontController;
 use App\Http\Controllers\Admin\RoleController;
@@ -15,6 +14,7 @@ use App\Http\Controllers\Admin\AddonController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\StoreController;
 use App\Http\Controllers\Admin\CommonController;
 use App\Http\Controllers\Admin\SellerController;
 use App\Http\Controllers\Admin\SliderController;
@@ -24,7 +24,10 @@ use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\ShippingController;
 use App\Http\Controllers\Admin\Blog\BlogController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\RecommendedController;
 use App\Http\Controllers\Admin\Setup\CacheController;
+use App\Http\Controllers\Admin\FlashMessageController;
+use App\Http\Controllers\Admin\PointSettingController;
 use App\Http\Controllers\Admin\Setup\VatTaxController;
 use App\Http\Controllers\Admin\Product\BrandController;
 use App\Http\Controllers\Admin\Product\ColorController;
@@ -47,6 +50,7 @@ use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use App\Http\Controllers\Admin\MobileApps\AppIntroController;
 use App\Http\Controllers\Admin\Setup\EmailSettingsController;
 use App\Http\Controllers\Admin\Setup\MiscellaneousController;
+use App\Http\Controllers\Admin\Addons\ShippingClassController;
 use App\Http\Controllers\Admin\Marketing\SubscriberController;
 use App\Http\Controllers\Admin\MobileApps\MobileAppsController;
 use App\Http\Controllers\Admin\Setup\GeneralSettingsController;
@@ -55,9 +59,12 @@ use App\Http\Controllers\Admin\StoreFront\StoreFrontController;
 use App\Http\Controllers\Admin\Payment\PaymentGatewayController;
 use App\Http\Controllers\Admin\Setup\AdminPanelSettingController;
 use App\Http\Controllers\Admin\Support\SupportDepartmentController;
+use App\Http\Controllers\Admin\PathaoCourier\PathaoCourierController;
 
 Route::get('change-currency/{id}', [GeneralSettingsController::class, 'currencyChange'])->name('admin.change.currency');
 Route::get('change-lang/{id}', [GeneralSettingsController::class, 'langChange'])->name('admin.change.lang');
+
+Route::post('pathao/status-update', [PathaoCourierController::class, 'updateStatus'])->middleware('pathao.signature');
 
 Route::middleware(['XSS','isInstalled'])->group(function () {
     Route::group(
@@ -335,7 +342,7 @@ Route::middleware(['XSS','isInstalled'])->group(function () {
                 Route::get('home-page', [StoreFrontController::class, 'homePage'])->name('admin.home.page')->middleware('PermissionCheck:home_page_update');
                 Route::get('add-home-content', [StoreFrontController::class, 'getContent'])->name('get.home.content')->middleware('PermissionCheck:home_page_update');
                 Route::put('update-home-content', [StoreFrontController::class, 'updateHomeContent'])->name('admin.home.page.update')->middleware('PermissionCheck:home_page_update');
-                Route::put('update', [StoreFrontController::class, 'update'])->name('update')->middleware('PermissionCheck:theme_option_update');
+                Route::put('update', [StoreFrontController::class, 'update'])->name('update');
                 Route::get('website-seo', [StoreFrontController::class, 'websiteSeo'])->name('website.seo')->middleware('PermissionCheck:website_seo_update');
                 Route::put('update-website-seo', [StoreFrontController::class, 'update'])->name('update.website.seo')->middleware('PermissionCheck:website_seo_update');
                 Route::get('custom-css', [StoreFrontController::class, 'cssSetting'])->name('custom.css')->middleware('PermissionCheck:custom_css_update');
@@ -345,6 +352,7 @@ Route::middleware(['XSS','isInstalled'])->group(function () {
                 Route::get('gdpr', [StoreFrontController::class, 'gdprSetting'])->name('gdpr')->middleware('PermissionCheck:gdpr_update');
                 Route::put('gdpr-status-update', [StoreFrontController::class, 'gdprStatus'])->name('gdpr.status.update')->middleware('PermissionCheck:gdpr_update');
                 Route::get('website-popup', [StoreFrontController::class, 'popupSetting'])->name('website.popup')->middleware('PermissionCheck:website_popup_update');
+                Route::get('video', [StoreFrontController::class, 'videoSetting'])->name('website.video')->middleware('PermissionCheck:website_video_update');
 
                 //Header Content
                 Route::get('header', [StoreFrontController::class, 'header'])->name('header')->middleware('PermissionCheck:header_content_update');
@@ -430,7 +438,7 @@ Route::middleware(['XSS','isInstalled'])->group(function () {
                 Route::get('shipping-configuration', [ShippingController::class, 'configuration'])->name('shipping-configuration')->middleware('PermissionCheck:shipping_configuration_read');
                 Route::post('shipping-configuration', [ShippingController::class, 'configurationSave'])->name('admin.store.shipping.commission-type')->middleware('PermissionCheck:shipping_configuration_update');
 
-                Route::get('countries', [ShippingController::class, 'countries'])->name('countries')->middleware('PermissionCheck:country_read');
+                Route::get('countries', [ShippingController::class, 'divisions'])->name('countries');
                 Route::put('country-status-change', [ShippingController::class, 'countryStatusChange'])->name('country.status.change')->middleware('PermissionCheck:country_update');
 
                 //state
@@ -438,6 +446,9 @@ Route::middleware(['XSS','isInstalled'])->group(function () {
                 Route::post('state-store', [ShippingController::class, 'stateStore'])->name('state.store')->middleware('PermissionCheck:state_create');
                 Route::put('state-status-change', [ShippingController::class, 'stateStatusChange'])->name('state.status.change')->middleware('PermissionCheck:state_update');
                 Route::put('state-update', [ShippingController::class, 'stateUpdate'])->name('state.update')->middleware('PermissionCheck:state_update');
+
+                Route::get('state-create', [ShippingController::class, 'stateCreate'])->name('state.create')->middleware('PermissionCheck:state_create');
+
                 Route::get('state-edit/{id}', [ShippingController::class, 'stateEdit'])->name('state.edit')->middleware('PermissionCheck:state_update');
                 Route::post('state-import', [ShippingController::class, 'stateImport'])->name('state.import')->middleware('PermissionCheck:state_import_create');
                 Route::delete('delete/states/{id}', [CommonController::class, 'delete'])->name('admin.state.delete')->middleware('PermissionCheck:state_delete');
@@ -513,8 +524,18 @@ Route::middleware(['XSS','isInstalled'])->group(function () {
                     Route::post('assign/delivery-hero', [OrderController::class, 'assignDeliveryHero'])->name('order.assign.delivery.hero')->middleware('PermissionCheck:order_update');
                     Route::post('delivery/status-change', [OrderController::class, 'deliveryStatusChange'])->name('order.delivery.status.change')->middleware('PermissionCheck:order_update');
                     Route::post('payment/status-change', [OrderController::class, 'paymentStatusChange'])->name('order.payment.status.change')->middleware('PermissionCheck:order_update');
+                    Route::post('order/store-stock-change', [OrderController::class, 'storeStockChange'])->name('order.store.stock.change')->middleware('PermissionCheck:order_update');
                     Route::post('approve-offline-payment', [OrderController::class, 'approveOfflinePayment'])->name('order.approve.offline.payment')->middleware('PermissionCheck:order_approve_offline_payment');
+                    Route::get('delivery/pathao', [PathaoCourierController::class, 'index'])->name('admin.delivery.pathao');
+    
+                    Route::post('delivery/pathao', [PathaoCourierController::class, 'store'])->name('admin.delivery.pathao.store');
                 });
+
+
+                Route::get('pathao/city', [PathaoCourierController::class, 'city']);
+                Route::get('pathao/zone', [PathaoCourierController::class, 'zone']);
+
+
                 Route::delete('delete/orders/{id}', [CommonController::class, 'delete'])->name('orders.delete')->middleware('PermissionCheck:order_delete');
 
                 //pickup hub
@@ -594,6 +615,35 @@ Route::middleware(['XSS','isInstalled'])->group(function () {
                 Route::get('import-sellers',[SellerController::class, 'sellerImport'])->name('admin.seller.import')->middleware('PermissionCheck:seller_create');
                 Route::post('import-sellers',[SellerController::class, 'importSeller'])->name('admin.seller.import.post')->middleware('PermissionCheck:seller_create');
                 Route::get('import-cities',[ShippingController::class, 'importCity'])->name('import.city');
+
+                //Point Setting
+                Route::group(['prefix' => 'point-setting'], function () {
+                    Route::get('/', [PointSettingController::class, 'index'])->name('point.setting');
+                    Route::post('store', [PointSettingController::class, 'store'])->name('point.store');
+                });
+                Route::delete('delete/points/{id}', [CommonController::class, 'delete'])->name('points.delete');
+
+                //Store
+                Route::get('stores', [StoreController::class, 'index'])->name('store.index');
+                Route::get('store-create-form', [StoreController::class, 'create'])->name('store.create');
+                Route::post('save-store', [StoreController::class, 'store'])->name('admin.store.save');
+                Route::get('edit/{id}', [StoreController::class, 'edit'])->name('store.edit');
+                Route::post('update', [StoreController::class, 'update'])->name('store.update');
+                Route::delete('delete/stores/{id}', [CommonController::class, 'delete']);
+
+                //Recommended By
+                Route::get('recommended', [RecommendedController::class, 'index'])->name('recommended.index');
+                Route::get('create-recommended', [RecommendedController::class, 'create'])->name('recommended.create');
+                Route::post('recommended.store', [RecommendedController::class, 'store'])->name('recommended.store');
+                Route::delete('delete/recommended/{id}', [RecommendedController::class, 'delete'])->name('recommended.delete');
+
+                Route::get('from-fan-message', [FlashMessageController::class, 'index'])->name('flash-message.index');
+                Route::get('create-from-fan-message', [FlashMessageController::class, 'create'])->name('flash-message.create');
+                Route::post('from-fan-message.store', [FlashMessageController::class, 'store'])->name('flash-message.store');
+                Route::get('from-fan-message/edit/{id}', [FlashMessageController::class, 'edit'])->name('flash-message.edit');
+                Route::post('from-fan-message/update', [FlashMessageController::class, 'update'])->name('flash-message.update');
+                Route::delete('delete/from-fan-message/{id}', [FlashMessageController::class, 'delete'])->name('flash-message.delete');
+
             });
         });
     });

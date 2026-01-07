@@ -28,7 +28,7 @@ class UserStoreRequest extends FormRequest
             'last_name'  => 'required|max:50',
             'shop_name'  => 'nullable|min:2|max:50',
             'phone'      => 'required|unique:users|min:4|max:20',
-            'email'      => 'required|unique:users|email|max:50',
+//            'email'      => 'required|unique:users|email|max:50',
             'password'   => 'required|min:6|max:32',
             'image'      => 'mimes:jpg,JPG,JPEG,jpeg,png,PNG,webp,WEBP|max:5120',
         ];

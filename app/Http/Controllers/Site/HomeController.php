@@ -41,9 +41,24 @@ class HomeController extends Controller
 {
     use HomePage, MetaGeneratorTrait, ResetPasswordTrait, ImageTrait, ApiReturnFormatTrait;
 
-    public function index(LanguageInterface $language, CurrencyInterface $currency, WishlistInterface $wishlist, CartInterface $cart, CategoryInterface $category, SliderInterface $slider, BannerInterface $banner,
-                          ServiceInterface  $service, ProductInterface $product, SellerProfileInterface $seller, BlogInterface $blog, BrandInterface $brand, AddonInterface $addon, PageInterface $page, $email = null, $resetCode = null)
-    {
+    public function index(
+        LanguageInterface $language,
+        CurrencyInterface $currency,
+        WishlistInterface $wishlist,
+        CartInterface $cart,
+        CategoryInterface $category,
+        SliderInterface $slider,
+        BannerInterface $banner,
+        ServiceInterface  $service,
+        ProductInterface $product,
+        SellerProfileInterface $seller,
+        BlogInterface $blog,
+        BrandInterface $brand,
+        AddonInterface $addon,
+        PageInterface $page,
+        $email = null,
+        $resetCode = null
+    ) {
         if (isAppMode()) {
             if (authUser()) {
                 return redirect()->route('dashboard');
@@ -152,7 +167,7 @@ class HomeController extends Controller
 
         $stripe = settingData(get_yrsetting('is_stripe_activated'));
         $social_links = settingData(['facebook_link', 'twitter_link', 'instagram_link', 'youtube_link', 'linkedin_link']);
-        $footer_data = settingData(['footer_contact_phone', 'footer_contact_email', 'footer_contact_address']);
+        $footer_data = settingData(['available_time', 'footer_contact_phone', 'footer_contact_email', 'footer_contact_address']);
         $currency_setting = settingData(['decimal_separator', 'currency_symbol_format']);
         $header_data = settingData(['default_language', 'system_name', 'default_currency', 'header_contact_phone', 'header_contact_email', 'language_switcher', 'currency_switcher', 'seller_system', 'topbar_play_store_link', 'topbar_app_store_link', 'header_contact_number']);
         $store_links = settingData(['play_store_link', 'apple_store_link']);
@@ -174,7 +189,7 @@ class HomeController extends Controller
             'useful_links' => settingHelper('useful_links')
         ];
 
-        $popup_array = ['popup_title', 'popup_description', 'popup_image', 'site_popup_status', 'popup_show_in'];
+        $popup_array = ['popup_title', 'popup_url', 'popup_description', 'popup_image', 'site_popup_status', 'popup_show_in'];
         foreach ($popup_array as $key => $pop_data):
             $popup_modal[$pop_data] = settingHelper($pop_data, $lang);
         endforeach;
@@ -199,6 +214,7 @@ class HomeController extends Controller
             'light_logo' => settingHelper('light_logo') != [] && @is_file_exists(settingHelper('light_logo')['image_138x52']) ? get_media(@settingHelper('light_logo')['image_138x52'], @settingHelper('light_logo')['storage']) : static_asset('images/default/logo.png'),
             'dark_logo' => settingHelper('dark_logo') != [] && @is_file_exists(settingHelper('dark_logo')['image_138x52']) ? get_media(@settingHelper('dark_logo')['image_138x52'], @settingHelper('dark_logo')['storage']) : static_asset('images/default/dark-logo.png'),
             'subscription_section' => settingHelper('show_subscription_section'),
+            'website_video' => settingHelper('website_video', languageCheck()),
             'copyright' => settingHelper('copyright', languageCheck()),
             'about_description' => settingHelper('about_description', languageCheck()),
             'article_section' => settingHelper('show_blog_section'),
@@ -332,7 +348,7 @@ class HomeController extends Controller
 
     public function activate()
     {
-        return view('auth.mail.activate-account-email');
+        return view('email.auth.activate-account-email');
     }
 
     public function forget()
@@ -342,7 +358,7 @@ class HomeController extends Controller
 
     public function success()
     {
-        return view('auth.mail.registration-success-email');
+        return view('email.auth.registration-success-email');
     }
 
     public function reset()

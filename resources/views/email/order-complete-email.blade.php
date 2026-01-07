@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
-      xmlns:o="urn:schemas-microsoft-com:office:office">
+    xmlns:o="urn:schemas-microsoft-com:office:office">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
@@ -32,164 +33,138 @@
             padding: 0;
             font-family: 'Poppins', sans-serif !important;
         }
-
-        table,
-        td {
-            mso-table-lspace: 0pt !important;
-            mso-table-rspace: 0pt !important;
-        }
-
-        table {
-            border-spacing: 0 !important;
-            border-collapse: collapse !important;
-            table-layout: fixed !important;
-            margin: 0 auto !important;
-        }
-
-        table table table {
-            table-layout: auto;
-        }
-
-        a {
-            text-decoration: none;
-        }
-
-        img {
-            -ms-interpolation-mode: bicubic;
-        }
-
-        .email-body {
-            width: 96%;
-            margin: 0 auto;
-            background: #ffffff;
-            padding: 10px !important;
-        }
-
-        .email-heading {
-            font-size: 18px;
-            color: {{$color}};
-            font-weight: 600;
-            margin: 0;
-            line-height: 1.4;
-        }
-
-        .email-btn {
-            background: {{$color}};
-            border-radius: 4px;
-            color: #ffffff !important;
-            display: inline-block;
-            font-size: 13px;
-            font-weight: 600;
-            line-height: 44px;
-            text-align: center;
-            text-decoration: none;
-            text-transform: uppercase;
-            padding: 0 30px;
-        }
-
-        .email-heading-s2 {
-            font-size: 16px;
-            color: {{$color}};
-            font-weight: 600;
-            margin: 0;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
-
-        .link-block {
-            display: block;
-        }
-
-        a {
-            color: {{$color}}  !important;
-            word-break: break-all;
-        }
-
-        p {
-            margin-top: 0;
-            margin-bottom: 1rem;
-        }
-
-        .email-note {
-            margin: 0;
-            font-size: 13px;
-            line-height: 22px;
-            color: {{$color}};
-        }
     </style>
 
 </head>
 
 <body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #f5f6fa;">
-<center style="width: 100%; background-color: #f5f6fa;">
-    <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#f5f6fa">
-        <tr>
-            <td style="padding: 40px 0;">
-                <table style="width:100%;max-width:620px;margin:0 auto;">
-                    <tbody>
-                    <tr>
-                        @php
-                            $logo = settingHelper('invoice_logo');
-                            $flag = false;
-                        @endphp
-                        <td style="text-align: center; padding-bottom:25px">
-                            <a href="{{ url('/') }}">
-                                <img src="{{($logo != [] && @is_file_exists($logo['image_118x45'])) ? static_asset($logo['image_118x45']) : static_asset('images/default/dark-logo.png') }}" alt="Logo">
-                            </a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+    <div
+        style="max-width: 600px; margin: auto; background-color: #ffffff; border: 1px solid #ddd; border-radius: 5px; font-family: Helvetica, Arial, sans-serif; font-weight: '300'">
+        <div style="background-color: #222; color: #fff; padding: 40px 15px; text-align: center; font-size: 20px;">
+            <strong>New Order: {{$content->code}}</strong>
+        </div>
+        <div style="padding: 20px; color: #333030 ">
+            <p style="font-size: 16px; margin: 0 0 10px;">
+                Hi {{$content->billing_address['name']}}, <br>
+                Just to let you know - we've received your order {{$content->code}}, and it is now being processed:
+            </p>
+            <p style="margin: 0 0 15px;">
+                <a href="#" style="color: #000000; text-decoration: underline; font-weight: bold;">[Order
+                    {{$content->code}}]</a>
+                <strong>({{$content->updated_at->format('F d, Y')}})</strong>
+            </p>
 
-                <table style="width:100%;max-width:620px;margin:0 auto;background-color:#ffffff;">
-                    <tbody class="email-body">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <thead>
                     <tr>
-                        <td style="text-align: center; padding: 50px 30px 10px 30px;">
-                            <h2 class="email-heading">{{ __('Thank You For Purchase') }}</h2>
-                        </td>
+                        <th style="border: 1px solid #ddd; padding: 10px; background-color: #f1f1f1; text-align: left;">
+                            Product</th>
+                        <th
+                            style="border: 1px solid #ddd; padding: 10px; background-color: #f1f1f1; text-align: center;">
+                            Quantity</th>
+                        <th
+                            style="border: 1px solid #ddd; padding: 10px; background-color: #f1f1f1; text-align: right;">
+                            Price</th>
                     </tr>
-                    <tr>
-                        <td style="padding: 15px 30px">
-                            <p>{{__('hi')}} {{ $content->first_name .' '.$content->last_name }},</p>
-                            <p>{{ __('welcome_message') }}</p>
-                            @if($content->user_type == 'seller')
-                                <p>{{ __('Your Order Has Been Delivered') }}</p>
-                                <p>{{ __('Please find the invoice with Email Attachment') }}</p>
-                            @else
-                                <p>{{ __('Please find your invoice with Email Attachment') }}</p>
-                            @endif
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="padding: 10px 30px 50px 30px;">
-                            <p>{{ __('you_did_not_make_request') }}</p>
-                            <p class="email-note">{{ __('auto_generated_message_notice') }}</p>
-                        </td>
-                    </tr>
-                    @if(!blank(settingHelper('mail_signature') || settingHelper('mail_signature') != ''))
+                </thead>
+                <tbody>
+                    @foreach($content->orderDetails as $orderDetail)
                         <tr>
-                            <td style="text-align:left;padding: 20px 30px 40px">
-                                {!! settingHelper('mail_signature') !!}
+                            <td style="border: 1px solid #ddd; padding: 10px;">
+                                {{ $orderDetail->product->getTranslation('name', \App::getLocale()) }}
+                            </td>
+                            <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">
+                                {{$orderDetail->quantity}}
+                            </td>
+                            <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">
+                                ৳ {{ number_format($orderDetail->price, 2) }}
                             </td>
                         </tr>
-                    @endif
-                    </tbody>
-                </table>
+                    @endforeach
 
+                </tbody>
+            </table>
 
-                <table style="width:100%;max-width:620px;margin:0 auto;">
-                    <tbody>
+            <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                <tbody>
                     <tr>
-                        <td style="text-align: center; padding:25px 20px 0;">
-                            <p style="font-size: 13px;">{{ settingHelper('copyright') }}</p>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">Subtotal:</th>
+                        <td style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">৳
+                            {{$content->sub_total}}
                         </td>
                     </tr>
-                    </tbody>
-                </table>
-            </td>
-        </tr>
-    </table>
-</center>
+                    <tr>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">Shipping:</th>
+                        <td style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">
+                            <!-- {{ isset($content->shipping_method) && !empty($content->shipping_method) ? $content->shipping_method : 'N/A' }} -->
+                            <?php
+if (isset($content->billing_address['district']) && !empty($content->billing_address['district']) && strcasecmp($content->billing_address['district'], 'Dhaka') == 0) {
+    echo "Inside Dhaka City (Delivery - Up to 3 business days)";
+} else {
+    echo "Outside Dhaka City (Delivery - Up to 3 business days)";
+}
+                            ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">Payment method:
+                        </th>
+                        <td style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">
+                            {{ ucwords(str_replace('_', ' ', $content->payment_type)) }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">Total:</th>
+                        <td
+                            style="padding: 10px; text-align: left; font-weight: bold; border: 1px solid #ddd; width: 50%;">
+                            ৳ {{$content->total_amount}}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <table style="width: 100%;  border-collapse: collapse; border: 1px solid #ddd;">
+                <h3 style="margin-top: 20px;">Shipping Address</h3>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 100%;">
+                            <div>
+                                <strong>Name:</strong>
+                                {{ isset($content->billing_address['name']) && !empty($content->billing_address['name']) ? $content->billing_address['name'] : 'N/A' }}
+                            </div>
+                            <div>
+                                <strong>Phone:</strong>
+                                {{ isset($content->billing_address['phone_no']) && !empty($content->billing_address['phone_no']) ? $content->billing_address['phone_no'] : 'N/A' }}
+                            </div>
+                            <div>
+                                <strong>Email:</strong>
+                                {{ isset($content->billing_address['email']) && !empty($content->billing_address['email']) ? $content->billing_address['email'] : 'N/A' }}
+                            </div>
+                            <div>
+                                <strong>Division:</strong>
+                                {{ isset($content->billing_address['division']) && !empty($content->billing_address['division']) ? $content->billing_address['division'] : 'N/A' }}
+                            </div>
+                            <div>
+                                <strong>District:</strong>
+                                {{ isset($content->billing_address['district']) && !empty($content->billing_address['district']) ? $content->billing_address['district'] : 'N/A' }}
+                            </div>
+                            <div>
+                                <strong>Thana:</strong>
+                                {{ isset($content->billing_address['thana']) && !empty($content->billing_address['thana']) ? $content->billing_address['thana'] : 'N/A' }}
+                            </div>
+                            <div>
+                                <strong>Address:</strong>
+                                {{ isset($content->billing_address['address']) && !empty($content->billing_address['address']) ? $content->billing_address['address'] : 'N/A' }}
+                            </div>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="text-align: center; margin: 20px; opacity: .5;">Thanks for using Dolbear</h3>
+        </div>
+    </div>
 </body>
+
 </html>

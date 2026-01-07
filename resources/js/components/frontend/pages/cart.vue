@@ -89,7 +89,8 @@
                               </div>
                             </div>
                           </td>
-                          <td><span v-if="cart.discount > 0"><del>{{
+                          <td>
+                            <span v-if="cart.discount > 0"><del>{{
                               priceFormat((cart.price * payment_form.quantity[index].quantity))
                             }}</del></span>
                             <span>{{
@@ -123,7 +124,7 @@
                     :coupon_discount="payment_form.coupon_discount"
                     :total="payment_form.total"
                 ></payment_details>
-                <a href="javascript:void(0)" @click="handleCheckout"
+                <a href="javascript:void(0)" @click="checkout"
                              class="btn btn-primary">{{ lang.proceed_to_checkout }}
                 </a>
               </div>
@@ -205,8 +206,11 @@ export default {
           let coupons = response.data.coupons;
           this.shipping_classes = response.data.shipping_classes;
           this.parseData(this.cartList, checkouts, coupons);
+
         }
       })
+
+
     },
     deleteCart(id) {
       if (confirm("Are you sure?")) {
@@ -323,9 +327,11 @@ export default {
       }
     },
     cartMinus(index) {
+
       if (this.disable) {
         return false;
       }
+
       if (this.payment_form.quantity[index].quantity > this.carts[index].min_quantity) {
         let formData = {
           id: this.carts[index].id,
@@ -350,8 +356,14 @@ export default {
 
 
       } else {
+        if (this.carts[index].quantity === 1) {
+         this.deleteCart(this.carts[index].id);
+      }else{
         toastr.warning(this.lang.please_order_minimum_of + ' ' + this.carts[index].min_quantity + ' ' + this.lang.Quantity, this.lang.Warning + ' !!');
       }
+      }
+
+    
     }
   }
 }

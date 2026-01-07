@@ -27,6 +27,7 @@ class CityRequest extends FormRequest
             'name' => 'required|min:3|max:50',
             'state_id' => 'required',
             'cost' => 'required',
+            'express_delivery_cost' => 'required',
         ];
     }
 }

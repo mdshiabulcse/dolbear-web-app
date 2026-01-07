@@ -54,12 +54,19 @@ class ShippingController extends Controller
             return redirect()->back();
         }
     }
-    public function countries(Request $request)
+    public function divisions(Request $request)
     {
-        $countries = $this->shipping->countriesPaginate($request,get_pagination('pagination'));
+        $divisions = $this->shipping->divisionsPaginate($request,get_pagination('pagination'));
 
-        return view('admin.shipping.countries', compact('countries'));
+        return view('admin.shipping.divisions', compact('divisions'));
     }
+
+    //  public function countries(Request $request)
+    // {
+    //     $countries = $this->shipping->countriesPaginate($request,get_pagination('pagination'));
+
+    //     return view('admin.shipping.countries', compact('countries'));
+    // }
     public function countryStatusChange(Request $request)
     {
         if (config('app.demo_mode')):
@@ -83,12 +90,14 @@ class ShippingController extends Controller
         }
     }
 
+
+
     public function states(Request $request)
     {
-        $countries = $this->shipping->countries()->where('status', 1)->get();
+        $divisions = $this->shipping->divisions()->where('status', 1)->get();
         $states = $this->shipping->statesPaginate($request, get_pagination('index_form_paginate'));
 
-        return view('admin.shipping.states', compact('states','countries'));
+        return view('admin.shipping.states', compact('states','divisions'));
     }
     public function stateStore(StateRequest $request)
     {
@@ -108,11 +117,11 @@ class ShippingController extends Controller
     {
         DB::beginTransaction();
         try {
+            $divisions = $this->shipping->divisions()->where('status', 1)->get();
             $state=$this->shipping->getState($id);
-            $countries   = $this->shipping->countries()->where('status', 1)->get();
             $r           = $request->server('HTTP_REFERER');
             DB::commit();
-            return view('admin.shipping.state-edit',compact('state','countries','r'));
+            return view('admin.shipping.state-edit',compact('state','divisions','r'));
         } catch (\Exception $e) {
             DB::rollBack();
             Toastr::error($e->getMessage());
@@ -130,10 +139,13 @@ class ShippingController extends Controller
         DB::beginTransaction();
         try {
             $this->shipping->stateUpdate($request);
+
+            DB::commit();
+            
             Toastr::success(__('Updated Successfully'));
             return redirect($request->r);
         } catch (\Exception $e) {
-            DB::rollBack();
+            // DB::rollBack();
             Toastr::error($e->getMessage());
             return redirect()->back();
         }

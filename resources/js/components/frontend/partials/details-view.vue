@@ -104,7 +104,8 @@
                   ></star-rating>
                   <span class="rating">
                     ({{ productDetails.reviews_count }}
-                    {{ lang.reviews }})</span
+                    {{ lang.reviews }})
+                    </span
                   >
                 </div>
               </div>
@@ -136,7 +137,8 @@
                           'visible_with_quantity'
                         "
                       >
-                        {{ stockFind().stock }}
+                        <!-- {{ stockFind().stock }} -->
+                        {{ productDetails.current_stock }}
                       </h5>
                     </div>
                   </div>
@@ -393,7 +395,7 @@
                       {{ lang.add_to_cart }}
                     </a>
                   </div>
-                  <div class="buyNowBTN d-flex align-items-center">
+                  <!-- <div class="buyNowBTN d-flex align-items-center">
                     <a
                       href="javascript:void(0)"
                       @click="
@@ -412,9 +414,9 @@
                       </svg>
                       {{ lang.buy_now }}
                     </a>
-                  </div>
+                  </div> -->
                   <ul class="global-list d-flex">
-                    <li v-if="checkCompare()">
+                    <!-- <li v-if="checkCompare()">
                       <a href="javascript:void(0)" @click="removeCompare">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -447,7 +449,7 @@
                         </svg>
                         {{ lang.compare }}
                       </a>
-                    </li>
+                    </li> -->
                     <li v-if="authUser && productDetails.user_wishlist">
                       <a @click="removeWishlist" href="javascript:void(0)">
                         <svg
@@ -1207,10 +1209,11 @@
 <script>
 import VueSlickCarousel from "vue-slick-carousel";
 import shimmer from "../partials/shimmer";
-import StarRating from "vue-star-rating";
+import StarRating from "./StarRating.vue";
 import loading_button from "./loading_button";
 import productVideo from "./product-video";
 import single_seller from "./single_seller";
+import 'vue-toastr-2/dist/vue-toastr-2.min.css'
 
 export default {
   name: "details-view",
@@ -1356,7 +1359,6 @@ export default {
       }
     },
     index() {
-      console.log(this.index);
     },
   },
   computed: {
@@ -1935,3 +1937,12 @@ export default {
   },
 };
 </script>
+
+<style>
+.toast.toast-error {
+    background-color: brown;
+}
+.toast.toast-success  {
+    background-color: green;
+}
+</style>

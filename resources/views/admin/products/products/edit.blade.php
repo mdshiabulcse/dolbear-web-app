@@ -77,6 +77,7 @@
                                     'current_stock',
                                     'colors',
                                     'variant_sku.*',
+                                    'variant_store.*',
                                 ],
                                 $errors,
                             )
@@ -161,6 +162,7 @@
                                             {{ __("N.B: It can't be added to cart only details will be shown.") }}
                                         </div>
                                     @endif
+
                                     <div class="card-body">
                                         <div class="form-group">
                                             <label for="name">{{ __('Product Name') }} *</label>
@@ -177,6 +179,23 @@
                                                 </div>
                                             @endif
                                         </div>
+
+                                        <div class="form-group">
+                                            <label for="name">Code *</label>
+                                            <input type="hidden"
+                                                   value="{{ old('r') != '' ? old('r') : (@$r ? $r : url()->previous()) }}"
+                                                   name="r">
+                                            <input type="text" class="form-control ai_content_name" name="code"
+                                                   id="code"
+                                                   value="{{ old('code') ? old('code') : optional($product_language->product)->code }}"
+                                                   placeholder="Code">
+                                            @if ($errors->has('code'))
+                                                <div class="invalid-feedback">
+                                                    <p>{{ $errors->first('code') }}</p>
+                                                </div>
+                                            @endif
+                                        </div>
+
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
@@ -270,7 +289,8 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="row">
+                                        <div class="form-group col-md-6">
                                             <label for="barcode">{{ __('Barcode') }}</label>
                                             <div class="input-group">
                                                 <input type="text" name="barcode" id="barcode"
@@ -288,6 +308,17 @@
                                                 </div>
                                             @endif
                                         </div>
+                                        <div class="form-group col-md-6">
+
+                                        <label for="tags">{{ __('Enter product warranty') }}</label>
+                                        <input type="text" name="warrenty" id="warrenty" value="{{$product_language->product->warrenty}}"
+                                            class="form-control" placeholder="{{ __('1 year or 6 months like ') }}">
+                                        </div>
+
+                                    </div>
+                                       
+
+                                      
                                         <div class="form-group">
                                             <label for="tags">{{ __('Tags') }}</label>
                                             <input type="text" name="tags" id="tags"
@@ -310,6 +341,27 @@
                                                 </div>
                                             @endif
                                         </div>
+
+                                        <div class="form-group">
+                                            <label for="free_shipping">Free Shipping</label>
+                                            <select class="form-control selectric" name="free_shipping" id="free_shipping">
+                                                <option value="">{{ __('Select Type') }}</option>
+                                                <option value="1"
+                                                        {{ old('free_shipping') !== null ? (old('free_shipping') == 1 ? 'selected' : '') : (isset($clone) ? '' : (optional($product_language->product)->free_shipping == 1 ? 'selected' : '')) }}>
+                                                    Yes
+                                                </option>
+                                                <option value="0"
+                                                        {{ old('free_shipping') !== null ? (old('free_shipping') == 0 ? 'selected' : '') : (isset($clone) ? '' : (optional($product_language->product)->free_shipping == 0 ? 'selected' : '')) }}>
+                                                    No
+                                                </option>
+                                            </select>
+                                            @if ($errors->has('free_shipping'))
+                                                <div class="invalid-feedback">
+                                                    <p>{{ $errors->first('free_shipping') }}</p>
+                                                </div>
+                                            @endif
+                                        </div>
+
                                         @if (!isset($is_digital) && !isset($is_catalog) && !isset($is_classified))
                                             {{-- <div class="form-group row mt-2">
                                                 <label class="col-md-5 col-from-label">{{ __('Digital') }}</label>
@@ -511,52 +563,60 @@
                                                 </div>
                                             </div>
                                         </div>
+                                
                                     </div>
                                 </div>
 
-                                {{-- <div class="card">
-                                    <div class="card-header extra-padding">
-                                        <h4>{{ __('Product Video') }}</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label for="video_provider">{{ __('Video Provider') }}</label>
-                                                    <select class="form-control selectric" name="video_provider"
-                                                            id="video_provider">
-                                                        <option value=""
-                                                                selected>{{ __('Select video provider') }}</option>
-                                                        <option
-                                                                value="youtube" {{ old('video_provider') == 'youtube' ? 'selected' : ($product_language->product->video_provider == 'youtube' ? 'selected' : '') }}>{{ __('Youtube') }}</option>
-                                                        <option
-                                                                value="vimeo" {{ old('video_provider') == 'vimeo' ? 'selected' : ($product_language->product->video_provider == 'vimeo' ? 'selected' : '') }}>{{ __('Vimeo') }}</option>
-                                                        <option
-                                                                value="mp4" {{ old('video_provider') == 'mp4' ? 'selected' : ($product_language->product->video_provider == 'mp4' ? 'selected' : '') }}>{{ __('Mp4') }}</option>
-                                                    </select>
-                                                    @if ($errors->has('video_provider'))
-                                                        <div class="invalid-feedback">
-                                                            <p>{{ $errors->first('video_provider') }}</p>
-                                                        </div>
-                                                    @endif
-                                                </div>
+                                <div class="card">
+                            <div class="card-header extra-padding">
+                                <h4>{{ __('Product Video') }}</h4>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="video_provider">{{ __('Video Provider') }}</label>
+                                            <select class="form-control selectric" name="video_provider"
+                                                id="video_provider">
+                                                <option value="" selected>{{ __('Select video provider') }}
+                                                </option>
+                                                <option value="youtube"
+                                                    {{ $product_language->product->video_provider == 'youtube' ? 'selected' : '' }}>
+                                                    {{ __('Youtube') }}
+                                                </option>
+                                                <option value="vimeo"
+                                                    {{ $product_language->product->video_provider == 'vimeo' ? 'selected' : '' }}>
+                                                    {{ __('Vimeo') }}
+                                                </option>
+                                                <option value="mp4"
+                                                    {{ $product_language->product->video_provider == 'mp4' ? 'selected' : '' }}>
+                                                    {{ __('Mp4') }}
+                                                </option>
+                                            </select>
+                                            @if ($errors->has('video_provider'))
+                                            <div class="invalid-feedback">
+                                                <p>{{ $errors->first('video_provider') }}</p>
                                             </div>
-                                            <div class="col-md-9">
-                                                <div class="form-group">
-                                                    <label for="video_url">{{ __('Video URL') }}</label>
-                                                    <input type="text" name="video_url" id="video_url"
-                                                           value="{{ old('video_url') != '' ? old('video_url') : $product_language->product->video_url }}"
-                                                           class="form-control" placeholder="https://">
-                                                    @if ($errors->has('video_url'))
-                                                        <div class="invalid-feedback">
-                                                            <p>{{ $errors->first('video_url') }}</p>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            </div>
+                                            @endif
                                         </div>
                                     </div>
-                                </div> --}}
+                                    <div class="col-md-9">
+                                        <div class="form-group">
+                                            <label for="video_url">{{ __('Video URL') }}</label>
+                                            <input type="text" name="video_url" id="video_url"
+                                                value="{{ $product_language->product->video_url}}"
+                                                class="form-control" placeholder="https://">
+                                            @if ($errors->has('video_url'))
+                                            <div class="invalid-feedback">
+                                                <p>{{ $errors->first('video_url') }}</p>
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                             </div>
                             <div class="tab-pane fade" id="price-and-stock" role="tabpane1"
                                 aria-labelledby="price-and-stock-tab">
@@ -734,7 +794,7 @@
                                             <div
                                                 class="without-variant {{ old('has_variant') == 1 ? 'd-none' : ($product_language->product->has_variant == 1 ? 'd-none' : '') }}">
                                                 <div class="row">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-12">
                                                         <div class="form-group">
                                                             <label for="sku">{{ __('SKU') }}</label>
                                                             <div class="input-group">
@@ -756,21 +816,49 @@
                                                             @endif
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="current_stock">{{ __('Current Stock') }}</label>
-                                                            <input type="number" class="form-control"
-                                                                name="current_stock"
-                                                                value="{{ old('current_stock') != '' ? old('current_stock') : ($product_language->product->stock->first() ? $product_language->product->stock->first()->current_stock : '') }}"
-                                                                id="current_stock"
-                                                                placeholder="{{ __('Enter current available quantity') }}">
-                                                            @if ($errors->has('current_stock'))
-                                                                <div class="invalid-feedback">
-                                                                    <p>{{ $errors->first('current_stock') }}</p>
+
+
+                                                    <div class="row">
+
+                                                        @php
+                                                            $oldCurrentStock = old('current_stock', []);
+                                                        @endphp
+
+                                                        @if(!empty($stores))
+                                                            @foreach ($stores as $key => $store)
+                                                                {{-- Store --}}
+                                                                <div class="col-md-2">
+                                                                    <div class="form-group">
+                                                                        <label for="store">Store Name</label>
+                                                                        <h4><span>{{ $store->name }}</span></h4>
+                                                                        <input type="number"
+                                                                               name="store[]"
+                                                                               value="{{ $store->id }}"
+                                                                               id="store"
+                                                                               hidden>
+                                                                    </div>
                                                                 </div>
-                                                            @endif
-                                                        </div>
+
+                                                                <div class="col-md-10">
+                                                                    <div class="form-group">
+                                                                        <label for="current_stock_{{ $key }}">{{ __('Current Stock') }}</label>
+                                                                        <input type="number" class="form-control"
+                                                                               name="current_stock[]"
+                                                                               value="{{ old('current_stock.' . $key) != '' ? old('current_stock.' . $key) : (isset($product_language->product->stock[$key]->current_stock) ? $product_language->product->stock[$key]->current_stock : 0) }}"
+                                                                               id="current_stock_{{ $key }}"
+                                                                               placeholder="{{ __('Enter current available quantity') }}">
+                                                                        @if ($errors->has('current_stock.' . $key))
+                                                                            <div class="invalid-feedback">
+                                                                                <p>{{ $errors->first('current_stock.' . $key) }}</p>
+                                                                            </div>
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
+                                                        @endif
+
                                                     </div>
+
                                                 </div>
                                             </div>
                                             <div
@@ -860,6 +948,17 @@
                                                     @endforeach
                                                 </div>
 
+                                                {{-- Specific handling for variant SKU errors --}}
+                                                @if ($errors->has('variant_sku.*'))
+                                                    <div class="invalid-feedback">
+                                                        @foreach($errors->get('variant_sku.*') as $key => $messages)
+                                                            @foreach($messages as $message)
+                                                                <p>{{ $message }}</p>
+                                                            @endforeach
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+
                                                 <div class="form-group row variant-table">
                                                     @if (session()->has('attributes'))
                                                         @include('admin.products.products.session-sku')
@@ -872,50 +971,103 @@
                                                                         <td scope="col">{{ __('Variant') }}</td>
                                                                         <td scope="col">{{ __('Price') }} *</td>
                                                                         <td scope="col">{{ __('SKU') }} *</td>
-                                                                        <td scope="col">{{ __('Current Stock') }} *
-                                                                        </td>
+                                                                        <td scope="col">Store & Stock*</td>
+                                                                        {{-- <td scope="col">{{ __('Current Stock') }} *
+                                                                        </td> --}}
                                                                         <td scope="col">{{ __('Image') }}</td>
                                                                         <td>{{ __('Action') }}</td>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
 
+                                                                    @php
+                                                                        $processedVariantIds = [];
+                                                                        $processedVariantImagetIds = [];
+                                                                        $processedVariantRemoveIds = [];
+                                                                    @endphp
+
                                                                     @foreach ($product_language->product->stock as $key => $stock)
-                                                                        <tr>
-                                                                            <th scope="row" width="18%"><label
-                                                                                    class="font-normal">{{ $stock->name }}</label><input
-                                                                                    type="hidden" lang="en"
-                                                                                    name="variant_name[{{ $key }}]"
-                                                                                    value="{{ $stock->name }}"
-                                                                                    class="form-control" required="">
-                                                                                <input type="hidden" lang="en"
-                                                                                    name="variant_ids[{{ $key }}]"
-                                                                                    value="{{ $stock->variant_ids }}"
-                                                                                    class="form-control">
+                                                                        <tr data-stock="stock-{{ $stock->variant_ids }}">
+                                                                            <th scope="row" width="14%">
+                                                                                <label class="font-normal">{{ $stock->name }}</label>
+                                                                                <input 
+                                                                                    type="hidden" 
+                                                                                    lang="en" 
+                                                                                    name="variant_name[{{ $key }}]" 
+                                                                                    value="{{ $stock->name }}" 
+                                                                                    class="form-control" 
+                                                                                    required=""
+                                                                                >
+                                                                                <input 
+                                                                                    type="hidden" 
+                                                                                    lang="en" 
+                                                                                    name="variant_ids[{{ $key }}]" 
+                                                                                    value="{{ $stock->variant_ids }}" 
+                                                                                    class="form-control variant-id"
+                                                                                >
                                                                             </th>
-                                                                            <td width="18%"><input type="number"
-                                                                                    lang="en"
-                                                                                    name="variant_price[{{ $key }}]"
-                                                                                    value="{{ priceFormatUpdate($stock->price, settingHelper('default_currency'), $type = '*') }}"
-                                                                                    min="0" step="any"
-                                                                                    class="form-control" required="">
+                                                                            <td width="14%">
+                                                                                @if (!in_array($stock->variant_ids, $processedVariantIds))
+                                                                                    <!-- First occurrence of the variant_id -->
+                                                                                    @php
+                                                                                        $processedVariantIds[] = $stock->variant_ids; // Mark as processed
+                                                                                    @endphp
+                                                                                    <input 
+                                                                                        type="number" 
+                                                                                        lang="en" 
+                                                                                        name="variant_price[{{ $key }}]" 
+                                                                                        value="{{ priceFormatUpdate($stock->price, settingHelper('default_currency'), $type = '*') }}" 
+                                                                                        min="0" 
+                                                                                        step="any" 
+                                                                                        class="form-control variant-price-input" 
+                                                                                        data-variant-id="{{ $stock->variant_ids }}" 
+                                                                                        oninput="syncVariantPrices(this)" 
+                                                                                        required=""
+                                                                                    >
+                                                                                @else
+                                                                                    <!-- Hidden input for subsequent occurrences -->
+                                                                                    <input 
+                                                                                        type="number" 
+                                                                                        lang="en" 
+                                                                                        name="variant_price[{{ $key }}]" 
+                                                                                        value="{{ priceFormatUpdate($stock->price, settingHelper('default_currency'), $type = '*') }}" 
+                                                                                        min="0" 
+                                                                                        step="any" 
+                                                                                        class="variant-price-hidden" 
+                                                                                        data-variant-id="{{ $stock->variant_ids }}" 
+                                                                                        style="display: none;"
+                                                                                    >
+                                                                                @endif
                                                                             </td>
-                                                                            <td width="18%">
+                                                                            <td width="14%">
                                                                                 <input type="text"
                                                                                     name="variant_sku[{{ $key }}]"
                                                                                     value="{{ $stock->sku }}"
                                                                                     class="form-control" required>
 
                                                                             </td>
-                                                                            <td width="18%"><input type="number"
-                                                                                    lang="en"
-                                                                                    name="variant_stock[{{ $key }}]"
-                                                                                    value="{{ $stock->current_stock }}"
-                                                                                    min="0" step="1"
-                                                                                    class="form-control" required="">
+                                                                            <td width="14%">
+                                                                                <input type="hidden"
+                                                                                lang="en"
+                                                                                name="variant_store[{{ $key }}]"
+                                                                                value="{{ $stock->store_id }}"
+                                                                                min="0" step="1"
+                                                                                class="form-control" required="" readonly>
+
+                                                                            <h6><span>{{ $stock->store->name }}</span> </h6>
+                                                                            <input type="number"
+                                                                                lang="en"
+                                                                                name="variant_stock[{{ $key }}]"
+                                                                                value="{{ $stock->current_stock }}"
+                                                                                min="0" step="1"
+                                                                                class="form-control" required="">
                                                                             </td>
                                                                             <td>
-                                                                                <div>
+                                                                                @if (!in_array($stock->variant_ids, $processedVariantImagetIds))
+                                                                                    @php
+                                                                                        $processedVariantImagetIds[] = $stock->variant_ids; // Mark as processed
+                                                                                    @endphp
+                                                                                    <div>
                                                                                     <div class="form-group">
                                                                                         <div class="input-group gallery-modal"
                                                                                             id="btnSubmit"
@@ -970,12 +1122,74 @@
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
+
+                                                                                @else
+                                                                                    <div style="visibility: hidden">
+                                                                                        <div class="form-group">
+                                                                                            <div class="input-group gallery-modal"
+                                                                                                 id="btnSubmit"
+                                                                                                 data-for="image"
+                                                                                                 data-variant="1"
+                                                                                                 data-selection="single"
+                                                                                                 data-target="#galleryModal"
+                                                                                                 data-dismiss="modal">
+                                                                                                <input type="hidden"
+                                                                                                       name="variant_image[{{ $key }}]"
+                                                                                                       value="{{ $stock->image_id }}"
+                                                                                                       class="image-selected">
+                                                                                                <span
+                                                                                                        class="form-control"><span
+                                                                                                            class="counter">0</span>
+                                                                                                {{ __('file') }}</span>
+                                                                                                <div
+                                                                                                        class="input-group-prepend">
+                                                                                                    <div
+                                                                                                            class="input-group-text">
+                                                                                                        {{ __('Choose') }}
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="selected-media-box">
+                                                                                                <div
+                                                                                                        class="mt-2 gallery gallery-md d-flex">
+                                                                                                    @if ($stock->image_id)
+                                                                                                        <div class="selected-media mr-2 mb-2 mt-3 ml-0"
+                                                                                                             data-id="{{ $stock->image_id }}">
+                                                                                                            @php
+                                                                                                                $media = \App\Models\Media::find($stock->image_id);
+                                                                                                            @endphp
+                                                                                                            @if ($media && @is_file_exists($media->image_variants['image_72x72'], $media->image_variants['storage']))
+                                                                                                                <img src="{{ get_media($media->image_variants['image_72x72'], $media->image_variants['storage']) }}"
+                                                                                                                     alt="img-thumbnail"
+                                                                                                                     class="img-thumbnail logo-profile">
+                                                                                                            @else
+                                                                                                                <img src="{{ static_asset('images/default/default-image-72x72.png') }}"
+                                                                                                                     alt="img-thumbnail"
+                                                                                                                     class="img-thumbnail logo-profile">
+                                                                                                            @endif
+                                                                                                            <div
+                                                                                                                    class="image-remove">
+                                                                                                                <a href="javascript:void(0)"
+                                                                                                                   class="remove"><i
+                                                                                                                            class="bx bx-x"></i></a>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    @endif
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                @endif
                                                                             </td>
                                                                             <td width="6%">
-                                                                                <button type="button"
-                                                                                    class="btn btn-icon btn-sm btn-danger remove-menu-row"
-                                                                                    onclick="$(this).closest('tr').remove();">
-                                                                                    <i class="bx bx-trash"></i></button>
+                                                                                @if (!in_array($stock->variant_ids, $processedVariantRemoveIds))
+                                                                                    @php
+                                                                                        $processedVariantRemoveIds[] = $stock->variant_ids; // Mark as processed
+                                                                                    @endphp
+                                                                                    <button data-stock="stock-{{ $stock->variant_ids }}" type="button"
+                                                                                            class="btn btn-icon btn-sm btn-danger remove-menu-row remove-variant-row">
+                                                                                        <i class="bx bx-trash"></i></button>
+                                                                                @endif
                                                                             </td>
                                                                         </tr>
                                                                     @endforeach
@@ -1005,7 +1219,8 @@
                                                     'length' => '200',
                                                     'topic' => 'ai_content_name',
                                                 ])
-                                                <textarea type="text" class="form-control ai_short_description" name="short_description" id="short_description">{{ old('short_description') ? old('short_description') : strip_tags($product_language->short_description) }}</textarea>
+
+                                                <textarea type="text" class="summernote ai_short_description" name="short_description" id="short_description">{{ old('short_description') ? old('short_description') : $product_language->short_description }}</textarea>
                                             </div>
                                             <p id="total-caracteres">200</p>
                                             @if ($errors->has('short_description'))
@@ -1030,6 +1245,25 @@
                                             @if ($errors->has('description'))
                                                 <div class="invalid-feedback">
                                                     <p>{{ $errors->first('description') }}</p>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="description"
+                                                class="form-control-label">{{ __('Questions') }}</label>
+                                            <div>
+                                                @include('admin.ai_writer.ai_btn', [
+                                                    'name' => 'ai_description',
+                                                    'length' => '259',
+                                                    'topic' => 'ai_content_name',
+                                                    'long_description' => 1,
+                                                ])
+                                                <textarea type="text" class="summernote ai_description" name="question" id="question">{{ $product_language->product->question }}</textarea>
+                                            </div>
+                                            @if ($errors->has('question'))
+                                                <div class="invalid-feedback">
+                                                    <p>{{ $errors->first('question') }}</p>
                                                 </div>
                                             @endif
                                         </div>
@@ -1625,6 +1859,16 @@
     @endif
 @endpush
 @push('script')
+<script>
+    function syncVariantPrices(visibleInput) {
+        const value = visibleInput.value;
+        const variantId = visibleInput.dataset.variantId;
+
+        document.querySelectorAll(`input[data-variant-id="${variantId}"]`).forEach(input => {
+            input.value = value;
+        });
+    }
+</script>
     <script type="text/javascript" src="{{ static_asset('admin/js/dropzone.min.js') }}"></script>
     <script type="text/javascript">
         $(function() {
@@ -1692,4 +1936,16 @@
             })
         });
     </script>
+
+
+<script>
+    $(document).ready(function() {
+        $('.remove-variant-row').click(function() {
+            const variantId = $(this).data('stock');
+            $('tr[data-stock="' + variantId + '"]').remove();
+        });
+    });
+</script>
 @endpush
+
+

@@ -17,7 +17,7 @@ class ProductStock extends Model
       'image' => '[]'
     ];
     protected $fillable = [
-        'product_id','name','sku','price','current_stock','image',
+        'product_id','name','sku','price','current_stock','image', 'store_id',
     ];
 
     protected $appends = [
@@ -66,6 +66,10 @@ class ProductStock extends Model
     public function getImage190x230Attribute()
     {
         return @is_file_exists($this->image['image_190x230'] , $this->image['storage']) ? @get_media($this->image['image_190x230'],$this->image['storage']) : static_asset('images/default/190x230_no_bg.png');
+    }
+
+    public function store(){
+        return $this->belongsTo(Store::class, 'store_id', 'id');
     }
 
 }

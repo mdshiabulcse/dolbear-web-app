@@ -1,5 +1,5 @@
 <template>
-	<div class="sg-page-content">
+	<!-- <div class="sg-page-content">
 		<section class="after-track-order text-center" v-if="is_shimmer">
 			<div class="container" v-for="(order, index) in orders" :key="index">
 				<div class="invoice_border mt-2">
@@ -19,10 +19,7 @@
                     <th scope="col" class="text-end">{{ lang.price }}</th>
                     <th scope="col" class="text-end">{{ lang.quantity }}</th>
 										<th scope="col" class="text-end">{{ lang.sub_total }}</th>
-										<th v-if="((order.tax_method && order.tax_method.vat_tax_type == 'product_base') || (!order.tax_method || !order.tax_method.vat_tax_type))" scope="col" class="text-end">{{ lang.tax }}</th>
-                    <th v-if="order.shipping_method == 'product_base' || !order.shipping_method" scope="col" class="text-end">{{ lang.shipping_cost }}</th>
                     <th scope="col" class="text-end">{{ lang.discount }}</th>
-                    <th v-if="order.is_coupon_system_active == 1 && order.coupon_discount > 0" scope="col" class="text-end">{{ lang.coupon_discount }}</th>
 										<th scope="col" class="text-end">{{ lang.total_amount }}</th>
 									</tr>
 								</thead>
@@ -30,8 +27,7 @@
 									<tr v-for="(order_detail, index) in order.order_details" :key="'order' + index">
 										<td>
 											<div class="product-name">
-												<p>{{ order_detail.product_name }}</p>
-												<span>{{ order_detail.variation }}</span>
+												<p>{{ order_detail.product_name }} <span v-if="order_detail.variation">({{ order_detail.variation }})</span></p>
 											</div>
 										</td>
                     <td class="text-end">{{ priceFormat(order_detail.price) }}</td>
@@ -39,25 +35,7 @@
 										<td class="text-end">{{ priceFormat(order_detail.price) }}
                       X {{ order_detail.quantity }}
                       = {{ priceFormat(order_detail.price * order_detail.quantity) }}</td>
-										<td v-if="(order.tax_method && order.tax_method.vat_tax_type == 'product_base') || (!order.tax_method || !order.tax_method.vat_tax_type)" class="text-end">
-                      <span v-if="order_detail.tax > 0">
-                        {{ priceFormat(order_detail.tax) }} X {{ order_detail.quantity }}
-                                                    = {{ priceFormat(order_detail.tax * order_detail.quantity) }}
-                      </span>
-                      <span v-else>
-                        {{ priceFormat(order_detail.tax * order_detail.quantity) }}
-                      </span>
-                    </td>
-                    <td v-if="(order.shipping_method == 'product_base' || !order.shipping_method)" class="text-end">
-                      <span v-if="order_detail.shipping_cost.depend_on_quantity == 1">
-                        {{ priceFormat(order_detail.shipping_cost.per_cost) }}
-                      X {{ order_detail.quantity }}
-                      = {{ priceFormat(order_detail.shipping_cost.total_cost) }}
-                      </span>
-                      <span>
-                        {{ priceFormat(order_detail.shipping_cost.total_cost) }}
-                      </span>
-                    </td>
+
 
                     <td v-if="(order_detail.discount * order_detail.quantity) > 0" class="text-end">
                       {{ priceFormat(order_detail.discount) }}
@@ -65,7 +43,6 @@
                       = {{ priceFormat(order_detail.discount * order_detail.quantity) }}
                     </td>
                     <td v-else class="text-end">{{ priceFormat(0) }}</td>
-                    <td class="text-end" v-if="order.is_coupon_system_active == 1 && order.coupon_discount > 0">{{ priceFormat(order_detail.coupon_discount.discount) }}</td>
                     <td class="text-end">{{
 											priceFormat(
 												((parseFloat(order_detail.price) * order_detail.quantity) +	(parseFloat(order_detail.tax) * order_detail.quantity) +parseFloat(order_detail.shipping_cost.total_cost)) -
@@ -89,8 +66,7 @@
 													<li>{{ lang.order_code }} </li>
 													<li v-if="authUser">{{ lang._name }} </li>
 													<li v-if="authUser">{{ lang._email }}</li>
-													<li>{{ lang.shipping_address }}</li>
-													<li>{{ lang.billing_address }}</li>
+													<li>Delivery Address</li>
 												</ul>
 											</td>
 											<td>
@@ -99,7 +75,6 @@
 													<li v-if="authUser">{{ authUser.full_name }}</li>
 													<li v-if="authUser">{{ authUser.email }}</li>
 													<li>{{ order.shipping_address.address }}</li>
-													<li>{{ order.billing_address.address }}</li>
 												</ul>
 											</td>
 											<td>
@@ -153,14 +128,14 @@
 						</div>
 					</div>
 				</div>
-				<div class="row justify-content-center">
+				<div class="row justifycom-content-center">
 					<div class="col-lg-12">
 						<loading_button v-if="loading" :class_name="'btn btn-primary'"></loading_button>
 						<a href="javascript:void(0)" v-else class="btn btn-primary" @click="download(order.id, order.code)">{{ lang.download }} {{ lang.invoice }}</a>
 					</div>
 				</div>
 			</div> </section
-		><!-- /.track-order -->
+		>
 		<section v-else-if="shimmer">
 			<div class="container">
 				<div class="page-title">
@@ -184,9 +159,420 @@
 					</div>
 				</div>
 			</div>
-		</section> </div
-	><!-- /.sg-page-content -->
+		</section> 
+	</div> -->
+
+	<div id="container" class="container">
+		<div class="main_container" v-for="(order, index) in orders" :key="index">
+			<div class=" w-100 h-auto d-flex justify-content-between ">
+				<div class="fs-2 fw-semibold">Your Order Complete</div>
+				<div class="fs-3">dolbear </div>
+			</div>
+			<div class="fs-4 fw-semibold">Order Details</div>
+			<div class="fs-4 fw-medium" v-if="authUser">Hi {{ authUser.full_name }},</div>
+			<div class="my-3">Just to let you know - we've received your  <span class="fw-medium">{{ lang.order_id }} {{ order.code }}</span>  and it is now being processed: Pay with cash upon delivery.</div>
+			<div class="mb-3 fs-4">[Order {{ order.code }}] ({{ order.date }})</div>
+
+			<div class="table_container">
+				<div class="table_header" style="background-color:gray;">
+					<div class="product_column">Product</div>
+					<div class="quantity_column">Quantity</div>
+					<div class="price_column">Price</div>
+					<div class="price_column">Discount</div>
+					<div class="price_column">Total </div>
+				</div>
+				<div >
+					<div class="w-100" v-for="(order_detail, index) in order.order_details" :key="'order' + index">
+						<div class="table_body">
+						<div class="product_data">{{ order_detail.product_name }} <span v-if="order_detail.variation"> ({{ order_detail.variation }})</span> </div>
+						<div class="quantity_data">{{ order_detail.quantity }}</div>
+						<div class="price_data">{{ priceFormat(order_detail.price) }}</div>
+						<div class="price_data">{{ priceFormat(order_detail.discount * order_detail.quantity) }}</div>
+						<div class="price_data">{{								priceFormat(												((parseFloat(order_detail.price) * order_detail.quantity) +	(parseFloat(order_detail.tax) * order_detail.quantity) +parseFloat(order_detail.shipping_cost.total_cost)) -													((parseFloat(order_detail.discount) * order_detail.quantity) + parseFloat(order_detail.coupon_discount.discount)),											)										}}</div>
+					</div>
+					
+					</div>
+					
+					<div class="table_body" style="display: block;">
+						<div class="w-100">
+							<div class="subtotal_section">
+								<div class="subtotal_title_container">
+									<div class="subtotal_title">Subtotal</div>
+									<div>:</div>
+								</div>
+								<div class="subtotal_amount"> {{ priceFormat(order.sub_total) }}</div>
+							</div>
+						</div>
+						<div class="w-100" style=" display: block;">
+							<div class="subtotal_section">
+								<div class="subtotal_title_container">
+									<div class="subtotal_title"> Discount</div>
+									<div>:</div>
+								</div>
+								<div class="subtotal_amount"> {{ priceFormat(order.discount) }}</div>
+							</div>
+						</div>
+						<div class="w-100" style=" display: block;">
+							<div class="subtotal_section">
+								<div class="subtotal_title_container">
+									<div class="subtotal_title">Promo Discount</div>
+									<div>:</div>
+								</div>
+								<div class="subtotal_amount"> {{
+                            priceFormat(order.coupon_discount)
+                          }}</div>
+							</div>
+						</div>
+						<div class="w-100" style=" display: block;">
+							<div class="subtotal_section">
+								<div class="subtotal_title_container">
+									<div class="subtotal_title">Shipping</div>
+									<div>:</div>
+								</div>
+								<div class="subtotal_amount"> 
+									<div v-if="order.delivery_method === 'Pick from Store'">
+											<p class="mb-0 text-break">{{ order.store.name }}</p> 
+											<p class="mb-0 text-break">{{ order.store.address }}</p>
+											
+										</div>
+										<div v-else>  
+												{{
+													priceFormat(order.shipping_cost)
+												}} (up to 3 business days)
+										</div>
+						  	</div>
+							</div>
+						</div>
+
+						<div class="w-100" style=" display: block;">
+							<div class="subtotal_section">
+								<div class="subtotal_title_container">
+									<div class="subtotal_title">Delivery Method</div>
+									<div>:</div>
+								</div>
+								<div class="subtotal_amount"> 
+									{{ order.delivery_method.replaceAll("_", " ") }}
+						  	</div>
+							</div>
+						</div>
+						<div class="w-100" style=" display: block;">
+							<div class="subtotal_section">
+								<div class="subtotal_title_container">
+									<div class="subtotal_title">Payment method</div>
+									<div>:</div>
+								</div>
+								<div class="subtotal_amount"> 
+									
+									{{ order.payment_type.replaceAll("_", " ").charAt(0).toUpperCase() + order.payment_type.replaceAll("_", " ").slice(1) }}
+
+
+									
+								</div>
+							</div>
+						</div>
+
+						<div class="w-100" style=" display: block;">
+							<div class="subtotal_section">
+								<div class="subtotal_title_container">
+									<div class="subtotal_title">Total</div>
+									<div>:</div>
+								</div>
+								
+								<div class="subtotal_amount"> {{ priceFormat(order.total_payable) }}</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="table_body" >
+						<div class="table_billing_address">  Shipping Address</div>
+						
+					</div>
+
+					<div class="table_body" >
+						<div class="table_billing_addresss_details">
+							Name: {{ order.shipping_address?.name || "No data found" }} <br>
+							Phone No: {{ order.shipping_address?.phone_no || "No data found" }} <br>
+							Email: {{ order.shipping_address?.email || "No data found" }} <br>
+							Division: {{ order.shipping_address?.division || "No data found" }} <br>
+							District: {{ order.shipping_address?.district || "No data found" }} <br>
+							Thana: {{ order.shipping_address?.thana || "No data found" }} <br>
+							Address: {{ order.shipping_address?.address || "No data found" }}
+							</div>
+
+		
+					</div>
+
+					<div class="table_button_container">
+						
+						<!-- <div class="invoice_button" @click="printContainerContent()">Save as PDF</div> -->
+						<!-- <div class="invoice_button" >Print</div> -->
+						<loading_button v-if="loading" :class_name="'invoice_button'"></loading_button>
+						<a href="javascript:void(0)" v-else class="invoice_button" @click="download(order.id, order.code)">Save as PDF</a>
+					</div>
+					<!-- <div class="col-lg-12 mt-5">
+						<loading_button v-if="loading" :class_name="'btn btn-primary'"></loading_button>
+						<a href="javascript:void(0)" v-else class="btn btn-primary" @click="download(order.id, order.code)">Save as PDF</a>
+					</div> -->
+
+					<div class="thankyou_container">
+						<div class="fs-1">Thanks for using dolbear.tech!</div>
+						<div class="fs-1 opacity-25">Think Tech, Think Dolbear</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
+<style>
+
+.main_container{
+	width: 80%;
+	margin: 50px auto;
+}
+
+.table_container{
+	width: 100%;
+	height: auto;
+}
+
+.table_header{
+	display: flex;
+    background-color: #656565;
+    color: white;
+    height: 35px;
+    padding: 0px 15px;
+    align-items: center;
+}
+
+.product_column{
+	width: 40%;
+}
+
+.quantity_column{
+	width: 15%;
+	text-align: center;
+}
+
+.price_column{
+	width: 15%;
+	text-align: center;
+}
+
+.table_body{
+	display: flex;
+    height: auto;
+    padding: 10px 15px;
+    align-items: center;
+	border-left: 1px dotted black;
+	border-right: 1px dotted black;
+	border-bottom: 1px dotted black;
+}
+
+.product_data{
+	width: 40%;
+}
+
+.quantity_data{
+	width: 15%;
+	text-align: center;
+}
+
+.price_data{
+	width: 15%;
+	text-align: center;
+}
+
+.subtotal_section{
+	width: 100%;
+	height: auto;
+	display: flex;
+}
+
+.subtotal_title{
+	width: 100%;
+}
+
+.subtotal_amount{
+	width: 60%;
+	padding-left: 30px;
+}
+
+.subtotal_title_container{
+	display: flex;
+	width: 30%;
+	justify-content: space-between;
+}
+
+.table_billing_address{
+	width: 100%;
+	font-weight: 700;
+}
+
+.table_shipping_address{
+	width: 50%;
+	font-weight: 700;
+	padding-left: 20px;
+}
+
+.table_billing_addresss_details{
+	width: 100%;
+
+}
+
+.table_shipping_address_details{
+	width: 50%;
+	padding-left: 20px;
+}
+
+.table_button_container{
+	width: 100%;
+    height: auto;
+    display: flex;
+    column-gap: 10px;
+    justify-content: center;
+    margin-top: 35px;
+}
+
+.invoice_button{
+	width: 150px;
+    height: auto;
+    background-color: #242424;
+    color: #ffff !important;
+    padding: 5px 5px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+	cursor: pointer;
+}
+
+.thankyou_container{
+	width: 100%;
+	height: auto;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	margin-top: 35px;
+
+}
+
+
+
+
+
+/* Extra Small Devices (Phones) */
+@media (max-width: 575px) {  
+	.main_container{
+	width: 100%;
+  }
+
+  .table_header{
+	font-size: 12px;
+	padding-left: 5px 5px;
+  }
+
+  .table_body{
+	font-size: 12px;
+	padding: 5px 5px;
+  }
+
+  .product_column{
+	width: 40%;
+  }
+
+
+  .quantity_column{
+	width: 15%;
+	}
+
+	.price_column{
+		width: 15%;
+		text-align: center;
+	}
+
+
+	.product_data{
+		width: 40%;
+	}
+
+	.quantity_data{
+		width: 15%;
+		text-align: center;
+		text-align: center;
+	}
+
+	.price_data{
+		width: 15%;
+		text-align: center;
+	}
+
+
+}
+
+
+/* Small Devices (Tablets) */
+@media (min-width: 576px) and (max-width: 767px) {  
+.main_container{
+	width: 100%;
+  }
+
+  .product_column{
+	width: 30%;
+  }
+
+
+  .quantity_column{
+	width: 15%;
+	}
+
+	.price_column{
+		width: 15%;
+		text-align: center;
+	}
+
+
+	.product_data{
+		width: 30%;
+	}
+
+	.quantity_data{
+		width: 15%;
+		text-align: center;
+	}
+
+	.price_data{
+		width: 15%;
+		text-align: center;
+	}
+
+
+}
+
+/* Medium Devices (Small Laptops) */
+@media (min-width: 768px) and (max-width: 991px) {  
+	.main_container{
+	width: 100%;
+  }
+}
+
+/* Large Devices (Desktops) */
+@media (min-width: 992px) and (max-width: 1199px) {  
+  /* Styles for desktops */
+}
+
+/* Extra Large Devices (Large Screens) */
+@media (min-width: 1200px) {  
+  /* Styles for large screens */
+}
+
+@media print {
+            .table_button_container {
+                display: none;
+            }
+        }
+
+</style>
 
 <script>
 import shimmer from "../../partials/shimmer";
@@ -212,6 +598,14 @@ export default {
 		},
 	},
 	methods: {
+		 printContainerContent() {
+			var printContents = document.querySelector("#container").innerHTML;
+			var originalContents = document.body.innerHTML;
+			
+			document.body.innerHTML = printContents;
+			window.print();
+			document.body.innerHTML = originalContents;
+			},
 		getInvoices() {
 			this.$Progress.start();
 			let url = this.getUrl("user/get-invoices/" + this.$route.params.trx_id);

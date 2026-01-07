@@ -50,8 +50,8 @@ class ContactUsRepository implements ContactUsInterface {
         $contact = ContactUs::find($request['id']);
         $data['subject'] = $request['subject'];
         $data['message'] = $request['reply'];
-//        sendMailTo($request['email'], $data);
-        $this->sendmail($request['email'], 'Contact', $data, 'email.auth.email-template','');
+        sendMailTo($request['email'], $data);
+//        $this->sendmail($request['email'], 'Contact', $data, 'email.auth.email-template','');
         $contact->update($request);
         return $contact;
     }

@@ -8,14 +8,14 @@
         <div class="row">
           <user_sidebar :current="current"></user_sidebar>
           <div class="col-lg-9">
-            <div class="profile-banner-image">
-              <a href="#"
-                ><img
-                  loading="lazy"
-                  :src="settings.user_dashboard_banner"
-                  alt="profile-banner"
-              /></a>
-            </div>
+<!--            <div class="profile-banner-image">-->
+<!--              <a href="#"-->
+<!--                ><img-->
+<!--                  loading="lazy"-->
+<!--                  :src="settings.user_dashboard_banner"-->
+<!--                  alt="profile-banner"-->
+<!--              /></a>-->
+<!--            </div>-->
             <div class="title justify-between">
               <h1>{{ lang.dashboard }}</h1>
             </div>
@@ -46,18 +46,7 @@
                   </div>
                 </router-link>
               </div>
-              <!-- <div class="col-md-4">
-                <router-link :to="{ name: 'wishlist' }">
-                  <div
-                    class="card text-center profile-card d-flex justify-center profile-card-green"
-                  >
-                    <div class="profile-card-title mb-3">
-                      {{ lang.product_you_love }}
-                    </div>
-                    <h3 class="text-white">{{ wishlists }}</h3>
-                  </div>
-                </router-link>
-              </div> -->
+              
               <!-- <div class="col-md-4" v-if="settings.wallet_system == 1">
                 <router-link :to="{ name: 'wallet.history' }">
                   <div
@@ -156,64 +145,64 @@
               </div>
             </div>
 
-            <div class="sg-shipping" v-if="authUser">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="title mt-3 mb-0 b-0">
-                    <h1>{{ lang.default_shipping }}</h1>
-                  </div>
-                  <div class="sg-card address" v-if="default_shipping">
-                    <div class="justify-content-between d-flex">
-                      <div class="text">
-                        <ul class="global-list">
-                          <li>{{ lang.name }}: {{ default_shipping.name }}</li>
-                          <li>
-                            {{ lang.email }}: {{ default_shipping.email }}
-                          </li>
-                          <li>
-                            {{ lang.phone }}: {{ default_shipping.phone_no }}
-                          </li>
-                          <li>
-                            {{ lang.street_address }}:
-                            {{ default_shipping.default_shipping }}
-                          </li>
-                          <li>{{ lang.city }}: {{ default_shipping.city }}</li>
-                          <li>
-                            {{ lang.country }}: {{ default_shipping.country }}
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="title mt-3 mb-0 b-0">
-                    <h1>{{ lang.default_billing }}</h1>
-                  </div>
-                  <div class="sg-card address" v-if="default_billing">
-                    <div class="justify-content-between d-flex">
-                      <div class="text">
-                        <ul class="global-list">
-                          <li>{{ lang.name }}: {{ default_billing.name }}</li>
-                          <li>{{ lang.email }}: {{ default_billing.email }}</li>
-                          <li>
-                            {{ lang.phone }}: {{ default_billing.phone_no }}
-                          </li>
-                          <li>
-                            {{ lang.street_address }}:
-                            {{ default_billing.default_shipping }}
-                          </li>
-                          <li>{{ lang.city }}: {{ default_billing.city }}</li>
-                          <li>
-                            {{ lang.country }}: {{ default_billing.country }}
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+<!--            <div class="sg-shipping" v-if="authUser">-->
+<!--              <div class="row">-->
+<!--                <div class="col-md-6">-->
+<!--                  <div class="title mt-3 mb-0 b-0">-->
+<!--                    <h1>{{ lang.default_shipping }}</h1>-->
+<!--                  </div>-->
+<!--                  <div class="sg-card address" v-if="default_shipping">-->
+<!--                    <div class="justify-content-between d-flex">-->
+<!--                      <div class="text">-->
+<!--                        <ul class="global-list">-->
+<!--                          <li>{{ lang.name }}: {{ default_shipping.name }}</li>-->
+<!--                          <li>-->
+<!--                            {{ lang.email }}: {{ default_shipping.email }}-->
+<!--                          </li>-->
+<!--                          <li>-->
+<!--                            {{ lang.phone }}: {{ default_shipping.phone_no }}-->
+<!--                          </li>-->
+<!--                          <li>-->
+<!--                            {{ lang.street_address }}:-->
+<!--                            {{ default_shipping.default_shipping }}-->
+<!--                          </li>-->
+<!--                          <li>{{ lang.city }}: {{ default_shipping.city }}</li>-->
+<!--                          <li>-->
+<!--                            {{ lang.country }}: {{ default_shipping.country }}-->
+<!--                          </li>-->
+<!--                        </ul>-->
+<!--                      </div>-->
+<!--                    </div>-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--                <div class="col-md-6">-->
+<!--                  <div class="title mt-3 mb-0 b-0">-->
+<!--                    <h1>{{ lang.default_billing }}</h1>-->
+<!--                  </div>-->
+<!--                  <div class="sg-card address" v-if="default_billing">-->
+<!--                    <div class="justify-content-between d-flex">-->
+<!--                      <div class="text">-->
+<!--                        <ul class="global-list">-->
+<!--                          <li>{{ lang.name }}: {{ default_billing.name }}</li>-->
+<!--                          <li>{{ lang.email }}: {{ default_billing.email }}</li>-->
+<!--                          <li>-->
+<!--                            {{ lang.phone }}: {{ default_billing.phone_no }}-->
+<!--                          </li>-->
+<!--                          <li>-->
+<!--                            {{ lang.street_address }}:-->
+<!--                            {{ default_billing.default_shipping }}-->
+<!--                          </li>-->
+<!--                          <li>{{ lang.city }}: {{ default_billing.city }}</li>-->
+<!--                          <li>-->
+<!--                            {{ lang.country }}: {{ default_billing.country }}-->
+<!--                          </li>-->
+<!--                        </ul>-->
+<!--                      </div>-->
+<!--                    </div>-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
             <div
               class="col-lg-12"
               v-if="profileOrders && profileOrders.total > 0"
@@ -1183,7 +1172,7 @@
 </template>
 
 <script>
-import orders from "./../../partials/orders";
+import orders from "./../../partials/orders.vue";
 import user_sidebar from "../../partials/user_sidebar";
 import shimmer from "../../partials/shimmer";
 import paystack from "../../payment_partials/paystack";
@@ -1439,3 +1428,15 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.profile-card-red {
+    background-color: red;
+}
+.profile-card-gray {
+    background-color: gray;
+}
+.profile-card-green {
+    background-color: green;
+}
+</style>

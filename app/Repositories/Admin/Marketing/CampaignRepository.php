@@ -192,7 +192,7 @@ class CampaignRepository implements CampaignInterface
 
            $previous_product = CampaignProduct::where('campaign_id',$request->campaign_id)->delete();
 
-            
+
 
             if($ids != null):
                 foreach ($ids as $key => $value):
@@ -222,7 +222,7 @@ class CampaignRepository implements CampaignInterface
                 $product->special_discount      = 0.00;
                 $product->special_discount_start  = null;
                 $product->special_discount_end    = null;
-                $product->save();               
+                $product->save();
             endforeach;
 
 
@@ -293,7 +293,7 @@ class CampaignRepository implements CampaignInterface
             $campaignProduct->discount      = $request->discount_type == 'percentage' ? $request->discount : priceFormatUpdate($request->discount,settingHelper('default_currency'));
             $this->updateDiscount($campaignProduct,'update');
             $campaignProduct->save();
-          
+
             return true;
     }
 
@@ -378,7 +378,7 @@ class CampaignRepository implements CampaignInterface
 
     public function campaigns($limit)
     {
-        return $this->all()->with('currentLanguage')->where('start_date','<=',now())->where('end_date','>=',now())->where('status',1)->paginate($limit);
+        return $this->all()->with('currentLanguage')->where('start_date','<=',now())->where('end_date','>=',now())->paginate($limit);
     }
 
     public function campaignProducts($id,$user)

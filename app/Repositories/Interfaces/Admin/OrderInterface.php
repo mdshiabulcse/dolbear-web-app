@@ -24,6 +24,7 @@ interface OrderInterface
     public function assignDeliveryHero($request);
 
     public function deliveryStatusChange($request);
+    public function orderCreate($request);
 
     public function paymentStatusChange($request);
 
@@ -37,7 +38,7 @@ interface OrderInterface
 
     public function productOrderList($item,$user);
 
-    public function deleteOrder($id);
+    public function deleteOrder($id, $user);
 
     public function cancelOrder($order,$remarks);
 

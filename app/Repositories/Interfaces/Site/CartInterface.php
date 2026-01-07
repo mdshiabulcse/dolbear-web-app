@@ -18,6 +18,8 @@ interface CartInterface{
 
     public function applyCoupon($data,$user);
 
+    public function applyPoints($data,$user);
+
     public function checkoutCoupon($carts,$data,$user);
 
     public function shippingCostFind($carts,$data);

@@ -36,6 +36,20 @@ $button_name = isset($user) ? __('Update') : __('Add');
                             <div class="col-md-12">
                                 <div class="card-body card-body-paddding phone-block">
                                     <div class="form-group">
+                                        <label for="first_name"> Code </label>
+                                        <input type="hidden" value="{{ @$user->id }}" name="id">
+                                        <input type="hidden" value="{{ old('r') ? old('r') : (@$r ? $r : url()->previous() )}}" name="r">
+                                        <input type="text" name="code" id="code" placeholder="Code"
+                                               value="{{ old('code') ? old('code') : @$user->code }}"
+                                               class="form-control">
+                                        @if ($errors->has('code'))
+                                            <div class="invalid-feedback">
+                                                <p>{{ $errors->first('code') }}</p>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <div class="form-group">
                                         <label for="first_name"> {{ __('First Name') }} </label>
                                         <input type="hidden" value="{{ @$user->id }}" name="id">
                                         <input type="hidden" value="{{ old('r') ? old('r') : (@$r ? $r : url()->previous() )}}" name="r">
@@ -73,16 +87,16 @@ $button_name = isset($user) ? __('Update') : __('Add');
                                                                                 ])
                                     </div>
 
-                                    <div class="form-group">
-                                        <label for="email">{{ __('Email') }} </label>
-                                        <input type="text" name="email" id="email" class="form-control" placeholder="{{ __('Email')}}"
-                                               value="{{ old('email') ? old('email') : (config('app.demo_mode') && isset($user->email) ? emailAddressMask($user->email) : @$user->email) }}">
-                                        @if ($errors->has('email'))
-                                            <div class="invalid-feedback">
-                                                <p>{{ $errors->first('email') }}</p>
-                                            </div>
-                                        @endif
-                                    </div>
+{{--                                    <div class="form-group">--}}
+{{--                                        <label for="email">{{ __('Email') }} </label>--}}
+{{--                                        <input type="text" name="email" id="email" class="form-control" placeholder="{{ __('Email')}}"--}}
+{{--                                               value="{{ old('email') ? old('email') : (config('app.demo_mode') && isset($user->email) ? emailAddressMask($user->email) : @$user->email) }}">--}}
+{{--                                        @if ($errors->has('email'))--}}
+{{--                                            <div class="invalid-feedback">--}}
+{{--                                                <p>{{ $errors->first('email') }}</p>--}}
+{{--                                            </div>--}}
+{{--                                        @endif--}}
+{{--                                    </div>--}}
                                     <div class="form-group">
                                         <label for="password">{{ __('Password') }} </label>
                                         <div class="input-group sohide_ico_pos" id="show_hide_password">

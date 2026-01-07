@@ -315,7 +315,6 @@ export default {
   methods: {
     loadWallets() {
       let url = this.getUrl("user/affiliate-links?page=" + this.page);
-      console.log(url);
       if (this.page > 1) {
         this.loading = true;
       }
@@ -356,7 +355,6 @@ export default {
       }
     },
     copyProductUrl(slug) {
-      console.log(slug);
       var copyText = document.getElementById("testing-product-url_" + slug);
 
       if (copyText) {

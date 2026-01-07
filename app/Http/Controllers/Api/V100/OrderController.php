@@ -361,6 +361,90 @@ class OrderController extends Controller
         }
     }
 
+    public function updateOrderStatus(OrderInterface $order, Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'code' => 'required',
+                'delivery_status' => 'required|in:no_ans_1,no_ans_2,no_ans_3,confirm,picked_up,on_the_way,canceled,delivered',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->responseWithError(
+                __('validation_failed'),
+                $e->errors(),
+                422
+            );
+        }
+
+        $token = $request->bearerToken();
+
+        if(!isset($token)){
+            return $this->responseWithError(__('unauthorized_user'), [], 401);
+        }
+
+        DB::beginTransaction();
+        try {
+
+            if ($token !== env('dolbear_key')) {
+                return $this->responseWithError(__('unauthorized_user'), [], 401);
+            }
+
+            $order->deliveryStatusChange($request);
+
+            $data = [
+                'success' => __('Updated Successfully')
+            ];
+
+            DB::commit();
+
+            return response()->json($data);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => __('oops...Something Went Wrong')]);
+        }
+    }
+
+    public function createOrder(OrderInterface $order, Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'delivery_status' => 'in:no_ans_1,no_ans_2,no_ans_3,confirm,picked_up,on_the_way,canceled,delivered',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->responseWithError(
+                __('validation_failed'),
+                $e->errors(),
+                422
+            );
+        }
+
+        $token = $request->bearerToken();
+
+        if(!isset($token)){
+            return $this->responseWithError(__('unauthorized_user'), [], 401);
+        }
+
+        DB::beginTransaction();
+        try {
+
+            if ($token !== env('dolbear_key')) {
+                return $this->responseWithError(__('unauthorized_user'), [], 401);
+            }
+
+            $order->orderCreate($request);
+
+            $data = [
+                'success' => __('Created Successfully')
+            ];
+
+            DB::commit();
+
+            return response()->json($data);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => __('oops...Something Went Wrong')]);
+        }
+    }
     public function completeOrder(OrderInterface $order, OfflineMethodInterface $offlineMethod, Request $request)
     {
         DB::beginTransaction();

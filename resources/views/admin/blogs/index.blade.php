@@ -130,9 +130,13 @@
                                                 <a href="{{ isAppMode() ? '#' : route('blog-details',$post->slug) }}" target="{{ isAppMode() ? '_parent' : '_blank'}}">{{ $post->getTranslation('title', \App::getLocale()) }}</a>
                                             </td>
                                             <td>
-                                                <a href="{{ isAppMode() ? '#' : route('category.blogs',$post->category->slug) }}" target="{{ isAppMode() ? '_parent' : '_blank'}}">
-                                                {{ $post->category->getTranslation('title', \App::getLocale()) }}
-                                                </a>
+                                           
+                                                
+                                                 <a href="{{ isAppMode() ? '#' : ($post->category ? route('category.blogs', $post->category->slug) : '#') }}" 
+   target="{{ isAppMode() ? '_parent' : '_blank'}}">
+    {{ $post->category ? $post->category->getTranslation('title', \App::getLocale()) : 'Uncategorized' }}
+</a>
+
                                             </td>
                                             <td>
                                                 <div class="d-flex">

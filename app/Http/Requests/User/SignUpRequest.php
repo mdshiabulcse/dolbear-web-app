@@ -24,46 +24,13 @@ class SignUpRequest extends FormRequest
      */
     public function rules(Request $request)
     {
-        if ($request->user_type == 'seller')
-        {
-            return [
-                'email'         => 'required|unique:users,email|email',
-                'first_name'    => 'required|min:2',
-                'last_name'     => 'required|min:2',
-                'phone'         => 'required|unique:users,phone|min:6',
-                'password'      => 'required|confirmed|required_without:phone|min:6|max:50',
-                'shop_name'     => 'required',
-                'address'       => 'required',
-            ];
-        }
-        if ($request->user_type == 'seller-migrate')
-        {
-            return [
-                'shop_name'     => 'required',
-                'address'       => 'required',
-                'phone_no'      => 'required',
-            ];
-        }
-        if ($request->user_type == 'affiliate-register')
-        {
-            return [
-                'email'         => 'required|unique:users,email|email',
-                'first_name'    => 'required|min:2',
-                'last_name'     => 'required|min:2',
-                'phone'         => 'required|unique:users,phone|min:6',
-                'password'      => 'required|confirmed|required_without:phone|min:6|max:50',
-            ];
-        }
-        else{
-            return [
-                'email'         => 'required_without:phone|nullable|unique:users,email|email',
-                'first_name'    => 'required_without:user_type|min:2',
-                'last_name'     => 'required_without:user_type|min:2',
-                'phone'         => 'required_without:email|nullable|unique:users,phone|min:6',
-                'password'      => 'required_without:phone|confirmed|nullable|min:6|max:50',
-                'shop_name'     => 'required_if:user_type,==,seller-migrate|min:2',
-            ];
-        }
+        return [
+            'email'         => 'nullable|unique:users,email|email',
+            'first_name'    => 'required:user_type|min:2',
+            'last_name'     => 'required:user_type|min:2',
+            'phone'         => 'required|min:6',
+            'password'      => 'required|confirmed|nullable|min:6|max:50',
+        ];
     }
 
     public function messages()

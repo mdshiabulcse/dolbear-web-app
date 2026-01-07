@@ -16,6 +16,7 @@ return [
         'article',
         'cookies_agreement',
         'popup_title',
+        'popup_url',
         'popup_description',
         'about_description',
         'copyright',

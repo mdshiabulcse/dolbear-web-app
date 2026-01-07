@@ -1,30 +1,37 @@
 <?php
 
-use App\Http\Controllers\Admin\Addons\AffiliateController;
-use App\Http\Controllers\Admin\Addons\RewardSystemController;
-use App\Http\Controllers\Admin\CommonController;
-use App\Http\Controllers\Admin\LanguageController;
-use App\Http\Controllers\Admin\LoginController;
-use App\Http\Controllers\Admin\MediaController;
-use App\Http\Controllers\Admin\NotificationController;
-use App\Http\Controllers\Admin\RegisterController;
-use App\Http\Controllers\Admin\StaffController;
-use App\Http\Controllers\Admin\WalletController;
-use App\Http\Controllers\Seller\CouponController;
-use App\Http\Controllers\Site\AddressController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Site\BlogController;
 use App\Http\Controllers\Site\CartController;
-use App\Http\Controllers\Site\CompareController;
-use App\Http\Controllers\Site\FrontendController;
 use App\Http\Controllers\Site\HomeController;
+use App\Http\Controllers\Site\UserController;
 use App\Http\Controllers\Site\OrderController;
+use App\Http\Controllers\Admin\LoginController;
+use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\StoreController;
+use App\Http\Controllers\Site\SocialController;
+use App\Http\Controllers\Admin\CommonController;
+use App\Http\Controllers\Admin\WalletController;
+use App\Http\Controllers\Site\AddressController;
+use App\Http\Controllers\Site\CompareController;
 use App\Http\Controllers\Site\PaymentController;
 use App\Http\Controllers\Site\ProductController;
-use App\Http\Controllers\Site\SocialController;
-use App\Http\Controllers\Site\UserController;
+use App\Http\Controllers\Admin\PopUpAdController;
+use App\Http\Controllers\Seller\CouponController;
+use App\Http\Controllers\Site\FrontendController;
 use App\Http\Controllers\Site\WishlistController;
-use App\Http\Controllers\SitemapController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\LanguageController;
+use App\Http\Controllers\Admin\RegisterController;
+use App\Http\Controllers\Admin\RecommendedController;
+use App\Http\Controllers\Admin\FlashMessageController;
+use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\Addons\AffiliateController;
+use App\Http\Controllers\Admin\Product\CategoryController;
+use App\Http\Controllers\Admin\Addons\RewardSystemController;
+use App\Http\Controllers\Admin\Marketing\SubscriberController;
+
 
 Route::get('cache-clear', [HomeController::class, 'cacheClear'])->name('cache.clear');
 Route::get('get-database', [HomeController::class, 'getDb'])->name('get.database');
@@ -68,6 +75,8 @@ Route::middleware(['XSS', 'isInstalled'])->group(function () {
 
     Route::get('activation/{email}/{activationCode}', [LoginController::class, 'activation']);
 
+    Route::post('user/apply_coupon', [CartController::class, 'applyCoupon'])->name('apply.coupon');
+
     Route::middleware(['loginCheck'])->group(function () {
 
         Route::get('logout', [LoginController::class, 'logout'])->name('logout');
@@ -83,9 +92,14 @@ Route::middleware(['XSS', 'isInstalled'])->group(function () {
         //for user api
         Route::group(['prefix' => 'user'], function () {
             Route::post('change-password', [UserController::class, 'changePassword'])->name('user.change.password');
-            Route::post('apply_coupon', [CartController::class, 'applyCoupon'])->name('apply.coupon');
             Route::get('coupons', [UserController::class, 'coupons'])->name('user.coupons');
             Route::post('coupon-delete', [CartController::class, 'deleteCoupon']);
+
+            Route::get('purchase-points', [UserController::class, 'points']);
+            Route::post('apply-purchase-point', [CartController::class, 'applyPoints']);
+
+
+
             Route::get('wishlists', [WishlistController::class, 'wishlists'])->name('user.wishlist');
             Route::post('update-profile', [UserController::class, 'updateProfile'])->name('user.update.profile');
             Route::get('get-all-address', [AddressController::class, 'allAddress'])->name('user.addresses.axios');
@@ -135,6 +149,9 @@ Route::middleware(['XSS', 'isInstalled'])->group(function () {
     Route::match(['get', 'post'], 'user/get-invoices/{trx_id}', [OrderController::class, 'sellerWiseInvoices'])->name('get.invoices');
     Route::get('user/payment-order', [OrderController::class, 'userLastOrder'])->name('payment.order');
     Route::post('user/confirm-order', [OrderController::class, 'confirmOrder'])->name('confirm.order');
+    Route::post('user/delivery-address', [OrderController::class, 'deliveryAddress'])->name('delivery.address');
+
+
     Route::get('user/address', [AddressController::class, 'addresses'])->name('user.addresses');
     Route::post('user/country-search', [AddressController::class, 'searchCountry']);
     Route::get('add-to-cart', [CartController::class, 'addToCart'])->name('add-to-cart');
@@ -158,6 +175,8 @@ Route::middleware(['XSS', 'isInstalled'])->group(function () {
     Route::match(['get', 'post'], 'user/invoice/{code}', [OrderController::class, 'getInvoice'])->name('get.invoice.any');
     Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('main.sitemap');
     Route::get('/sitemap.html', [SitemapController::class, 'links'])->name('index.sitemap');
+
+    Route::get('user/delivery-address', [AddressController::class, 'deliveryAddress'])->name('user.delivery.address');
 
     //vue js redirect by laravel route
     Route::get('/{anypath}', [HomeController::class, 'index'])->where('path', '*')->name('home.page');
@@ -185,6 +204,22 @@ Route::middleware(['XSS', 'isInstalled'])->group(function () {
     Route::match(['get','post'],'my-wallet', [HomeController::class, 'index'])->where('path', '*');
     Route::match(['get','post'],'payment', [HomeController::class, 'index'])->where('path', '*');
 
+    Route::get('products/available', [ProductController::class, 'allAvailableProducts'])->name('product.availableProducts');
+    Route::get('recommended/all', [RecommendedController::class, 'all']);
+    Route::get('categories/popular', [CategoryController::class, 'popular']);
+    
+    //get all store data
+    Route::get('store/allStore', [StoreController::class, 'allStore']);
+    // get all fan msg
+    Route::get('flash-message/all', [FlashMessageController::class, 'all']);
+    // Subscribers
+    Route::post('subscribers/save', [SubscriberController::class, 'store']);
+
+    // Order track
+    Route::post('track-order', [FrontendController::class, 'trackOrder']);
+
+    // featured products
+    Route::get('home/featured-products', [ProductController::class, 'productByFeatured']);
 
     //api data collection
     Route::get('home/page', [FrontendController::class, 'home'])->name('home.page.data');
@@ -220,7 +255,7 @@ Route::middleware(['XSS', 'isInstalled'])->group(function () {
     Route::post('blog/unlike-comments', [BlogController::class, 'unlikeBlogComments'])->name('blog.unlike.comments');
     Route::post('blog/like-reply', [BlogController::class, 'likeBlogReply'])->name('blog.like.reply');
     Route::post('blog/unlike-reply', [BlogController::class, 'unlikeBlogReply'])->name('blog.unlike.reply');
-    Route::post('track-order', [FrontendController::class, 'trackOrder'])->name('track.order');
+    // Route::post('track-order', [FrontendController::class, 'trackOrder'])->name('track.order');
     Route::get('home/brands', [FrontendController::class, 'brands'])->name('brands.all');
     Route::get('home/sellers', [FrontendController::class, 'sellers'])->name('front.sellers');
     Route::get('home/offer-products', [ProductController::class, 'productByOffer'])->name('offer.products');
@@ -261,6 +296,7 @@ Route::middleware(['XSS', 'isInstalled'])->group(function () {
     Route::get('/seller/coupons/{id}', [CouponController::class, 'coupons'])->name('front.seller.coupons');
     Route::match(['post', 'get'], 'get/ssl-response', [PaymentController::class, 'sslResponse'])->name('ssl.response');
     Route::get('get/country-list', [AddressController::class, 'countries'])->name('get.country');
+    Route::get('get/division-list', [AddressController::class, 'divisions'])->name('get.division');
     Route::get('set/text-direction/{dir}', [HomeController::class, 'textDirection'])->name('set.text-direction');
     Route::post('search/product', [ProductController::class, 'searchProduct'])->name('search.product');
     Route::get('summernote/clean', [HomeController::class, 'summernoteClean'])->name('summernote.clean');
@@ -289,8 +325,6 @@ Route::middleware(['XSS', 'isInstalled'])->group(function () {
     Route::get('iyzico/redirect', [PaymentController::class, 'iyzicoRedirect']);
     Route::get('kkiapay/callback', [PaymentController::class, 'retrieveIyzico'])->name('iyzico.callback');
 
-
-
     Route::get('mercadopago/redirect/wallet', [WalletController::class, 'mercadoPago']);
     Route::get('bkash/redirect/wallet', [WalletController::class, 'bkashRedirect']);
     Route::get('bkash/execute/wallet', [WalletController::class, 'bkashExecute']);
@@ -312,7 +346,6 @@ Route::middleware(['XSS', 'isInstalled'])->group(function () {
     //Report Route
 
     Route::group(['prefix' => 'sitemap'], function () {
-        
         Route::get('products.xml', [SitemapController::class, 'products'])->name('products.sitemap');
         Route::get('blogs.xml', [SitemapController::class, 'blogs'])->name('blogs.sitemap');
         Route::get('categories.xml', [SitemapController::class, 'categories'])->name('categories.sitemap');
@@ -324,6 +357,8 @@ Route::middleware(['XSS', 'isInstalled'])->group(function () {
     Route::get('migrate', function () {
         \Illuminate\Support\Facades\Artisan::call('migrate');
     });
+
+
 
 
 });

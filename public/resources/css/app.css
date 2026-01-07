@@ -1,0 +1,32 @@
+.card_new {
+    background: white;
+    border-radius: 7px;
+    padding: 40px 65px;
+}
+
+h2.card-title_new {
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 25px;
+}
+
+.card_new h4 {
+    font-size: 16px;
+    line-height: 27px;
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+.owl-carousel {
+    z-index: 0 !important;
+}
+
+@media screen and (max-width: 768px) {
+    .card_new h4 {
+        font-size: 20px;
+        margin: 0 !important;
+    }
+    .card_new {
+        padding: 40px 18px !important;
+    }
+}

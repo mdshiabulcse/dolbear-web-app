@@ -25,7 +25,8 @@ class StateRequest extends FormRequest
     {
         return [
             'name' => 'required|min:3|max:50',
-            'country_id' => 'required',
+            'country_id' => 'nullable',
+            'division_id' => 'required',
         ];
     }
 }

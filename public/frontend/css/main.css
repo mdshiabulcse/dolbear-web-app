@@ -139,7 +139,7 @@ button,
 	border-radius: 4px;
 	position: relative;
 	overflow: hidden;
-	color: var(--btn-txt-color);
+	color: var(--btn-txt-color) !important;
 	background-color: var(--btn-bg-color);
 	border: 1px solid var(--btn-bdr-color);
 	line-height: 22px;
@@ -177,7 +177,7 @@ button.gpay-card-info-container.black:hover,
 .add-to-cart .btn:hover,
 .comment-form .btn.btn-primary:hover,
 .show-more-button .btn.btn-primary:hover {
-	color: var(--btn-bg-color);
+	color: var(--btn-bg-color) !important;
 	background-color: transparent !important;
 	border: 1px solid var(--btn-bg-color);
 }
@@ -272,7 +272,7 @@ button.gpay-card-info-container.black:hover,
 	border-radius: 3px;
 	line-height: 24px;
 	text-transform: uppercase;
-	color: var(--btn-txt-color);
+	color: var(--btn-txt-color) !important;
 	background-color: var(--btn-bg-color);
 	border: 1px solid var(--btn-bdr-color);
 	transition: 500ms;
@@ -407,9 +407,9 @@ textarea.form-control {
 	resize: none;
 }
 
-section {
+/* section {
 	padding: 15px 0;
-}
+} */
 .brand-section.item-space-rmv {
 	margin-bottom: 15px;
 }
@@ -4035,7 +4035,7 @@ ul.products {
 	height: initial;
 	line-height: 20px;
 	font-size: 16px;
-	color: #ffcc00;
+	/* color: #ffcc00; */
 }
 
 /* sg-table */
@@ -5446,7 +5446,7 @@ label {
 .show-more-button .btn.btn-primary {
 	background-color: var(--btn-bg-color);
 	border: 1px solid var(--btn-bdr-color);
-	color: var(--btn-txt-color);
+	color: var(--btn-txt-color); !important;
 	padding: 8px 24px;
 }
 
@@ -5544,7 +5544,7 @@ label {
 }
 
 .sg-sitebar .accordion-button::after {
-	background-image: none;
+	/* background-image: none; */
 	content: "\F0140";
 	transform: rotate(0) !important;
 	font: normal normal normal 18px/1 "Material Design Icons";
@@ -7656,7 +7656,7 @@ blockquote span {
 .add-to-cart .btn {
 	padding: 8px 15px;
 	border-radius: 4px;
-	color: var(--btn-txt-color);
+	color: var(--btn-txt-color) !important;
 	border: 1px solid var(--btn-bdr-color);
 	background-color: var(--btn-bg-color);
 }
@@ -9760,7 +9760,7 @@ div#payment_buttons #sslczPayBtn {
 }
 .product-details-description .customer-reviews {
 	margin-bottom: 50px;
-	max-width: 100%;
+	/*max-width: 100%;*/
 	background: #f5f5f5;
 	padding: 20px;
 	border-radius: 4px;

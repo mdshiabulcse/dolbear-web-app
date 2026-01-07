@@ -1,11 +1,8 @@
 <template>
-  <div class="sg-page-content">
+  <div class="sg-page-content container">
     <div v-if="lengthCounter(productList)>0" class="sg-breadcumb-section">
       <img :src="campaign.image_1920x412" alt="Campaign">
-      <!-- <div class="container">
-        <div class="breadcumb-content"></div>
-      </div> -->
-      <!-- /.container -->
+    
     </div>
     <section class="shimmer-section" v-else-if="shimmer">
       <shimmer class="shimmer-rds" :height="412"></shimmer>
@@ -32,47 +29,49 @@
                 lang.products
               }}</a>
             </li>
-            <li class="nav-item" @click="brandActive" :class="{'show active' : activeNav == 'brands'}"
-                role="presentation"><a class="nav-link" href="javaScript:void(0)" aria-controls="brands"
-                                      role="tab" data-bs-toggle="tab"
-                                      aria-expanded="true">{{ lang.brands }}</a></li>
-            <li class="nav-item" @click="shopActive"
-                :class="{'show active' : activeNav == 'shops'}" role="presentation"><a class="nav-link"
-                                                                                      href="javaScript:void(0)"
-                                                                                      aria-controls="shops"
-                                                                                      role="tab"
-                                                                                      data-bs-toggle="tab"
-                                                                                      aria-expanded="true">{{
-                lang.shops
-              }}</a>
-            </li>
+<!--            <li class="nav-item" @click="brandActive" :class="{'show active' : activeNav == 'brands'}"-->
+<!--                role="presentation"><a class="nav-link" href="javaScript:void(0)" aria-controls="brands"-->
+<!--                                      role="tab" data-bs-toggle="tab"-->
+<!--                                      aria-expanded="true">{{ lang.brands }}</a></li>-->
+<!--            <li class="nav-item" @click="shopActive"-->
+<!--                :class="{'show active' : activeNav == 'shops'}" role="presentation"><a class="nav-link"-->
+<!--                                                                                      href="javaScript:void(0)"-->
+<!--                                                                                      aria-controls="shops"-->
+<!--                                                                                      role="tab"-->
+<!--                                                                                      data-bs-toggle="tab"-->
+<!--                                                                                      aria-expanded="true">{{-->
+<!--                lang.shops-->
+<!--              }}</a>-->
+<!--            </li>-->
           </ul>
         </div>
 
-        <div class="tab-content">
-          <div role="tabpanel" class="tab-pane fade" :class="{'show active' : activeNav == 'products'}"
+        <!-- <div class=""> --> 
+          <div role="tabpanel" class="tab-pane fade" :class="{'show': activeNav == 'products'}"
               id="products">
-            <section class="products-section bg-white" v-if="lengthCounter(productList)>0">
-              <div class="container">
-                <product :products="products.data" :grid_class="'grid-6'"></product>
-              </div>
-            </section>
-            <section class="products-section bg-white" v-else-if="shimmer">
+              <section class="products-section d-flex flex-wrap gap-2" v-if="lengthCounter(productList) > 0">
+                <div v-for="product in products.data" :key="product.id" class="">
+                      <product_card :product="product"></product_card>
+                    </div>
+              </section>
+
+
+            <!-- <section class="products-section bg-white" v-else-if="shimmer">
               <ul class="products" :class="'grid-6'">
                 <li v-for="(product,index) in 12" :key="index">
                   <div class="sg-product">
                     <a href="javaScript:void(0)">
                       <shimmer :height="290"></shimmer>
                     </a>
-                  </div><!-- /.sg-product -->
+                  </div>
                 </li>
               </ul>
-            </section>
+            </section> -->
             <div class="col-md-12 text-center show-more" v-if="product_next_page_url && !loading">
               <a href="javaScript:void(0)" @click="loadMoreData(product_next_page_url)"
                 class="btn btn-primary">{{ lang.show_more }}</a>
             </div>
-          </div><!-- /.tab-pane -->
+          </div>
           <div role="tabpanel" class="tab-pane fade" :class="{'show active' : activeNav == 'brands'}"
               id="brands">
             <div class="row">
@@ -108,7 +107,7 @@
               <seller v-else :sellers="shops.data" :class_name="'grid-4'" :is_shimmer="is_shimmer"></seller>
             </section>
           </div><!-- /.tab-pane -->
-        </div><!-- /.tab-content -->
+        <!-- </div> -->
 
         <div class="col-md-12 text-center show-more" v-show="loading">
           <loading_button :class_name="'btn btn-primary'"></loading_button>
@@ -125,15 +124,16 @@
 <script>
 import product from "./product";
 import FlipCountdown from "vue2-flip-countdown";
-import StarRating from 'vue-star-rating';
+import StarRating from '../partials/StarRating.vue';
 import shimmer from "../partials/shimmer";
 import seller from "../partials/seller";
+import product_card from '../common/product_card.vue';
 
 
 export default {
   name: "campaign_details",
   components: {
-    product, FlipCountdown, StarRating, shimmer, seller
+    product, FlipCountdown, StarRating, shimmer, seller, product_card
   },
   data() {
     return {
