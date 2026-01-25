@@ -1,0 +1,538 @@
+[2026-01-15 09:48:37] development.ERROR: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it (SQL: select * from information_schema.tables where table_schema = wwwdolbe_dolbear and table_name = languages and table_type = 'BASE TABLE') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 2002): SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it (SQL: select * from information_schema.tables where table_schema = wwwdolbe_dolbear and table_name = languages and table_type = 'BASE TABLE') at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:712)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#4 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#12 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#14 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(310): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(127): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#18 C:\\shiab\\dolbear-web-app\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#19 {main}
+
+[previous exception] [object] (PDOException(code: 2002): SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:70)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(70): PDO->__construct('mysql:host=loca...', 'root', Object(SensitiveParameterValue), Array)
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(45): Illuminate\\Database\\Connectors\\Connector->createPdoConnection('mysql:host=loca...', 'root', '', Array)
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\MySqlConnector.php(24): Illuminate\\Database\\Connectors\\Connector->createConnection('mysql:host=loca...', Array, Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\ConnectionFactory.php(184): Illuminate\\Database\\Connectors\\MySqlConnector->connect(Array)
+#4 [internal function]: Illuminate\\Database\\Connectors\\ConnectionFactory->Illuminate\\Database\\Connectors\\{closure}()
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1064): call_user_func(Object(Closure))
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1100): Illuminate\\Database\\Connection->getPdo()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(442): Illuminate\\Database\\Connection->getReadPdo()
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(368): Illuminate\\Database\\Connection->getPdoForSelect(true)
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(705): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('select * from i...', Array)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#12 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#14 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#18 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#19 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#20 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#21 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#22 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#23 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#24 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#25 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#26 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(310): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#27 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(127): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#28 C:\\shiab\\dolbear-web-app\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#29 {main}
+"} 
+[2026-01-15 11:56:03] development.INFO: Elitbuzz SMS Attempt {"phone":"8801765778584","api_url":"https://msg.mram.com.bd","api_key_set":true,"sender_id":"8809601017125","message_length":169} 
+[2026-01-15 11:56:04] development.INFO: Elitbuzz SMS Response {"status_code":200,"response_body":"1016","success":false} 
+[2026-01-15 11:56:04] development.ERROR: Elitbuzz SMS Failed {"response":"1016","status":200} 
+[2026-01-15 11:56:37] development.INFO: Elitbuzz SMS Attempt {"phone":"8801765778584","api_url":"https://msg.mram.com.bd","api_key_set":true,"sender_id":"8809601017125","message_length":169} 
+[2026-01-15 11:56:38] development.INFO: Elitbuzz SMS Response {"status_code":200,"response_body":"1016","success":false} 
+[2026-01-15 11:56:38] development.ERROR: Elitbuzz SMS Failed {"response":"1016","status":200} 
+[2026-01-15 11:58:08] development.INFO: Elitbuzz SMS Attempt {"phone":"8801724521238","api_url":"https://msg.mram.com.bd","api_key_set":true,"sender_id":"8809601017125","message_length":169} 
+[2026-01-15 11:58:08] development.INFO: Elitbuzz SMS Response {"status_code":200,"response_body":"1016","success":false} 
+[2026-01-15 11:58:08] development.ERROR: Elitbuzz SMS Failed {"response":"1016","status":200} 
+[2026-01-15 11:58:30] development.INFO: Elitbuzz SMS Attempt {"phone":"8801724521238","api_url":"https://msg.mram.com.bd","api_key_set":true,"sender_id":"8809601017125","message_length":169} 
+[2026-01-15 11:58:31] development.INFO: Elitbuzz SMS Response {"status_code":200,"response_body":"1016","success":false} 
+[2026-01-15 11:58:31] development.ERROR: Elitbuzz SMS Failed {"response":"1016","status":200} 
+[2026-01-15 12:20:08] development.INFO: Elitbuzz SMS Attempt {"phone":"8801724521238","api_url":"https://msg.mram.com.bd","api_key_set":true,"sender_id":"8809601017125","message_length":169} 
+[2026-01-15 12:20:09] development.INFO: Elitbuzz SMS Response {"status_code":200,"response_body":"1016","success":false} 
+[2026-01-15 12:20:09] development.ERROR: Elitbuzz SMS Failed {"response":"1016","status":200} 
+[2026-01-15 12:20:40] development.INFO: Elitbuzz SMS Attempt {"phone":"8801724521238","api_url":"https://msg.mram.com.bd","api_key_set":true,"sender_id":"8809601017125","message_length":169} 
+[2026-01-15 12:20:41] development.INFO: Elitbuzz SMS Response {"status_code":200,"response_body":"1016","success":false} 
+[2026-01-15 12:20:41] development.ERROR: Elitbuzz SMS Failed {"response":"1016","status":200} 
+[2026-01-15 12:21:32] development.INFO: Elitbuzz SMS Attempt {"phone":"8801724521238","api_url":"https://msg.mram.com.bd","api_key_set":true,"sender_id":"8809601017125","message_length":169} 
+[2026-01-15 12:21:32] development.INFO: Elitbuzz SMS Response {"status_code":200,"response_body":"1016","success":false} 
+[2026-01-15 12:21:32] development.ERROR: Elitbuzz SMS Failed {"response":"1016","status":200} 
+[2026-01-15 12:25:16] development.INFO: Elitbuzz SMS API Response {"phone":"8801724521238","status":200,"body":"1016"} 
+[2026-01-15 12:27:51] development.INFO: Elitbuzz SMS API Response {"phone":"8801765778584","status":200,"body":"1016"} 
+[2026-01-15 12:33:37] development.INFO: 🔔 DEVELOPER OTP - Registration {"phone":"01765778584","otp":15348,"purpose":"registration","message":"Your Dolbear verification code is: 15348"} 
+[2026-01-15 12:33:37] development.INFO: Elitbuzz SMS API Response {"phone":"8801765778584","status":200,"body":"1016"} 
+[2026-01-15 12:33:37] development.INFO: Elitbuzz SMS Sent Successfully {"phone":"8801765778584","message_id":"1016"} 
+[2026-01-15 12:33:50] development.INFO: finding by phone  
+[2026-01-15 12:33:52] development.INFO: result  
+[2026-01-15 13:37:06] development.INFO: 🔔 DEVELOPER OTP - Registration {"phone":"01712664056","otp":50280,"purpose":"registration","message":"Your Dolbear verification code is: 50280"} 
+[2026-01-15 13:37:06] development.INFO: Elitbuzz SMS Request {"phone":"8801712664056","url":"https://msg.mram.com.bd/smsapi?api_key=C400023669084e8b7d1752.06507268&type=text&contacts=8801712664056&senderid=8809601017125&msg=Your+Dolbear+verification+code+is%3A+50280+%0A%28Valid+for+5+minutes.+Do+not+share+this+code+with+anyone.%29%0AHelpline%3A+https%3A%2F%2Fwww.facebook.com%2Fdolbear.official+or+01894971070.%0A&label=transactional","params":{"api_key":"C400023669084e8b7d1752.06507268","type":"text","contacts":"8801712664056","senderid":"8809601017125","msg":"Your Dolbear verification code is: 50280 
+(Valid for 5 minutes. Do not share this code with anyone.)
+Helpline: https://www.facebook.com/dolbear.official or 01894971070.
+","label":"transactional"}} 
+[2026-01-15 13:37:07] development.INFO: Elitbuzz SMS API Response {"phone":"8801712664056","status":200,"body":"1016"} 
+[2026-01-15 13:37:07] development.ERROR: Elitbuzz SMS Error - IP address not allowed - Please whitelist your server IP with SMS provider {"phone":"8801712664056","error_code":"1016","error_message":"IP address not allowed - Please whitelist your server IP with SMS provider"} 
+[2026-01-15 13:37:07] development.ERROR: IP ADDRESS NOT WHITELISTED - Contact SMS provider to whitelist your server IP {"phone":"8801712664056","server_ip":"127.0.0.1","action_required":"Contact support@elitbuzz-bd.com with your server IP"} 
+[2026-01-15 13:45:18] development.INFO: 🔔 DEVELOPER OTP - Registration {"phone":"01712664056","otp":81918,"purpose":"registration","message":"Your Dolbear verification code is: 81918"} 
+[2026-01-15 13:45:18] development.INFO: Elitbuzz SMS Request {"phone":"8801712664056","url":"https://msg.mram.com.bd/smsapi?api_key=C400023669084e8b7d1752.06507268&type=text&contacts=8801712664056&senderid=8809601017125&msg=Your+Dolbear+verification+code+is%3A+81918+%0A%28Valid+for+5+minutes.+Do+not+share+this+code+with+anyone.%29%0AHelpline%3A+https%3A%2F%2Fwww.facebook.com%2Fdolbear.official+or+01894971070.%0A&label=transactional","params":{"api_key":"C400023669084e8b7d1752.06507268","type":"text","contacts":"8801712664056","senderid":"8809601017125","msg":"Your Dolbear verification code is: 81918 
+(Valid for 5 minutes. Do not share this code with anyone.)
+Helpline: https://www.facebook.com/dolbear.official or 01894971070.
+","label":"transactional"}} 
+[2026-01-15 13:45:18] development.INFO: Elitbuzz SMS API Response {"phone":"8801712664056","status":200,"body":"1016"} 
+[2026-01-15 13:45:18] development.ERROR: Elitbuzz SMS Error - IP address not allowed - Please whitelist your server IP with SMS provider {"phone":"8801712664056","error_code":"1016","error_message":"IP address not allowed - Please whitelist your server IP with SMS provider"} 
+[2026-01-15 13:45:18] development.ERROR: IP ADDRESS NOT WHITELISTED - Contact SMS provider to whitelist your server IP {"phone":"8801712664056","server_ip":"127.0.0.1","action_required":"Contact support@elitbuzz-bd.com with your server IP"} 
+[2026-01-15 14:07:02] development.INFO: 🔔 DEVELOPER OTP - Registration {"phone":"01712664056","otp":86237,"purpose":"registration","message":"Your Dolbear verification code is: 86237"} 
+[2026-01-15 14:07:02] development.INFO: Elitbuzz SMS Request {"phone":"8801712664056","url":"https://msg.mram.com.bd/smsapi?api_key=C400023669084e8b7d1752.06507268&type=text&contacts=8801712664056&senderid=8809601017125&msg=Your+Dolbear+verification+code+is%3A+86237+%0A%28Valid+for+5+minutes.+Do+not+share+this+code+with+anyone.%29%0AHelpline%3A+https%3A%2F%2Fwww.facebook.com%2Fdolbear.official+or+01894971070.%0A&label=transactional","params":{"api_key":"C400023669084e8b7d1752.06507268","type":"text","contacts":"8801712664056","senderid":"8809601017125","msg":"Your Dolbear verification code is: 86237 
+(Valid for 5 minutes. Do not share this code with anyone.)
+Helpline: https://www.facebook.com/dolbear.official or 01894971070.
+","label":"transactional"}} 
+[2026-01-15 14:07:02] development.INFO: Elitbuzz SMS API Response {"phone":"8801712664056","status":200,"body":"SMS SUBMITTED: ID - bw-rdC400023669689ff42bdff"} 
+[2026-01-15 14:07:02] development.INFO: Elitbuzz SMS Sent Successfully {"phone":"8801712664056","message_id":"SMS SUBMITTED: ID - bw-rdC400023669689ff42bdff"} 
+[2026-01-15 14:26:16] development.INFO: 🔔 DEVELOPER OTP - Registration {"phone":"01765778584","otp":40646,"purpose":"registration","message":"Your Dolbear verification code is: 40646"} 
+[2026-01-15 14:26:16] development.INFO: Elitbuzz SMS Request {"phone":"8801765778584","url":"https://msg.mram.com.bd/smsapi?api_key=C400023669084e8b7d1752.06507268&type=text&contacts=8801765778584&senderid=8809601017125&msg=Your+Dolbear+verification+code+is%3A+40646+%0A%28Valid+for+5+minutes.+Do+not+share+this+code+with+anyone.%29%0AHelpline%3A+https%3A%2F%2Fwww.facebook.com%2Fdolbear.official+or+01894971070.%0A&label=transactional","params":{"api_key":"C400023669084e8b7d1752.06507268","type":"text","contacts":"8801765778584","senderid":"8809601017125","msg":"Your Dolbear verification code is: 40646 
+(Valid for 5 minutes. Do not share this code with anyone.)
+Helpline: https://www.facebook.com/dolbear.official or 01894971070.
+","label":"transactional"}} 
+[2026-01-15 14:26:16] development.INFO: Elitbuzz SMS API Response {"phone":"8801765778584","status":200,"body":"SMS SUBMITTED: ID - bw-rdC40002366968a47603a62"} 
+[2026-01-15 14:26:16] development.INFO: Elitbuzz SMS Sent Successfully {"phone":"8801765778584","message_id":"SMS SUBMITTED: ID - bw-rdC40002366968a47603a62"} 
+[2026-01-15 14:26:56] development.INFO: finding by phone  
+[2026-01-15 14:26:57] development.INFO: result [{"name":"shakib islam","creation":"2026-01-15 12:33:02.125619","modified":"2026-01-15 12:33:02.627266","modified_by":"website@dolbear.com.bd","owner":"website@dolbear.com.bd","docstatus":0,"idx":0,"naming_series":"Dol-.YY.-.MM.-.DD.","salutation":null,"customer_name":"shakib islam","customer_type":"Individual","customer_group":"Online E-Commerce","territory":"Online Channels","gender":"Male","lead_name":null,"opportunity_name":null,"account_manager":null,"image":null,"default_price_list":null,"default_bank_account":null,"default_currency":null,"is_internal_customer":0,"represents_company":null,"market_segment":null,"industry":null,"customer_pos_id":null,"website":null,"language":"en","customer_details":null,"customer_primary_contact":"shakib islam-shakib islam","mobile_no":"01765778584","email_id":null,"customer_primary_address":null,"primary_address":null,"tax_id":null,"tax_category":null,"tax_withholding_category":null,"payment_terms":null,"loyalty_program":null,"loyalty_program_tier":null,"default_sales_partner":null,"default_commission_rate":0.0,"so_required":0,"dn_required":0,"is_frozen":0,"disabled":0,"_user_tags":null,"_comments":null,"_assign":null,"_liked_by":null,"loyalty_card_number":null}] 
+[2026-01-15 14:55:27] development.INFO: 🔔 DEVELOPER OTP GENERATED {"phone":"01765778584","otp":86120,"purpose":"password_reset","valid_for_minutes":5} 
+[2026-01-15 14:55:27] development.INFO: 🔔 DEVELOPER OTP - Reset Password {"phone":"01765778584","otp":86120,"purpose":"password_reset","message":"Your Dolbear verification code is: 86120"} 
+[2026-01-15 14:55:27] development.INFO: Elitbuzz SMS Request {"phone":"8801765778584","url":"https://msg.mram.com.bd/smsapi?api_key=C400023669084e8b7d1752.06507268&type=text&contacts=8801765778584&senderid=8809601017125&msg=Your+Dolbear+verification+code+is%3A+86120+%0A%28Valid+for+5+minutes.+Do+not+share+this+code+with+anyone.%29%0AHelpline%3A+https%3A%2F%2Fwww.facebook.com%2Fdolbear.official+or+01894971070.%0A&label=transactional","params":{"api_key":"C400023669084e8b7d1752.06507268","type":"text","contacts":"8801765778584","senderid":"8809601017125","msg":"Your Dolbear verification code is: 86120 
+(Valid for 5 minutes. Do not share this code with anyone.)
+Helpline: https://www.facebook.com/dolbear.official or 01894971070.
+","label":"transactional"}} 
+[2026-01-15 14:55:28] development.INFO: Elitbuzz SMS API Response {"phone":"8801765778584","status":200,"body":"SMS SUBMITTED: ID - bw-rdC40002366968ab4dae242"} 
+[2026-01-15 14:55:28] development.INFO: Elitbuzz SMS Sent Successfully {"phone":"8801765778584","message_id":"SMS SUBMITTED: ID - bw-rdC40002366968ab4dae242"} 
+[2026-01-15 15:23:44] development.INFO: dispatched erp sync address job  
+[2026-01-15 15:23:44] development.INFO: address create payload {"doctype":"Address","address_type":"Shipping","country":"Bangladesh","is_primary_address":0,"is_shipping_address":1,"disabled":0,"email_id":"md.shiabul.cse@gmail.com","phone":"01724521238","city":"Dhaka","state":"Dhaka","address_title":"01724521238","address_line1":"229, Green Road,Dhaka, Bangladesh
+229, Green Road,Dhaka, Bangladesh","address_line2":"","links":[{"doctype":"Dynamic Link","link_doctype":"Customer","link_name":"shakib islam"}]} 
+[2026-01-15 15:23:45] development.INFO: order updated  
+[2026-01-15 15:23:51] development.INFO: Elitbuzz SMS Request {"phone":"8801724521238","url":"https://msg.mram.com.bd/smsapi?api_key=C400023669084e8b7d1752.06507268&type=text&contacts=8801724521238&senderid=8809601017125&msg=Hi+Md+Shiabul+Islam%2C+your+order+has+been+placed+successfully%21+%0AOrder+ID%3A+%2330100%0A%0AThank+you+for+shopping+with+Dolbear.+We%27re+processing+your+order+and+will+update+you+soon.&label=transactional","params":{"api_key":"C400023669084e8b7d1752.06507268","type":"text","contacts":"8801724521238","senderid":"8809601017125","msg":"Hi Md Shiabul Islam, your order has been placed successfully! 
+Order ID: #30100
+
+Thank you for shopping with Dolbear. We're processing your order and will update you soon.","label":"transactional"}} 
+[2026-01-15 15:23:52] development.INFO: Elitbuzz SMS API Response {"phone":"8801724521238","status":200,"body":"SMS SUBMITTED: ID - bw-rdC40002366968b1f59cad6"} 
+[2026-01-15 15:23:52] development.INFO: Elitbuzz SMS Sent Successfully {"phone":"8801724521238","message_id":"SMS SUBMITTED: ID - bw-rdC40002366968b1f59cad6"} 
+[2026-01-15 15:24:45] development.INFO: order updated  
+[2026-01-15 15:24:49] development.INFO: Elitbuzz SMS Request {"phone":"8801724521238","url":"https://msg.mram.com.bd/smsapi?api_key=C400023669084e8b7d1752.06507268&type=text&contacts=8801724521238&senderid=8809601017125&msg=Hi+Md+Shiabul+Islam%2C+your+order+has+been+placed+successfully%21+%0AOrder+ID%3A+%2330101%0A%0AThank+you+for+shopping+with+Dolbear.+We%27re+processing+your+order+and+will+update+you+soon.&label=transactional","params":{"api_key":"C400023669084e8b7d1752.06507268","type":"text","contacts":"8801724521238","senderid":"8809601017125","msg":"Hi Md Shiabul Islam, your order has been placed successfully! 
+Order ID: #30101
+
+Thank you for shopping with Dolbear. We're processing your order and will update you soon.","label":"transactional"}} 
+[2026-01-15 15:24:50] development.INFO: Elitbuzz SMS API Response {"phone":"8801724521238","status":200,"body":"SMS SUBMITTED: ID - bw-rdC40002366968b22f9b93a"} 
+[2026-01-15 15:24:50] development.INFO: Elitbuzz SMS Sent Successfully {"phone":"8801724521238","message_id":"SMS SUBMITTED: ID - bw-rdC40002366968b22f9b93a"} 
+[2026-01-15 15:30:17] development.INFO: order updated  
+[2026-01-15 15:30:40] development.INFO: order updated  
+[2026-01-15 15:33:31] development.INFO: order updated  
+[2026-01-15 15:33:36] development.INFO: Elitbuzz SMS Request {"phone":"8801724521238","url":"https://msg.mram.com.bd/smsapi?api_key=C400023669084e8b7d1752.06507268&type=text&contacts=8801724521238&senderid=8809601017125&msg=Hi+Md+Shiabul+Islam%2C+your+order+has+been+placed+successfully%21+%0AOrder+ID%3A+%2330102%0A%0AThank+you+for+shopping+with+Dolbear.+We%27re+processing+your+order+and+will+update+you+soon.&label=transactional","params":{"api_key":"C400023669084e8b7d1752.06507268","type":"text","contacts":"8801724521238","senderid":"8809601017125","msg":"Hi Md Shiabul Islam, your order has been placed successfully! 
+Order ID: #30102
+
+Thank you for shopping with Dolbear. We're processing your order and will update you soon.","label":"transactional"}} 
+[2026-01-15 15:33:37] development.INFO: Elitbuzz SMS API Response {"phone":"8801724521238","status":200,"body":"SMS SUBMITTED: ID - bw-rdC40002366968b43e5ad39"} 
+[2026-01-15 15:33:37] development.INFO: Elitbuzz SMS Sent Successfully {"phone":"8801724521238","message_id":"SMS SUBMITTED: ID - bw-rdC40002366968b43e5ad39"} 
+[2026-01-15 15:33:42] development.INFO: order updated  
+[2026-01-15 15:40:39] development.INFO: order updated  
+[2026-01-15 15:40:45] development.INFO: Elitbuzz SMS Request {"phone":"8801724521238","url":"https://msg.mram.com.bd/smsapi?api_key=C400023669084e8b7d1752.06507268&type=text&contacts=8801724521238&senderid=8809601017125&msg=Hi+Md+Shiabul+Islam%2C+your+order+has+been+placed+successfully%21+%0AOrder+ID%3A+%2330103%0A%0AThank+you+for+shopping+with+Dolbear.+We%27re+processing+your+order+and+will+update+you+soon.&label=transactional","params":{"api_key":"C400023669084e8b7d1752.06507268","type":"text","contacts":"8801724521238","senderid":"8809601017125","msg":"Hi Md Shiabul Islam, your order has been placed successfully! 
+Order ID: #30103
+
+Thank you for shopping with Dolbear. We're processing your order and will update you soon.","label":"transactional"}} 
+[2026-01-15 15:40:45] development.INFO: Elitbuzz SMS API Response {"phone":"8801724521238","status":200,"body":"SMS SUBMITTED: ID - bw-rdC40002366968b5eb15eeb"} 
+[2026-01-15 15:40:45] development.INFO: Elitbuzz SMS Sent Successfully {"phone":"8801724521238","message_id":"SMS SUBMITTED: ID - bw-rdC40002366968b5eb15eeb"} 
+[2026-01-15 15:40:51] development.INFO: order updated  
+[2026-01-15 15:49:33] development.INFO: order updated  
+[2026-01-15 15:49:39] development.INFO: Elitbuzz SMS Request {"phone":"8801724521238","url":"https://msg.mram.com.bd/smsapi?api_key=C400023669084e8b7d1752.06507268&type=text&contacts=8801724521238&senderid=8809601017125&msg=Hi+Md+Shiabul+Islam%2C+your+order+has+been+placed+successfully%21+%0AOrder+ID%3A+%2330104%0A%0AThank+you+for+shopping+with+Dolbear.+We%27re+processing+your+order+and+will+update+you+soon.&label=transactional","params":{"api_key":"C400023669084e8b7d1752.06507268","type":"text","contacts":"8801724521238","senderid":"8809601017125","msg":"Hi Md Shiabul Islam, your order has been placed successfully! 
+Order ID: #30104
+
+Thank you for shopping with Dolbear. We're processing your order and will update you soon.","label":"transactional"}} 
+[2026-01-15 15:49:39] development.INFO: Elitbuzz SMS API Response {"phone":"8801724521238","status":200,"body":"SMS SUBMITTED: ID - bw-rdC40002366968b801277f5"} 
+[2026-01-15 15:49:39] development.INFO: Elitbuzz SMS Sent Successfully {"phone":"8801724521238","message_id":"SMS SUBMITTED: ID - bw-rdC40002366968b801277f5"} 
+[2026-01-15 15:49:47] development.INFO: order updated  
+[2026-01-15 17:01:44] development.INFO: array (
+  'email' => 'md.shiabul.cse1@gmail.com',
+)  
+[2026-01-15 18:02:58] development.INFO: order updated  
+[2026-01-15 18:03:04] development.INFO: Elitbuzz SMS Request {"phone":"8801724521238","url":"https://msg.mram.com.bd/smsapi?api_key=C400023669084e8b7d1752.06507268&type=text&contacts=8801724521238&senderid=8809601017125&msg=Hi+Md+Shiabul+Islam%2C+your+order+has+been+placed+successfully%21+%0AOrder+ID%3A+%2330105%0A%0AThank+you+for+shopping+with+Dolbear.+We%27re+processing+your+order+and+will+update+you+soon.&label=transactional","params":{"api_key":"C400023669084e8b7d1752.06507268","type":"text","contacts":"8801724521238","senderid":"8809601017125","msg":"Hi Md Shiabul Islam, your order has been placed successfully! 
+Order ID: #30105
+
+Thank you for shopping with Dolbear. We're processing your order and will update you soon.","label":"transactional"}} 
+[2026-01-15 18:03:05] development.INFO: Elitbuzz SMS API Response {"phone":"8801724521238","status":200,"body":"SMS SUBMITTED: ID - bw-rdC40002366968d74667299"} 
+[2026-01-15 18:03:05] development.INFO: Elitbuzz SMS Sent Successfully {"phone":"8801724521238","message_id":"SMS SUBMITTED: ID - bw-rdC40002366968d74667299"} 
+[2026-01-15 18:03:11] development.INFO: order updated  
+[2026-01-15 20:10:56] development.ERROR: SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) (SQL: select * from information_schema.tables where table_schema = softtech_dolbear and table_name = languages and table_type = 'BASE TABLE') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 1045): SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) (SQL: select * from information_schema.tables where table_schema = softtech_dolbear and table_name = languages and table_type = 'BASE TABLE') at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:712)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#4 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#12 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#14 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(153): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(137): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#18 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(111): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#19 C:\\shiab\\dolbear-web-app\\public\\index.php(56): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#20 C:\\shiab\\dolbear-web-app\\server.php(21): require_once('C:\\\\shiab\\\\dolbea...')
+#21 {main}
+
+[previous exception] [object] (PDOException(code: 1045): SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:70)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(70): PDO->__construct('mysql:host=loca...', 'softtech_dolbea...', Object(SensitiveParameterValue), Array)
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(45): Illuminate\\Database\\Connectors\\Connector->createPdoConnection('mysql:host=loca...', 'softtech_dolbea...', 'softtech_dolbea...', Array)
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\MySqlConnector.php(24): Illuminate\\Database\\Connectors\\Connector->createConnection('mysql:host=loca...', Array, Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\ConnectionFactory.php(184): Illuminate\\Database\\Connectors\\MySqlConnector->connect(Array)
+#4 [internal function]: Illuminate\\Database\\Connectors\\ConnectionFactory->Illuminate\\Database\\Connectors\\{closure}()
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1064): call_user_func(Object(Closure))
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1100): Illuminate\\Database\\Connection->getPdo()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(442): Illuminate\\Database\\Connection->getReadPdo()
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(368): Illuminate\\Database\\Connection->getPdoForSelect(true)
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(705): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('select * from i...', Array)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#12 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#14 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#18 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#19 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#20 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#21 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#22 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#23 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#24 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#25 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#26 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(153): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#27 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(137): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#28 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(111): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#29 C:\\shiab\\dolbear-web-app\\public\\index.php(56): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#30 C:\\shiab\\dolbear-web-app\\server.php(21): require_once('C:\\\\shiab\\\\dolbea...')
+#31 {main}
+"} 
+[2026-01-15 20:10:57] development.ERROR: SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) (SQL: select * from information_schema.tables where table_schema = softtech_dolbear and table_name = languages and table_type = 'BASE TABLE') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 1045): SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) (SQL: select * from information_schema.tables where table_schema = softtech_dolbear and table_name = languages and table_type = 'BASE TABLE') at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:712)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#4 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#12 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#14 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(153): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(137): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#18 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(111): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#19 C:\\shiab\\dolbear-web-app\\public\\index.php(56): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#20 C:\\shiab\\dolbear-web-app\\server.php(21): require_once('C:\\\\shiab\\\\dolbea...')
+#21 {main}
+
+[previous exception] [object] (PDOException(code: 1045): SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:70)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(70): PDO->__construct('mysql:host=loca...', 'softtech_dolbea...', Object(SensitiveParameterValue), Array)
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(45): Illuminate\\Database\\Connectors\\Connector->createPdoConnection('mysql:host=loca...', 'softtech_dolbea...', 'softtech_dolbea...', Array)
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\MySqlConnector.php(24): Illuminate\\Database\\Connectors\\Connector->createConnection('mysql:host=loca...', Array, Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\ConnectionFactory.php(184): Illuminate\\Database\\Connectors\\MySqlConnector->connect(Array)
+#4 [internal function]: Illuminate\\Database\\Connectors\\ConnectionFactory->Illuminate\\Database\\Connectors\\{closure}()
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1064): call_user_func(Object(Closure))
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1100): Illuminate\\Database\\Connection->getPdo()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(442): Illuminate\\Database\\Connection->getReadPdo()
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(368): Illuminate\\Database\\Connection->getPdoForSelect(true)
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(705): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('select * from i...', Array)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#12 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#14 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#18 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#19 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#20 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#21 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#22 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#23 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#24 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#25 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#26 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(153): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#27 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(137): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#28 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(111): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#29 C:\\shiab\\dolbear-web-app\\public\\index.php(56): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#30 C:\\shiab\\dolbear-web-app\\server.php(21): require_once('C:\\\\shiab\\\\dolbea...')
+#31 {main}
+"} 
+[2026-01-15 20:20:15] development.ERROR: SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) (SQL: select * from information_schema.tables where table_schema = softtech_dolbear and table_name = languages and table_type = 'BASE TABLE') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 1045): SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) (SQL: select * from information_schema.tables where table_schema = softtech_dolbear and table_name = languages and table_type = 'BASE TABLE') at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:712)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#4 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#12 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#14 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(153): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(137): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#18 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(111): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#19 C:\\shiab\\dolbear-web-app\\public\\index.php(56): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#20 C:\\shiab\\dolbear-web-app\\server.php(21): require_once('C:\\\\shiab\\\\dolbea...')
+#21 {main}
+
+[previous exception] [object] (PDOException(code: 1045): SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:70)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(70): PDO->__construct('mysql:host=loca...', 'softtech_dolbea...', Object(SensitiveParameterValue), Array)
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(45): Illuminate\\Database\\Connectors\\Connector->createPdoConnection('mysql:host=loca...', 'softtech_dolbea...', 'softtech_dolbea...', Array)
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\MySqlConnector.php(24): Illuminate\\Database\\Connectors\\Connector->createConnection('mysql:host=loca...', Array, Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\ConnectionFactory.php(184): Illuminate\\Database\\Connectors\\MySqlConnector->connect(Array)
+#4 [internal function]: Illuminate\\Database\\Connectors\\ConnectionFactory->Illuminate\\Database\\Connectors\\{closure}()
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1064): call_user_func(Object(Closure))
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1100): Illuminate\\Database\\Connection->getPdo()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(442): Illuminate\\Database\\Connection->getReadPdo()
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(368): Illuminate\\Database\\Connection->getPdoForSelect(true)
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(705): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('select * from i...', Array)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#12 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#14 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#18 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#19 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#20 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#21 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#22 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#23 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#24 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#25 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#26 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(153): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#27 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(137): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#28 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(111): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#29 C:\\shiab\\dolbear-web-app\\public\\index.php(56): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#30 C:\\shiab\\dolbear-web-app\\server.php(21): require_once('C:\\\\shiab\\\\dolbea...')
+#31 {main}
+"} 
+[2026-01-15 20:20:16] development.ERROR: SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) (SQL: select * from information_schema.tables where table_schema = softtech_dolbear and table_name = languages and table_type = 'BASE TABLE') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 1045): SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) (SQL: select * from information_schema.tables where table_schema = softtech_dolbear and table_name = languages and table_type = 'BASE TABLE') at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:712)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#4 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#12 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#14 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(153): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(137): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#18 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(111): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#19 C:\\shiab\\dolbear-web-app\\public\\index.php(56): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#20 C:\\shiab\\dolbear-web-app\\server.php(21): require_once('C:\\\\shiab\\\\dolbea...')
+#21 {main}
+
+[previous exception] [object] (PDOException(code: 1045): SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:70)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(70): PDO->__construct('mysql:host=loca...', 'softtech_dolbea...', Object(SensitiveParameterValue), Array)
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(45): Illuminate\\Database\\Connectors\\Connector->createPdoConnection('mysql:host=loca...', 'softtech_dolbea...', 'softtech_dolbea...', Array)
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\MySqlConnector.php(24): Illuminate\\Database\\Connectors\\Connector->createConnection('mysql:host=loca...', Array, Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\ConnectionFactory.php(184): Illuminate\\Database\\Connectors\\MySqlConnector->connect(Array)
+#4 [internal function]: Illuminate\\Database\\Connectors\\ConnectionFactory->Illuminate\\Database\\Connectors\\{closure}()
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1064): call_user_func(Object(Closure))
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1100): Illuminate\\Database\\Connection->getPdo()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(442): Illuminate\\Database\\Connection->getReadPdo()
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(368): Illuminate\\Database\\Connection->getPdoForSelect(true)
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(705): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('select * from i...', Array)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#12 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#14 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#18 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#19 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#20 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#21 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#22 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#23 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#24 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#25 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#26 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(153): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#27 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(137): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#28 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(111): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#29 C:\\shiab\\dolbear-web-app\\public\\index.php(56): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#30 C:\\shiab\\dolbear-web-app\\server.php(21): require_once('C:\\\\shiab\\\\dolbea...')
+#31 {main}
+"} 
+[2026-01-15 20:20:22] development.ERROR: SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) (SQL: select * from information_schema.tables where table_schema = softtech_dolbear and table_name = languages and table_type = 'BASE TABLE') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 1045): SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) (SQL: select * from information_schema.tables where table_schema = softtech_dolbear and table_name = languages and table_type = 'BASE TABLE') at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:712)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#4 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#12 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#14 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(153): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(137): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#18 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(111): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#19 C:\\shiab\\dolbear-web-app\\public\\index.php(56): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#20 C:\\shiab\\dolbear-web-app\\server.php(21): require_once('C:\\\\shiab\\\\dolbea...')
+#21 {main}
+
+[previous exception] [object] (PDOException(code: 1045): SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:70)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(70): PDO->__construct('mysql:host=loca...', 'softtech_dolbea...', Object(SensitiveParameterValue), Array)
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(45): Illuminate\\Database\\Connectors\\Connector->createPdoConnection('mysql:host=loca...', 'softtech_dolbea...', 'softtech_dolbea...', Array)
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\MySqlConnector.php(24): Illuminate\\Database\\Connectors\\Connector->createConnection('mysql:host=loca...', Array, Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\ConnectionFactory.php(184): Illuminate\\Database\\Connectors\\MySqlConnector->connect(Array)
+#4 [internal function]: Illuminate\\Database\\Connectors\\ConnectionFactory->Illuminate\\Database\\Connectors\\{closure}()
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1064): call_user_func(Object(Closure))
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1100): Illuminate\\Database\\Connection->getPdo()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(442): Illuminate\\Database\\Connection->getReadPdo()
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(368): Illuminate\\Database\\Connection->getPdoForSelect(true)
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(705): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('select * from i...', Array)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#12 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#14 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#18 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#19 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#20 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#21 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#22 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#23 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#24 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#25 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#26 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(153): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#27 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(137): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#28 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(111): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#29 C:\\shiab\\dolbear-web-app\\public\\index.php(56): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#30 C:\\shiab\\dolbear-web-app\\server.php(21): require_once('C:\\\\shiab\\\\dolbea...')
+#31 {main}
+"} 
+[2026-01-15 20:20:22] development.ERROR: SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) (SQL: select * from information_schema.tables where table_schema = softtech_dolbear and table_name = languages and table_type = 'BASE TABLE') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 1045): SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) (SQL: select * from information_schema.tables where table_schema = softtech_dolbear and table_name = languages and table_type = 'BASE TABLE') at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:712)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#4 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#12 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#14 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(153): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(137): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#18 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(111): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#19 C:\\shiab\\dolbear-web-app\\public\\index.php(56): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#20 C:\\shiab\\dolbear-web-app\\server.php(21): require_once('C:\\\\shiab\\\\dolbea...')
+#21 {main}
+
+[previous exception] [object] (PDOException(code: 1045): SQLSTATE[HY000] [1045] Access denied for user 'softtech_dolbear'@'localhost' (using password: YES) at C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:70)
+[stacktrace]
+#0 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(70): PDO->__construct('mysql:host=loca...', 'softtech_dolbea...', Object(SensitiveParameterValue), Array)
+#1 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(45): Illuminate\\Database\\Connectors\\Connector->createPdoConnection('mysql:host=loca...', 'softtech_dolbea...', 'softtech_dolbea...', Array)
+#2 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\MySqlConnector.php(24): Illuminate\\Database\\Connectors\\Connector->createConnection('mysql:host=loca...', Array, Array)
+#3 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\ConnectionFactory.php(184): Illuminate\\Database\\Connectors\\MySqlConnector->connect(Array)
+#4 [internal function]: Illuminate\\Database\\Connectors\\ConnectionFactory->Illuminate\\Database\\Connectors\\{closure}()
+#5 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1064): call_user_func(Object(Closure))
+#6 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1100): Illuminate\\Database\\Connection->getPdo()
+#7 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(442): Illuminate\\Database\\Connection->getReadPdo()
+#8 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(368): Illuminate\\Database\\Connection->getPdoForSelect(true)
+#9 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(705): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('select * from i...', Array)
+#10 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback('select * from i...', Array, Object(Closure))
+#11 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(359): Illuminate\\Database\\Connection->run('select * from i...', Array, Object(Closure))
+#12 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(43): Illuminate\\Database\\Connection->select('select * from i...', Array)
+#13 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(261): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('languages')
+#14 C:\\shiab\\dolbear-web-app\\app\\Providers\\AppServiceProvider.php(19): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#15 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): App\\Providers\\AppServiceProvider->boot()
+#16 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#17 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#18 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#19 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#20 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(926): Illuminate\\Container\\Container->call(Array)
+#21 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(907): Illuminate\\Foundation\\Application->bootProvider(Object(App\\Providers\\AppServiceProvider))
+#22 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(App\\Providers\\AppServiceProvider), 37)
+#23 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(906): array_walk(Array, Object(Closure))
+#24 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#25 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(237): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#26 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(153): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#27 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(137): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#28 C:\\shiab\\dolbear-web-app\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(111): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#29 C:\\shiab\\dolbear-web-app\\public\\index.php(56): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#30 C:\\shiab\\dolbear-web-app\\server.php(21): require_once('C:\\\\shiab\\\\dolbea...')
+#31 {main}
+"} 
