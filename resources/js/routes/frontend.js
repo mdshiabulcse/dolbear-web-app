@@ -42,6 +42,8 @@ const allCategory = () =>
 
 const contact = () =>
   import(/* webpackPrefetch: true */ "../components/frontend/pages/contact");
+const offers = () =>
+  import(/* webpackPrefetch: true */ "../components/frontend/pages/offers.vue");
 
 const store = () =>
   import(/* webpackPrefetch: true */ "../components/frontend/pages/store");
@@ -436,6 +438,14 @@ export const routes = [
         component: contact,
         meta: {
           title: "Contact",
+        },
+      },
+      {
+        path: "/offers",
+        name: "offers",
+        component: offers,
+        meta: {
+          title: "Offers",
         },
       },
       {

@@ -50,15 +50,19 @@ class LoginController extends Controller
     public function postlogin(Request $request, ProductInterface $product, WishlistInterface $wishlist, CartInterface $cart)
     {
         try {
-            $phone = '';
+            // Find user by email first, then by phone
+            $user = null;
 
-            if($request->phone):
-                $phone = str_replace(' ','',$request->phone);
+            if ($request->has('email') && !empty($request->email)):
+                $user = User::where('email', $request->email)->first();
             endif;
 
-            $phone = preg_replace('/^(?:\+88|88)/', '', $phone);
-
-            $user = User::where('phone', $phone)->first();
+            // If not found by email, try phone
+            if (!$user && $request->has('phone') && !empty($request->phone)):
+                $phone = str_replace(' ','',$request->phone);
+                $phone = preg_replace('/^(?:\+88|88)/', '', $phone);
+                $user = User::where('phone', $phone)->first();
+            endif;
 
             if (!$user):
                 return response()->json([
@@ -129,11 +133,22 @@ class LoginController extends Controller
             $log['user_id'] = $user->id;
             LogActivityModel::create($log);
 
+            // Format user data with all required fields including user_type
+            $userData = [
+                'id' => $user->id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => nullCheck($user->email),
+                'phone' => nullCheck($user->phone),
+                'image' => $user->profile_image,
+                'user_type' => $user->user_type,
+                'status' => $user->status,
+                'socials' => $user->socials ?? [],
+            ];
+
             return response()->json([
                 'success'           => __('Login successfully'),
-                'user'              => authUser(),
-                /*'active_currency'   => $currency->get(authUser()->currency_id),
-                'active_language'   => $language->getByLocale(authUser()->lang_code),*/
+                'user'              => $userData,
                 'wishlists'         => $wishlist->getHeaderWishlist(),
                 'compare_list'      => $product->compareList(),
                 'carts'             => $this->cartList($cart->all()),

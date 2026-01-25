@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(
     [
         'prefix' => LaravelLocalization::setLocale(),
-        'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath','isInstalled']
+        'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath',]
     ], function () {
 
     Route::middleware(['adminCheck', 'loginCheck', 'XSS'])->prefix('admin')->group(function () {

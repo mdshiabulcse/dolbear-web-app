@@ -42,7 +42,6 @@ class RouteServiceProvider extends ServiceProvider
             $this->mapDeliveryHeroApiRoutes();
             $this->mapSellerApiRoutes();
             $this->mapWebRoutes();
-            $this->mapInstallerRoutes();
             $this->mapAdminRoutes();
             $this->mapOtpRoutes();
             $this->mapRefundRoutes();
@@ -177,13 +176,6 @@ class RouteServiceProvider extends ServiceProvider
             ->namespace($this->namespace)
             ->group(base_path('routes/video-shopping.php'));
     }
-    protected function mapInstallerRoutes()
-    {
-        Route::middleware('web')
-            ->namespace($this->namespace)
-            ->group(base_path('routes/install.php'));
-    }
-
     protected function mapSellerSubscriptionRoutes()
     {
         Route::middleware('web')

@@ -49,8 +49,8 @@
                 </svg>
                 <div class="ms-2 live-chat z-1">
                   <p class="mb-0">Call:</p>
-                  <a href="tel:+0967820290" class="z-2">
-                      <p class="mb-0 number">+0967820290</p>
+                  <a href="tel:+8801894971070" class="z-2">
+                      <p class="mb-0 number">+8801894971070</p>
                   </a>
               </div>              
             </div>
@@ -96,7 +96,7 @@
     <!-- cart -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
       <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasRightLabel">SHOPPING CART</h5>
+        <h5 class="offcanvas-title" id="offcanvasRightLabel">SHOPPING CART1</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close">X <span class="ms-3" style="font-size: 20px;">CLOSE</span></button>
       </div>
       <div class="offcanvas-body">

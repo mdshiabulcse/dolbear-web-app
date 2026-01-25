@@ -240,7 +240,7 @@
             Close</button>
         </div>
         <div class="offcanvas-body">
-          <div class="" v-if="lengthCounter(productList) > 0">
+          <div class="">
             <div class="sg-sitebar new-shop-sitebar">
               <div class="accordion" id="accordionExample">
 
@@ -521,7 +521,7 @@
           </div>
         </div>
 
-        <div v-if="page.original_image" class="image-container mb-5">
+        <div v-if="page && page.original_image" class="image-container mb-5">
           <img :src="page.original_image" :alt="page.slug" />
         </div>
 

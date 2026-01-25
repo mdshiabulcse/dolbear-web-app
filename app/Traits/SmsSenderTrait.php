@@ -21,6 +21,13 @@ trait SmsSenderTrait
     {
         $provider = $provider != '' ? $provider : settingHelper('active_sms_provider');
 
+        // Log provider being used
+        \Log::info('SMS Send Attempt', [
+            'provider' => $provider,
+            'phone' => $phone_number,
+            'message_length' => strlen($sms_body)
+        ]);
+
         if ($provider == 'twilio'):
             $sid        = settingHelper("twilio_sms_sid");
             $token      = settingHelper("twilio_sms_auth_token");
@@ -129,6 +136,67 @@ trait SmsSenderTrait
             \curl_close($ch);
 
             return true;
+
+        elseif ($provider == 'elitbuzz' || $provider == 'elitbuzz_sms'):
+            // Format phone number
+            $phone_number = preg_replace('/\D/', '', $phone_number);
+            if (substr($phone_number, 0, 1) === '0') {
+                $phone_number = '880' . substr($phone_number, 1);
+            } elseif (substr($phone_number, 0, 3) !== '880') {
+                $phone_number = '880' . $phone_number;
+            }
+
+            $apiUrl = config('elitbuzz.host');
+            $apiKey = config('elitbuzz.api_key');
+            $senderId = config('elitbuzz.sender_id');
+
+            // Check if config values are set
+            if (empty($apiUrl) || empty($apiKey) || empty($senderId)) {
+                \Log::error('Elitbuzz SMS configuration missing', [
+                    'host' => $apiUrl,
+                    'api_key' => $apiKey ? 'SET' : 'NOT SET',
+                    'sender_id' => $senderId ? 'SET' : 'NOT SET'
+                ]);
+                return false;
+            }
+
+            $url = $apiUrl . '/smsapi';
+            $params = [
+                'api_key' => $apiKey,
+                'type' => 'text',
+                'contacts' => $phone_number,
+                'senderid' => $senderId,
+                'msg' => $sms_body,
+            ];
+
+            $ch = \curl_init();
+            \curl_setopt($ch, CURLOPT_URL, $url);
+            \curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            \curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+            \curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            \curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+            \curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+            \curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/x-www-form-urlencoded',
+                'accept:application/json'
+            ));
+
+            $response = \curl_exec($ch);
+            $httpCode = \curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            \curl_close($ch);
+
+            // Log response for debugging
+            \Log::info('Elitbuzz SMS Response', [
+                'phone' => $phone_number,
+                'http_code' => $httpCode,
+                'response' => $response
+            ]);
+
+            if (strpos($response, "SMS SUBMITTED:") !== false || strpos($response, "1000") !== false) {
+                return true;
+            }
+
+            return false;
 
         elseif ($provider == 'fast2' || $provider == 'fast_2'):
             if (strpos($phone_number, '+91') !== false) {

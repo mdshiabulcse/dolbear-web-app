@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="{{ static_asset('admin/css/selectric.css') }}">
     <link rel="stylesheet" href="{{ static_asset('admin/css/toastr.min.css') }}">
     <link rel="stylesheet" href="{{ static_asset('admin/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ static_asset('admin/css/dropzone.css') }}">
 
     @yield('page-style')
 

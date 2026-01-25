@@ -28,9 +28,9 @@ class PathaoCourierController extends Controller
     public function index(Request $request)
     {
         try {
-            // Validate the incoming orderId
+            // Validate the incoming orderId - must be provided and numeric
             $request->validate([
-                'orderId' => 'required|numeric|min:1|exists:orders,id'
+                'orderId' => 'required|numeric|min:1'
             ]);
         } catch (ValidationException $e) {
             // If validation fails, redirect the user with error messages
@@ -38,6 +38,12 @@ class PathaoCourierController extends Controller
         }
 
         $order = $this->order->get($request['orderId']);
+
+        // Check if order exists (by either id or erp_code)
+        if (!$order) {
+            toastr()->error('Order not found');
+            return redirect()->route('orders');
+        }
 
         return view('admin.PathaoCourier.index', ['orderData'=> $order,'orderID' => $request['orderId']]);
     }

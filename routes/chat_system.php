@@ -6,11 +6,11 @@ use App\Http\Controllers\Site\FrontendController;
 use App\Http\Controllers\Seller\Addons\ChatSystemController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
-Route::middleware(['XSS','isInstalled'])->group(function () {
+Route::middleware(['XSS',])->group(function () {
     Route::group(
         [
             'prefix' => LaravelLocalization::setLocale(),
-            'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath','isInstalled']
+            'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath',]
         ], function () {
 
         Route::middleware(['sellerCheck','loginCheck'])->prefix('seller')->group(function () {

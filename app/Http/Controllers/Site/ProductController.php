@@ -683,37 +683,45 @@ class ProductController extends Controller
     {
         try {
             $page = [];
-            if ($request->route == 'product.by.category' || $request->route == 'product.by.gadget') {
+            $route = $request->input('route');
+            $slug = $request->input('slug');
+
+            if ($route == 'product.by.category' || $route == 'product.by.gadget') {
                 $type = 'category';
-                $page = $category->category($request->slug);
-                $child_categories = [];
+                if ($slug) {
+                    $page = $category->category($slug);
+                    if ($page && isset($page->categories)) {
+                        $child_categories = [];
 
-                foreach ($page->categories->where('status',1) as $child_category) {
-                    $child_categories[] = [
-                        'id'    => $child_category->id,
-                        'title' => $child_category->getTranslation('title',languageCheck()),
-                    ];
-                }
+                        foreach ($page->categories->where('status',1) as $child_category) {
+                            $child_categories[] = [
+                                'id'    => $child_category->id,
+                                'title' => $child_category->getTranslation('title',languageCheck()),
+                            ];
+                        }
 
-                $page['child_categories'] = $child_categories;
+                        $page['child_categories'] = $child_categories;
 
-                if ($page->banner)
-                {
-//                    $page->image_835x200 = @getFileLink('835x200',$page->banner);
-                    $page->image_835x200 = @getFileLink('835x200',$page->banner);
-                    $page->original_image = @getFileLink('original_image',$page->banner);
+                        if ($page->banner)
+                        {
+                            $page->image_835x200 = @getFileLink('835x200',$page->banner);
+                            $page->original_image = @getFileLink('original_image',$page->banner);
+                        }
+                        else{
+                            $page->image_835x200 = @getFileLink('835x200',settingHelper('category_default_banner')['images'] ?? []);
+                        }
+                    }
                 }
-                else{
-                    $page->image_835x200 = @getFileLink('835x200',settingHelper('category_default_banner')['images']);
-                }
-            } else if ($request->route == 'product.by.brand') {
+            } else if ($route == 'product.by.brand') {
                 $type = 'brand';
-                $page = $brand->brand($request->slug);
-            } else if ($request->route == 'product.by.offer') {
+                if ($slug) {
+                    $page = $brand->brand($slug);
+                }
+            } else if ($route == 'product.by.offer') {
                 $type = 'offer';
-            } else if ($request->route == 'product.by.selling') {
+            } else if ($route == 'product.by.selling') {
                 $type = 'best_selling';
-            } else if ($request->route == 'shop') {
+            } else if ($route == 'shop') {
                 $type = 'shop';
             } else {
                 $type = 'products';
@@ -721,7 +729,7 @@ class ProductController extends Controller
             }
             $data = [
                 'type'      => $type,
-                'slug'      => $request->slug,
+                'slug'      => $slug ?? '',
                 'page'      => $page,
                 'products'  => new ProductPaginateResource($product->filterProduct($request->all())),
             ];

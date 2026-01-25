@@ -26,6 +26,19 @@ import VueAxios from 'vue-axios';
 Vue.use(VueAxios, axios)
 
 import vSelect from 'vue-select';
+
+// Patch v-select to fix onSearch prop warning
+const originalMounted = vSelect.mounted;
+vSelect.mounted = function() {
+    // Remove the onSearch prop if it's boolean false
+    if (this.$options.propsData && this.$options.propsData.onSearch === false) {
+        delete this.$options.propsData.onSearch;
+    }
+    if (originalMounted) {
+        return originalMounted.call(this);
+    }
+};
+
 Vue.component('v-select', vSelect);
 
 //Vuex
@@ -78,6 +91,16 @@ Vue.use(VueProgressBar, options);
 import Vue2Filters from 'vue2-filters';
 
 Vue.use(Vue2Filters);
+
+// Register filterBy filter for vue-select compatibility
+Vue.filter('filterBy', function (array, filterKey, filterValue) {
+    if (!array) return [];
+    if (!filterKey || !filterValue) return array;
+
+    return array.filter(item => {
+        return item[filterKey] === filterValue;
+    });
+});
 
 import { initializeApp } from "firebase/app";
 

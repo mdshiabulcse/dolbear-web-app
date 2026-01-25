@@ -1,15 +1,14 @@
 <template>
-  <div class="container" style="min-height: auto; ">
-    <div class="d-flex flex-wrap justify-content-center gap-2 ">
-      <div v-for="category in categories" :key="category.id">
-        <router-link :to="{ name: 'product.by.category', params: { slug: category.slug } }">
-          <category_card :category="category"></category_card>
-        </router-link>
-
+  <div class="category-section">
+    <div class="container">
+      <div class="d-flex flex-wrap justify-content-center category-grid">
+        <div v-for="category in categories" :key="category.id" class="category-item">
+          <router-link :to="{ name: 'product.by.category', params: { slug: category.slug } }">
+            <category_card :category="category"></category_card>
+          </router-link>
+        </div>
       </div>
     </div>
-
-
   </div>
 </template>
 
@@ -51,6 +50,50 @@ export default {
 
 };
 </script>
+
+<style scoped>
+.category-section {
+  margin-bottom: 40px;
+}
+
+.category-grid {
+  gap: 12px;
+}
+
+.category-item {
+  flex: 0 0 auto;
+}
+
+@media (min-width: 1400px) {
+  .category-section {
+    margin-bottom: 50px;
+  }
+
+  .category-grid {
+    gap: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .category-section {
+    margin-bottom: 30px;
+  }
+
+  .category-grid {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .category-section {
+    margin-bottom: 20px;
+  }
+
+  .category-grid {
+    gap: 8px;
+  }
+}
+</style>
 
 
 

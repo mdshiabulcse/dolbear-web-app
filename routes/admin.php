@@ -66,7 +66,7 @@ Route::get('change-lang/{id}', [GeneralSettingsController::class, 'langChange'])
 
 Route::post('pathao/status-update', [PathaoCourierController::class, 'updateStatus'])->middleware('pathao.signature');
 
-Route::middleware(['XSS','isInstalled'])->group(function () {
+Route::middleware(['XSS'])->group(function () {
     Route::group(
         [
             'prefix' => LaravelLocalization::setLocale(),
@@ -404,6 +404,7 @@ Route::middleware(['XSS','isInstalled'])->group(function () {
                 // marketing
                 Route::get('subscribers', [SubscriberController::class, 'index'])->name('subscribers')->middleware('PermissionCheck:subscriber_read');
                 Route::delete('delete/subscribers/{id}', [CommonController::class, 'delete'])->name('subscriber.delete')->middleware('PermissionCheck:subscriber_delete');
+                Route::post('subscribers/send-mail', [SubscriberController::class, 'sendMail'])->name('subscriber.send.mail');
                 Route::get('bulk-SMS', [BulkSMSController::class, 'bulkSMS'])->name('bulk.sms')->middleware('PermissionCheck:bulk_sms_read');
                 Route::post('send-bulk-SMS', [BulkSMSController::class, 'sendBulkSMS'])->name('send.bulk.sms')->middleware('PermissionCheck:send_bulk_sms');
 

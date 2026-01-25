@@ -171,7 +171,7 @@ class SettingsSeeder extends Seeder
         Setting::create(['title' => 'footer_contact_address',                  'value'  => 'Concord Shopping Complex, Lake City, Khilkhet, Dhaka-1229',                                       'lang' => 'en']);
 
         //Copyright
-        Setting::create(['title' => 'copyright',                               'value'  => "©Dolbear, All Rights Reserved.",                                       'lang' => 'en']);
+        Setting::create(['title' => 'copyright',                               'value'  => "2026 All Rights Reserved by © Dolbear",    'lang' => 'en']);
 
         //Footer Menu
         Setting::create(['title' => 'footer_menu',                             'value'  => 'a:6:{i:0;a:2:{s:5:"label";s:4:"Home";s:3:"url";s:1:"/";}i:1;a:2:{s:5:"label";s:14:"All Categories";s:3:"url";s:10:"categories";}i:2;a:2:{s:5:"label";s:10:"All Brands";s:3:"url";s:6:"brands";}i:3;a:2:{s:5:"label";s:12:"All Products";s:3:"url";s:8:"products";}i:4;a:2:{s:5:"label";s:5:"Blogs";s:3:"url";s:5:"blogs";}i:5;a:2:{s:5:"label";s:9:"Campaigns";s:3:"url";s:9:"campaigns";}}',                                       'lang' => 'en']);
@@ -191,7 +191,7 @@ class SettingsSeeder extends Seeder
 
 
         //OTP System
-        Setting::create(['title' => 'active_sms_provider',                     'value'  => 'spagreen',                                       'lang' => 'en']);
+        Setting::create(['title' => 'active_sms_provider',                     'value'  => 'elitbuzz',                                       'lang' => 'en']);
 
         //Twilio Credential
         Setting::create(['title' => 'sms_method',                              'value'  => 'twilio',                                   'lang' => 'en']);
@@ -321,7 +321,7 @@ class SettingsSeeder extends Seeder
         //Reward Configuration
         Setting::create(['title' => 'reward_convert_rate',                      'value'  => 10,                                       'lang' => 'en']);
 
-        Setting::create(['title' => 'admin_panel_copyright_text',                'value' => "©Dolbear, All Rights Reserved.",                                       'lang' => 'en']);
+        Setting::create(['title' => 'admin_panel_copyright_text',                'value' => "2026 All Rights Reserved by © Dolbear",    'lang' => 'en']);
 
         //Shipping Configuration
         Setting::create(['title' => 'shipping_fee_type',                        'value'  => 'product_base',                           'lang' => 'en']);

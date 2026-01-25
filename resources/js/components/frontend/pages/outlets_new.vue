@@ -59,9 +59,19 @@ export default {
                 .get(url)
                 .then((response) => {
                 if (response.data) {
-                    this.stores = response.data;
+                    // Filter out "Dolbear Online" store - show only physical outlets
+                    this.stores = response.data.filter(store => {
+                        if (!store.name) return false;
+                        const storeNameLower = store.name.toLowerCase();
+                        // Hide stores with these name patterns
+                        return !storeNameLower.includes('dolbear online') &&
+                               !storeNameLower.includes('dolbear') &&
+                               !storeNameLower.includes('online store');
+                    });
 
-                    this.selectOutlet(this.stores[0]);
+                    if (this.stores.length > 0) {
+                        this.selectOutlet(this.stores[0]);
+                    }
                 } else {
                     toastr.error(response.data.error, this.lang.Error + " !!");
                 }

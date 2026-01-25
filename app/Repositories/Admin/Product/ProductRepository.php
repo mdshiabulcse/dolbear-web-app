@@ -1073,91 +1073,115 @@ class ProductRepository implements ProductInterface
             });
         }
 
-        if (!addon_is_activated('ramdhani') && $data['route'] == 'product.by.brand') {
+        $route = $data['route'] ?? null;
+
+        if (!addon_is_activated('ramdhani') && $route == 'product.by.brand' && isset($data['slug'])) {
             $products->whereHas('brand', function ($q) use ($data) {
                 $q->where('slug', $data['slug']);
             });
         }
-        if ($data['route'] == 'product.by.category' || $data['route'] == 'product.by.gadget') {
 
-            $category = Category::where('slug', $data['slug'])->first();
-            $category_ids = \App\Utility\CategoryUtility::getMyAllChildIds($category->id);
-            $category_ids[] = $category->id;
-            $all_nested_category = array();
-            if ($category) {
-                if (array_key_exists('child_category', $data) && count($data['child_category']) > 0) {
-                    foreach ($data['child_category'] as $child) {
-                        $nested_category = \App\Utility\CategoryUtility::getMyAllChildIds($child);
-                        $nested_category[] = (int)$child;
-                        $all_nested_category[] = $nested_category;
+        if ($route == 'product.by.category' || $route == 'product.by.gadget') {
+            if (isset($data['slug'])) {
+                $category = Category::where('slug', $data['slug'])->first();
+                $all_nested_category = array();
+                if ($category) {
+                    $category_ids = \App\Utility\CategoryUtility::getMyAllChildIds($category->id);
+                    $category_ids[] = $category->id;
+                    if (array_key_exists('child_category', $data) && is_array($data['child_category']) && count($data['child_category']) > 0) {
+                        foreach ($data['child_category'] as $child) {
+                            $nested_category = \App\Utility\CategoryUtility::getMyAllChildIds($child);
+                            $nested_category[] = (int)$child;
+                            $all_nested_category[] = $nested_category;
+                        }
+                        $all_nested_category[] = [(int)$category->id];
+                        if (!empty($all_nested_category)) {
+                            $products->whereIn('category_id', array_merge(...$all_nested_category));
+                        }
+                    } else {
+                        $products->whereIn('category_id', $category_ids);
                     }
-                    $all_nested_category[] = [(int)$category->id];
-                    $products->whereIn('category_id', array_merge(...$all_nested_category));
-                } else {
-                    $products->whereIn('category_id', $category_ids);
                 }
             }
         }
-        if ($data['route'] == 'product.by.offer') {
+
+        if ($route == 'product.by.offer') {
             $products->where('special_discount', '>', 0)->where('special_discount_end', '!=', null);
         }
-        if ($data['route'] == 'shop') {
+
+        if ($route == 'shop' && isset($data['slug'])) {
             $products->whereHas('sellerProfile', function ($q) use ($data) {
                 $q->where('slug', $data['slug']);
             });
         }
-        if (array_key_exists('category', $data) && count($data['category']) > 0) {
+
+        if (array_key_exists('category', $data) && is_array($data['category']) && count($data['category']) > 0) {
             $all_nested_category = [];
             foreach ($data['category'] as $child) {
                 $nested_category = \App\Utility\CategoryUtility::getMyAllChildIds($child);
                 $nested_category[] = (int)$child;
                 $all_nested_category[] = $nested_category;
             }
-            $products->whereIn('category_id', array_merge(...$all_nested_category));
+            if (!empty($all_nested_category)) {
+                $products->whereIn('category_id', array_merge(...$all_nested_category));
+            }
         }
-        if (array_key_exists('brand', $data) && count($data['brand']) > 0) {
+
+        if (array_key_exists('brand', $data) && is_array($data['brand']) && count($data['brand']) > 0) {
             $products->whereIn('brand_id', $data['brand']);
         }
+
         if (array_key_exists('price', $data)) {
-            $price = json_decode($data['price']);
-            if ($price->min == 0 && $price->max == 0)
-            {
-                $max = $price_range['max'];
-                $min = $price_range['min'];
-            }
-            else{
-                $max = priceFormatUpdate($price->max,currencyCheck());
-                $min = priceFormatUpdate($price->min,currencyCheck());
-            }
-            if (!$min)
-            {
-                $min = 0;
-            }
-            if (!$max) {
-                $products->where('price', '>', $min);
+            // Handle both JSON string and array formats
+            if (is_array($data['price'])) {
+                $price = (object) $data['price'];
             } else {
-                $products->whereBetween('price', [$min, $max]);
+                $price = json_decode($data['price']);
+            }
+
+            if (isset($price->min) && isset($price->max)) {
+                if ($price->min == 0 && $price->max == 0) {
+                    $max = $price_range['max'];
+                    $min = $price_range['min'];
+                } else {
+                    $max = priceFormatUpdate($price->max, currencyCheck());
+                    $min = priceFormatUpdate($price->min, currencyCheck());
+                }
+
+                if (!$min) {
+                    $min = 0;
+                }
+
+                if (!$max) {
+                    $products->where('price', '>', $min);
+                } else {
+                    $products->whereBetween('price', [$min, $max]);
+                }
             }
         }
-        if (array_key_exists('color', $data) && count($data['color']) > 0) {
 
+        if (array_key_exists('color', $data) && is_array($data['color']) && count($data['color']) > 0) {
             $products->where(function ($query) use ($data) {
                 foreach ($data['color'] as $color) {
                     $query->where('colors', 'like', "%\"{$color}\"%");
                 }
             });
         }
-        $length = array_key_exists('rating', $data) ? count($data['rating']) : 0;
-        if ($length > 0) {
-            sort($data['rating']);
 
-            if ($length > 1) {
-                $products->whereBetween('rating', [(int)$data['rating'][0], (int)$data['rating'][$length - 1]]);
-            } else {
-                $products->whereBetween('rating', [$data['rating'][0] - 0.5, (int)$data['rating'][0]]);
+        if (array_key_exists('rating', $data) && is_array($data['rating'])) {
+            $length = count($data['rating']);
+            if ($length > 0) {
+                sort($data['rating']);
+
+                if ($length > 1) {
+                    $products->whereBetween('rating', [(int)$data['rating'][0], (int)$data['rating'][$length - 1]]);
+                } else {
+                    $products->whereBetween('rating', [$data['rating'][0] - 0.5, (int)$data['rating'][0]]);
+                }
             }
         }
-        if (array_key_exists('attribute_value_id', $data) && count($data['attribute_value_id']) > 0) {
+
+        if (array_key_exists('attribute_value_id', $data) && is_array($data['attribute_value_id']) && count($data['attribute_value_id']) > 0) {
             $products->where(function ($query) use ($data) {
                 foreach ($data['attribute_value_id'] as $attribute_value) {
                     $query->orWhere('selected_variants_ids', 'like', "%\"{$attribute_value}\"%");
@@ -1165,27 +1189,31 @@ class ProductRepository implements ProductInterface
             });
         }
 
-        if ($data['sort'] == 'newest') {
-            if ($data['route'] == 'product.by.selling') {
+        $sort = $data['sort'] ?? 'newest';
+
+        if ($sort == 'newest') {
+            if ($route == 'product.by.selling') {
                 $products->orderByRaw("total_sale DESC, id DESC");
             } else {
                 $products->latest();
             }
-        } elseif ($data['sort'] == 'oldest') {
+        } elseif ($sort == 'oldest') {
             $products->oldest();
-        } elseif ($data['sort'] == 'top_rated') {
+        } elseif ($sort == 'top_rated') {
             $products->orderBy('rating', 'desc');
-        } elseif ($data['sort'] == 'top_selling') {
+        } elseif ($sort == 'top_selling') {
             $products->withCount('orders')->orderBy('orders_count', 'desc');
         }
 
-        return  $products->with('userWishlist')->withAvg('reviews','rating')->withCount('reviews')
-            ->when($data['route'] == 'product.by.selling', function($q){
+        $paginate = $data['paginate'] ?? 24;
+
+        return $products->with('userWishlist')->withAvg('reviews', 'rating')->withCount('reviews')
+            ->when($route == 'product.by.selling', function($q){
                 $q->orderByDesc('total_sale');
             })
             ->selectRaw('id,category_id,price,special_discount,special_discount_type,special_discount_start,special_discount_end,rating,slug,thumbnail,reward,current_stock,has_variant,minimum_order_quantity,todays_deal,total_sale')
             ->ProductPublished()
-            ->UserCheck()->IsWholesale()->IsStockOut()->latest()->paginate($data['paginate']);
+            ->UserCheck()->IsWholesale()->IsStockOut()->latest()->paginate($paginate);
 
     }
 
@@ -1529,6 +1557,6 @@ class ProductRepository implements ProductInterface
 
     public function productByFeatured()
     {
-        return Product::where('is_featured',1)->ProductPublished()->UserCheck()->IsWholesale()->IsStockOut()->latest()->get();
+        return Product::where('is_featured',1)->ProductPublished()->UserCheck()->IsWholesale()->IsStockOut()->latest()->take(15)->get();
     }
 }

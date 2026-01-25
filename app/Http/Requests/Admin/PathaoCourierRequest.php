@@ -24,7 +24,7 @@ class PathaoCourierRequest extends FormRequest
     public function rules()
     {
         return [
-            'orderId' =>'required|numeric|min:1|exists:orders,id',
+            'orderId' =>'required|numeric|min:1',
             'name' =>'required',
             'phone' =>'required|numeric',
             'address' => 'required|string|min:10',
@@ -34,7 +34,7 @@ class PathaoCourierRequest extends FormRequest
             'item_type' =>'required|numeric',
             'quantity' =>'required|numeric',
             'weight' =>'required|numeric',
-            'amount_to_collect' =>'numeric'
+            'amount_to_collect' =>'required|numeric|min:0'
         ];
     }
 

@@ -68,7 +68,6 @@
           <div class="d-flex gap-5">
             <div> 
               <p>{{ settings.footer_contact_address }}</p>
-              <p> e-Trade License: TRAD/DNCC/012940/2022 </p>
             </div>
 
             <p>
@@ -98,20 +97,21 @@
         </div>
 
         <div class="col-12 col-md-6 col-lg-3">
-          <a :href="`tel:${settings.footer_contact_phone}`" class="d-flex footer-small-card">
-            <img src="/images/img/icon/phone1.png" alt="facebook" />
+          <a :href="`tel:${cleanContactPhone}`" class="d-flex footer-small-card phone-card">
+            <img src="/images/img/icon/phone1.png" alt="phone" />
             <span>|</span>
             <div class="details">
-              <span>{{ settings.available_time }}</span>
-              <p class = "mobile_helpline">Helpline</p>
+              <span class="default-text">{{ settings.available_time }}</span>
+              <span class="hover-text">{{ settings.footer_contact_phone }}</span>
+              <p class="mobile_helpline">Helpline</p>
             </div>
           </a>
-          <router-link to="/outlets"  class="d-flex footer-small-card mt-3" >
-            <img src="/images/img/icon/store1.png" alt="facebook" />
+          <router-link to="/outlets" class="d-flex footer-small-card store-card mt-3">
+            <img src="/images/img/icon/store1.png" alt="store" />
             <span>|</span>
             <div class="details">
               <span>Store Locator</span>
-              <p class = "mobile_helpline">Find Our Stores</p>
+              <p class="mobile_helpline">Find Our Stores</p>
             </div>
           </router-link>
           <p class="mt-4">{{ settings.copyright }}</p>
@@ -168,7 +168,7 @@
         <p>Stores</p>
       </div>
       <div class=" d-flex flex-column align-items-center text-center">
-        <a href="tel:+1234567890" style="color: white">
+        <a :href="`tel:${cleanFooterPhone}`" style="color: white">
           <img
             :src="getUrl('images/footer-images/phone.svg')"
             alt="phone_icon"
@@ -264,6 +264,63 @@ export default {
     footerMenu() {
       return this.settings.footer_menu;
     },
+    cleanContactPhone() {
+      // Extract first valid phone number from settings.header_contact_phone
+      // Handles cases where multiple phone numbers might be concatenated
+      if (!this.settings.header_contact_phone) return '';
+
+      const phone = this.settings.header_contact_phone.toString().trim();
+
+      // If the phone number is unusually long (concatenated numbers), extract the first valid BD number
+      // BD phone numbers are typically 11-14 digits (with +880 prefix)
+      if (phone.length > 15) {
+        // Try to extract a valid BD phone number pattern
+        // Look for +880 followed by 10 digits, or 0 followed by 10 digits
+        const bdPhonePattern = /(\+?880)?1[3-9]\d{8}/;
+        const match = phone.match(bdPhonePattern);
+
+        if (match) {
+          return match[0];
+        }
+
+        // If no BD pattern found, extract first 11-14 digits
+        const digitsOnly = phone.replace(/\D/g, '');
+        if (digitsOnly.length >= 11) {
+          // Take first 13 digits (typical BD format: 880 + 11 digits)
+          return digitsOnly.substring(0, 13);
+        }
+
+        // Fallback: return first 11 digits
+        return digitsOnly.substring(0, 11);
+      }
+
+      return phone;
+    },
+    cleanFooterPhone() {
+      // Extract first valid phone number from settings.footer_contact_phone
+      if (!this.settings.footer_contact_phone) return '';
+
+      const phone = this.settings.footer_contact_phone.toString().trim();
+
+      // If the phone number is unusually long (concatenated numbers), extract the first valid BD number
+      if (phone.length > 15) {
+        const bdPhonePattern = /(\+?880)?1[3-9]\d{8}/;
+        const match = phone.match(bdPhonePattern);
+
+        if (match) {
+          return match[0];
+        }
+
+        const digitsOnly = phone.replace(/\D/g, '');
+        if (digitsOnly.length >= 11) {
+          return digitsOnly.substring(0, 13);
+        }
+
+        return digitsOnly.substring(0, 11);
+      }
+
+      return phone;
+    },
   },
   methods: {
     checkGDPR() {
@@ -280,15 +337,42 @@ export default {
           : "col-lg-3",
       ];
     },
+    formatPhoneNumber(phoneNumber) {
+      if (!phoneNumber) return '';
+      // Remove all non-numeric characters except +
+      return phoneNumber.replace(/[^0-9+]/g, '');
+    },
   },
 };
 </script>
 
-<style scop>
+<style scoped>
 .footer_container {
   background: black;
   color: white;
   padding: 50px 0;
+  margin-top: 60px;
+}
+
+@media (min-width: 1400px) {
+  .footer_container {
+    margin-top: 80px;
+    padding: 60px 0;
+  }
+}
+
+@media (max-width: 992px) {
+  .footer_container {
+    margin-top: 40px;
+    padding: 40px 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .footer_container {
+    margin-top: 30px;
+    padding: 30px 0;
+  }
 }
 
 .footer-logo-new {
@@ -332,18 +416,213 @@ export default {
 .footer-small-card {
   background: #ffffff;
   border-radius: 15px;
-  padding: 0px 21px;
+  padding: 12px 21px;
   align-items: center;
   color: black;
+  cursor: pointer;
+  text-decoration: none !important;
+  transition: all 0.3s ease;
+  min-height: 60px;
+  display: flex;
+}
+
+.footer-small-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-decoration: none !important;
+}
+
+.footer-small-card img {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
 }
 
 .footer-small-card span {
-  margin: 0px 15px;
+  margin: 0 15px;
+  font-size: 20px;
+  color: #ddd;
+  flex-shrink: 0;
+}
+
+.footer-small-card .details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
 }
 
 .footer-small-card .details span {
-  margin-left: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #212529;
+  margin: 0;
+  transition: opacity 0.3s ease;
+}
+
+.footer-small-card .default-text {
+  display: block;
+}
+
+.footer-small-card .hover-text {
+  display: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1BADEB;
+}
+
+.footer-small-card:hover .default-text {
+  display: none;
+}
+
+.footer-small-card:hover .hover-text {
+  display: block;
+}
+
+.footer-small-card p {
+  margin: 4px 0 0 0;
   font-size: 11px;
+  color: #666;
+  font-weight: 400;
+}
+
+/* Tablet */
+@media screen and (max-width: 992px) {
+  .footer-small-card {
+    padding: 10px 18px;
+    min-height: 55px;
+  }
+
+  .footer-small-card img {
+    width: 22px;
+    height: 22px;
+  }
+
+  .footer-small-card span {
+    font-size: 18px;
+    margin: 0 12px;
+  }
+
+  .footer-small-card .details span {
+    font-size: 12px;
+  }
+
+  .footer-small-card .hover-text {
+    font-size: 13px;
+  }
+
+  .footer-small-card p {
+    font-size: 10px;
+  }
+}
+
+/* Mobile Landscape */
+@media screen and (max-width: 768px) {
+  .footer-small-card {
+    padding: 8px 15px;
+    min-height: 50px;
+    border-radius: 12px;
+  }
+
+  .footer-small-card img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .footer-small-card span {
+    font-size: 16px;
+    margin: 0 10px;
+  }
+
+  .footer-small-card .details span {
+    font-size: 11px;
+  }
+
+  .footer-small-card .hover-text {
+    font-size: 12px;
+  }
+
+  .footer-small-card p {
+    font-size: 9px;
+    margin: 3px 0 0 0;
+  }
+
+  .footer-small-card.phone-card {
+    margin-bottom: 10px;
+  }
+}
+
+/* Mobile Portrait */
+@media screen and (max-width: 576px) {
+  .footer-small-card {
+    padding: 8px 12px;
+    min-height: 48px;
+    border-radius: 10px;
+  }
+
+  .footer-small-card img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .footer-small-card span {
+    font-size: 14px;
+    margin: 0 8px;
+  }
+
+  .footer-small-card .details {
+    flex: 1;
+  }
+
+  .footer-small-card .details span {
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  .footer-small-card .hover-text {
+    font-size: 11px;
+  }
+
+  .footer-small-card p {
+    font-size: 8px;
+    margin: 2px 0 0 0;
+  }
+
+  .footer-small-card.phone-card,
+  .footer-small-card.store-card {
+    width: 100%;
+  }
+}
+
+/* Small Mobile */
+@media screen and (max-width: 390px) {
+  .footer-small-card {
+    padding: 6px 10px;
+    min-height: 45px;
+  }
+
+  .footer-small-card img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .footer-small-card span {
+    font-size: 12px;
+    margin: 0 6px;
+  }
+
+  .footer-small-card .details span {
+    font-size: 9px;
+  }
+
+  .footer-small-card .hover-text {
+    font-size: 10px;
+  }
+
+  .footer-small-card p {
+    font-size: 7px;
+  }
 }
 
 

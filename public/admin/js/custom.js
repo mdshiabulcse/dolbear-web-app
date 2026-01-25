@@ -1,7 +1,7 @@
-let wholesale_product_id = 1;
 jQuery(function ($) {
   "use strict";
-  let status = $("#is_currency_api_enabled").val();
+  var wholesale_product_id = 1;
+  var status = $("#is_currency_api_enabled").val();
   if (status == 1) {
     currencyConverter();
   }
@@ -400,7 +400,10 @@ jQuery(function ($) {
     });
   });
 
-  $(".file-select").fileselect();
+  // Check if fileselect plugin is loaded before calling
+  if ($.fn.fileselect) {
+    $(".file-select").fileselect();
+  }
 
   $(".flags").select2({
     templateResult: formatState,
@@ -758,7 +761,10 @@ jQuery(function ($) {
     });
   });
 
-  $(".inputtags").tagsinput("items");
+  // Check if tagsinput plugin is loaded before calling
+  if ($.fn.tagsinput) {
+    $(".inputtags").tagsinput("items");
+  }
 
   $(".imagecheck-figure.theme").on("click", function (e) {
     e.preventDefault();
@@ -1205,9 +1211,11 @@ jQuery(function ($) {
 
   const menuIcon = document.querySelector(".bx.bx-menu");
   const sBar = document.querySelector(".nicescroll-rails.nicescroll-rails-vr");
-  menuIcon.onclick = function () {
-    sBar.style.left = "242px";
-  };
+  if (menuIcon && sBar) {
+    menuIcon.onclick = function () {
+      sBar.style.left = "242px";
+    };
+  }
 });
 
 function getStoreContent(type, div_area, content_number, for_content) {

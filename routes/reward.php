@@ -4,11 +4,11 @@
 use App\Http\Controllers\Admin\Addons\RewardSystemController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['XSS','isInstalled'])->group(function () {
+Route::middleware(['XSS',])->group(function () {
     Route::group(
         [
             'prefix' => LaravelLocalization::setLocale(),
-            'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath','isInstalled']
+            'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath',]
         ], function () {
 
         Route::middleware(['adminCheck', 'loginCheck'])->prefix('admin')->group(function () {

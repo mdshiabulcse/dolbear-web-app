@@ -87,55 +87,59 @@
                   </div>
 
                 <div class="col-lg-6">
-                  <div >
-                    <p >Division  <span class="text-danger">*</span></p>
-                    <v-select
-                      label="name"
-                      placeholder="Select a Division"
-                      :options="divisions"
+                  <div>
+                    <p>Division  <span class="text-danger">*</span></p>
+                    <select
+                      class="form-control"
                       v-model="form.division_id"
-                      :reduce="(option) => option.id"
-                      @input="getStates()"
+                      @change="getStates()"
                       :class="{ 'error_border' : errors.division_id }"
-                      >
-                    </v-select>
+                    >
+                      <option value="">Select a Division</option>
+                      <option v-for="division in divisions" :key="division.id" :value="division.id">
+                        {{ division.name }}
+                      </option>
+                    </select>
                   </div>
                   <span class="validation_error" v-if="errors.division_id">{{ errors.division_id[0] }}</span>
                 </div>
 
                 <div class="col-md-6">
-                  <div >
-                    <p >District  <span class="text-danger">*</span></p>
-                    <v-select
-                      label="name"
-                      placeholder="Select a District"
-                      :options="states"
+                  <div>
+                    <p>District  <span class="text-danger">*</span></p>
+                    <select
+                      class="form-control"
                       v-model="form.district_id"
-                      :reduce="(option) => option.id"
-                      @input="getCities()"
+                      @change="getCities()"
                       :class="{ 'error_border' : errors.district_id }"
-                      >
-                    </v-select>
+                      :disabled="!form.division_id"
+                    >
+                      <option value="">Select a District</option>
+                      <option v-for="state in states" :key="state.id" :value="state.id">
+                        {{ state.name }}
+                      </option>
+                    </select>
                   </div>
-                  <span class="validation_error" v-if="errors.district_id">{{ errors.state_id[0] }}</span>
+                  <span class="validation_error" v-if="errors.district_id">{{ errors.district_id[0] }}</span>
                 </div>
 
                 <div class="col-md-6">
                   <div>
-                    <p >Thana  <span class="text-danger">*</span></p>
-                    <v-select
-                      label="name"
-                      placeholder="Select a Thana"
-                      :options="cities"
+                    <p>Thana  <span class="text-danger">*</span></p>
+                    <select
+                      class="form-control"
                       v-model="form.thana_id"
-                      :reduce="(option) => option.id"
-                      @input="getDeliveryCharge()"
+                      @change="getDeliveryCharge()"
                       :class="{ 'error_border' : errors.thana_id }"
-                      >
-                    </v-select>
+                      :disabled="!form.district_id"
+                    >
+                      <option value="">Select a Thana</option>
+                      <option v-for="city in cities" :key="city.id" :value="city.id">
+                        {{ city.name }}
+                      </option>
+                    </select>
                   </div>
-                  <span class="validation_error"
-                        v-if="errors.city_id">{{ errors.thana_id[0] }}</span>
+                  <span class="validation_error" v-if="errors.thana_id">{{ errors.thana_id[0] }}</span>
                 </div>
 
                 <div class="col-md-12">
@@ -161,18 +165,29 @@
                   <p class="col-lg-3 mb-3 mb-md-0">Delivery :</p>
                   <div class="col-lg-9 d-flex flex-wrap gap-2">
                       <div v-for="(option, index) in deliveryOptions" :key="index" class="delivery-card"
-                          :class="{ active: deliveryMethod === option }" @click="setDeliveryActiveOption(index)">
+                          :class="{ active: deliveryMethod === option, disabled: isExpressDeliveryDisabled && option === EXPRESS_DELIVERY }"
+                          @click="!isExpressDeliveryDisabled || option !== EXPRESS_DELIVERY ? setDeliveryActiveOption(index) : null">
                           <p @change="getDeliveryCharge">{{ option }}</p>
                       </div>
+                  </div>
+                  <div v-if="isExpressDeliveryDisabled && deliveryMethod !== EXPRESS_DELIVERY" class="col-12">
+                      <small class="text-muted">Express delivery is only available in Dhaka district </small>
                   </div>
               </div>
 
             <div class="checkout-card mb-3" v-if="deliveryMethod === STORE_PICK">
               <h4>Select Store</h4>
               <div class="payment-method">
-                <p v-for="(store, index) in storeOption" :key="index"
-                   :class="{ active: selectedStore === store.id }" @click="setActiveStore(store.id)">{{
-                    store.name }}</p>
+                <div v-for="(store, index) in filteredStoreOptions" :key="index"
+                     class="store-selection-item"
+                     :class="{ active: selectedStore === store.id }"
+                     @click="setActiveStore(store.id)">
+                  <p class="store-name">{{ store.name }}</p>
+                  <div v-if="selectedStore === store.id" class="store-details-info">
+                    <p class="store-address"><strong>Address:</strong> {{ store.address || 'N/A' }}</p>
+                    <p class="store-phone"><strong>Contact:</strong> {{ store.phone || 'N/A' }}</p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -194,7 +209,8 @@
 
                   <div class="d-flex justify-content-between">
                       <p>Delivery Charge</p>
-                      <p v-if="free_shipping">Free</p>
+                      <p v-if="free_shipping && deliveryMethod === STANDARD">Free</p>
+                      <p v-else-if="payment_form.shipping_tax == 0">Free</p>
                       <p v-else>৳ {{ payment_form.shipping_tax }}</p>
                   </div>
                   <div class="d-flex justify-content-between">
@@ -203,7 +219,24 @@
                   </div>
                 <div class="d-flex justify-content-between">
                       <p>Coupon Discount </p>
-                      <p>৳ {{ payment_form.coupon_discount }}</p>
+                      <p>৳ {{ parseFloat(payment_form.coupon_discount).toFixed(2) }}</p>
+                  </div>
+
+                  <!-- Applied Coupons List - Display Only -->
+                  <div v-if="coupon_list && coupon_list.length > 0" class="applied-coupons mb-3">
+                      <div v-for="(coupon, index) in coupon_list" :key="index"
+                           class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                          <div class="w-100">
+                              <div class="badge bg-success">{{ coupon.code || 'Applied' }}</div><br>
+                              <small class="ms-2 text-muted">
+                                  {{ coupon.discount_type === 'flat' ? 'Flat: ' : coupon.discount_type === 'percent' ? 'Percent: ' : '' }}
+                                  {{ coupon.discount_type === 'percent' ? coupon.coupon_discount + '%' : priceFormat(coupon.coupon_discount) }}
+                              </small>
+                              <small class="ms-2 text-success">
+                                  (Discount: ৳ {{ formatCouponDiscount(coupon) }})
+                              </small>
+                          </div>
+                      </div>
                   </div>
 
                   <form @submit.prevent="applyCoupon">
@@ -214,20 +247,26 @@
                             class="promo-input"
                             v-model="payment_form.coupon_code"
                             placeholder="Coupon Code"
+                            :disabled="!carts || carts.length === 0"
+                            :class="{ 'disabled': !carts || carts.length === 0 }"
                         />
 
                         <!-- <loading_button
                             v-if="loading"
                             :class="promo-btn">
                         </loading_button> -->
-                        <button class="promo-btn">Promo</button>
+                        <button
+                          class="promo-btn"
+                          :disabled="!carts || carts.length === 0"
+                          :class="{ 'disabled': !carts || carts.length === 0 }"
+                        >Promo</button>
                     </div>
                   </form>
 
                   <span></span>
                   <div class="d-flex justify-content-between">
                       <h4>Total Payable</h4>
-                      <h4>৳ {{ payment_form.total }}</h4>
+                      <h4>৳ {{ parseFloat(payment_form.total).toFixed(2) }}</h4>
                   </div>
                   <div class="d-flex flex-column justify-content-center">
 
@@ -242,7 +281,12 @@
                       <button
                         class="checkout-btn"
                         @click="confirmOrder"
-                        >Confirm Order
+                        :disabled="loading"
+                      >
+                        <div v-if="loading">
+                          <i class="fa fa-spinner fa-spin"></i> Processing...
+                        </div>
+                        <div v-else>Confirm Order</div>
                       </button>
                   </div>
 
@@ -284,6 +328,11 @@ export default {
   watch: {
     cartList(newValue, oldValue) {
       this.getCheckout();
+
+      // Automatically remove all coupons if cart becomes empty
+      if (!newValue || newValue.length === 0) {
+        this.removeAllCoupons();
+      }
     },
   },
   computed: {
@@ -295,6 +344,27 @@ export default {
     },
     countries() {
       return this.$store.getters.getCountryList;
+    },
+    filteredStoreOptions() {
+      // Filter out "Dolbear Online Store" from the store list
+      if (!this.storeOption) return [];
+      return this.storeOption.filter(store => {
+        return store.name && store.name.toLowerCase() !== 'dolbear online';
+      });
+    },
+    isExpressDeliveryDisabled() {
+      // Check if express delivery should be disabled based on selected district
+      if (!this.form.district_id || !this.states) {
+        return false;
+      }
+      const selectedState = this.states.find(s => s.id === this.form.district_id);
+      if (!selectedState) {
+        return false;
+      }
+      // Disable express delivery if not in Dhaka district
+      const isDhaka = selectedState.name.toLowerCase().includes('dhaka') ||
+                     (selectedState.id === 3045); // Adjust ID as needed
+      return !isDhaka;
     },
   },
   data() {
@@ -377,13 +447,18 @@ export default {
 
     getDivisions() {
       let url = this.getUrl('get/division-list/');
+      console.log('Fetching divisions from:', url);
       axios.get(url).then((response) => {
+        console.log('Divisions response:', response.data);
         if (response.data.error) {
           toastr.error(response.data.error, this.lang.Error + ' !!');
         } else {
-
           this.divisions = response.data.divisions;
+          console.log('Divisions loaded:', this.divisions);
         }
+      }).catch((error) => {
+        console.error('Error fetching divisions:', error);
+        toastr.error('Failed to load divisions', this.lang.Error + ' !!');
       });
     },
     async getUserAddress()
@@ -432,8 +507,17 @@ export default {
         }
       });
 
+      // Reset district and thana, and check if delivery method needs to be reset
+      const previousDistrict = this.form.district_id;
       this.form.district_id = "";
       this.form.thana_id = "";
+
+      // If express delivery was selected and we're changing district, reset to standard
+      if (this.deliveryMethod === EXPRESS_DELIVERY && previousDistrict) {
+        this.deliveryMethod = STANDARD;
+        // Show notification to user
+        toastr.info('Delivery method reset to Standard due to district change', 'Info');
+      }
     },
     getCities(address) {
       let state_id = this.form.district_id;
@@ -447,11 +531,13 @@ export default {
           if (address && address.address_ids) {
             this.form.city_id = parseInt(address.address_ids.city_id);
           }
+
+          // Check if the new district supports express delivery
+          this.checkExpressDeliveryAvailability();
         }
       });
 
       this.form.thana_id = "";
-
     },
     getDeliveryCharge(){
 
@@ -460,32 +546,101 @@ export default {
 
       this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.tax) + parseFloat(this.payment_form.shipping_tax)) - (parseFloat(this.payment_form.discount_offer) + parseFloat(this.payment_form.coupon_discount)));
 
-      if (this.settings.shipping_fee_type === 'area_base' && this.deliveryMethod !== STORE_PICK && !this.free_shipping) {
-        let url = this.getUrl('user/find/shipping_cost');
+      // Calculate delivery charge for area-based shipping
+      // Skip calculation for store pickup
+      // For express delivery: always calculate charge (even if all products have free shipping)
+      // For standard delivery with all free shipping products: charge is 0 (FREE)
+      if (this.settings.shipping_fee_type === 'area_base' && this.deliveryMethod !== STORE_PICK) {
+        // For express delivery, always calculate charge
+        // For standard delivery, only calculate if not all products have free shipping
+        const shouldCalculate = this.deliveryMethod === EXPRESS_DELIVERY || !this.free_shipping;
 
-        let form = {
-          city_id: this.form?.thana_id,
-          deliveryMethod: this.deliveryMethod
-        };
+        if (shouldCalculate && this.form?.thana_id) {
+          let url = this.getUrl('user/find/shipping_cost');
 
-        axios.post(url, form).then((response) => {
+          let form = {
+            city_id: this.form.thana_id,
+            deliveryMethod: this.deliveryMethod
+          };
 
-          if (response.data.error) {
-            toastr.error(response.data.error, this.lang.Error + ' !!');
-          } else {
-            this.payment_form.shipping_tax = response.data.shipping_cost;
-            this.shipping_cost = this.payment_form.shipping_tax;
-            this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.tax) + parseFloat(this.payment_form.shipping_tax)) - (parseFloat(this.payment_form.discount_offer) + parseFloat(this.payment_form.coupon_discount)));
-          }
-        });
+          axios.post(url, form).then((response) => {
+
+            if (response.data.error) {
+              toastr.error(response.data.error, this.lang.Error + ' !!');
+              // Reset to standard delivery if express delivery is not available
+              if (this.deliveryMethod === EXPRESS_DELIVERY) {
+                this.deliveryMethod = STANDARD;
+                // Recalculate with standard delivery
+                form.deliveryMethod = STANDARD;
+                axios.post(url, form).then((response) => {
+                  if (!response.data.error) {
+                    this.payment_form.shipping_tax = response.data.shipping_cost;
+                    this.shipping_cost = this.payment_form.shipping_tax;
+                    this.recalculateTotal();
+                  }
+                });
+              }
+            } else {
+              this.payment_form.shipping_tax = response.data.shipping_cost;
+              this.shipping_cost = this.payment_form.shipping_tax;
+              this.recalculateTotal();
+            }
+          });
+        }
       }
 
+    },
+    recalculateTotal() {
+      // Recalculate total with current shipping charge
+      this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.tax) + parseFloat(this.payment_form.shipping_tax)) - (parseFloat(this.payment_form.discount_offer) + parseFloat(this.payment_form.coupon_discount)));
+    },
+    checkExpressDeliveryAvailability() {
+      // Check if express delivery is available for the current district
+      if (this.deliveryMethod === EXPRESS_DELIVERY && this.isExpressDeliveryDisabled) {
+        // If express delivery is selected but not available, reset to standard
+        this.deliveryMethod = STANDARD;
+        toastr.info('Express delivery is only available in Dhaka district. Switched to Standard delivery.', 'Info');
+        // Recalculate with standard delivery
+        this.$nextTick(() => {
+          this.getDeliveryCharge();
+        });
+      } else if (this.deliveryMethod === EXPRESS_DELIVERY && !this.isExpressDeliveryDisabled) {
+        // If express delivery is selected and district is Dhaka, recalculate to ensure charge is applied
+        this.$nextTick(() => {
+          this.getDeliveryCharge();
+        });
+      }
     },
     setDeliveryActiveOption(index)
     {
         if(this.deliveryOptions[index]){
           this.deliveryMethod = this.deliveryOptions[index];
         }
+
+        // Validate express delivery availability before setting
+        if (this.deliveryMethod === EXPRESS_DELIVERY) {
+          // Check if selected district is Dhaka
+          const selectedState = this.states.find(s => s.id === this.form.district_id);
+          if (selectedState) {
+            const isDhaka = selectedState.name.toLowerCase().includes('dhaka') ||
+                           (selectedState.id === 3045); // Adjust ID as needed
+
+            if (!isDhaka) {
+              toastr.error('Express delivery is only available in Dhaka district', this.lang.Error + ' !!');
+              this.deliveryMethod = STANDARD;
+              return;
+            }
+          }
+
+          // Check if user has selected a thana
+          if (!this.form.thana_id) {
+            toastr.warning('Please select a thana first', this.lang.Warning + ' !!');
+            this.deliveryMethod = STANDARD;
+            return;
+          }
+        }
+
+        // Recalculate delivery charge when delivery method changes
         this.getDeliveryCharge();
     },
     setActivePaymentOption(index) {
@@ -543,6 +698,11 @@ export default {
             toastr.error(response.data.error, this.lang.Error + ' !!');
           } else {
             this.$store.dispatch('carts', response.data.carts);
+
+            // Automatically remove all coupons if cart becomes empty
+            if (!response.data.carts || response.data.carts.length === 0) {
+              this.removeAllCoupons();
+            }
           }
         })
       }
@@ -592,32 +752,19 @@ export default {
             this.payment_form.shipping_tax += parseFloat(checkouts[key].shipping_cost);
           }
           this.payment_form.tax += parseFloat(checkouts[key].tax);
-          if (this.settings.coupon_system == 1) {
-            this.payment_form.coupon_discount += parseFloat(checkouts[key].discount);
-          }
+          // Don't add coupon_discount from checkouts - we'll recalculate it below
+          // The backend value may be stale, so we calculate fresh based on current subtotal
         }
       }
 
       if (coupons && this.settings.coupon_system == 1) {
         this.coupon_list = coupons;
-        for (let i = 0; i < coupons.length; i++) {
-          this.payment_form.coupon_discount += parseFloat(coupons[i].discount);
-        }
+        // Store coupon info for recalculation
       }
 
-      if (this.settings.tax_type == 'after_tax' && this.settings.vat_and_tax_type == 'order_base') {
-        this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.shipping_tax)) - (parseFloat(this.payment_form.discount_offer) + parseFloat(this.payment_form.coupon_discount)));
-        this.payment_form.total += this.payment_form.tax;
-        if(this.payment_form.total < 0){
-          this.payment_form.total = 0;
-        }
-      } else {
-        this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.tax) + parseFloat(this.payment_form.shipping_tax)) - (parseFloat(this.payment_form.discount_offer) + parseFloat(this.payment_form.coupon_discount)));
-        if(this.payment_form.total < 0){
-          this.payment_form.total = 0;
-        }
-      }
-
+      // Recalculate coupon discounts based on current subtotal
+      // This ensures coupon discount is always up-to-date when cart changes
+      this.recalculateCouponDiscounts();
     },
     cartPlus(index) {
       if (this.disable) {
@@ -692,6 +839,12 @@ export default {
     },
 
     applyCoupon() {
+      // Validate cart has products before applying coupon
+      if (!this.cartList || this.cartList.length === 0) {
+        toastr.error('Your cart is empty. Add products to apply coupon.', this.lang.Error + " !!");
+        return;
+      }
+
       let url = this.getUrl("user/apply_coupon");
       if (this.cartList[0] && this.cartList[0].trx_id) {
         this.payment_form.trx_id = this.cartList[0].trx_id;
@@ -753,6 +906,59 @@ export default {
             });
       }
     },
+    removeAllCoupons() {
+      // Automatically remove all coupons when cart becomes empty
+      if (!this.coupon_list || this.coupon_list.length === 0) {
+        return; // No coupons to remove
+      }
+
+      let url = this.getUrl("user/coupon-delete");
+      let couponIds = this.coupon_list.map(coupon => coupon.id);
+
+      if (couponIds.length === 0) {
+        return;
+      }
+
+      // Remove all coupons
+      couponIds.forEach(couponId => {
+        let form = {
+          trx_id: this.cartList && this.cartList[0] ? this.cartList[0].trx_id : this.trx_id,
+          coupon_id: couponId,
+          user_id: this.authUser ? this.authUser.id : null,
+        };
+
+        axios.post(url, form).then((response) => {
+          if (!response.data.error) {
+            // Clear local coupon data
+            this.payment_form.coupon_discount = 0;
+            this.coupon_list = [];
+
+            // Recalculate totals without coupon discount
+            if (this.settings.tax_type == 'after_tax' && this.settings.vat_and_tax_type == 'order_base') {
+              this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.shipping_tax)) - parseFloat(this.payment_form.discount_offer));
+              this.payment_form.total += this.payment_form.tax;
+              // Ensure total is not negative
+              if(this.payment_form.total < 0){
+                this.payment_form.total = 0;
+              }
+            } else {
+              this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.tax) + parseFloat(this.payment_form.shipping_tax)) - parseFloat(this.payment_form.discount_offer));
+              // Ensure total is not negative
+              if(this.payment_form.total < 0){
+                this.payment_form.total = 0;
+              }
+            }
+
+            // Final validation: Ensure total is not negative after removing coupons
+            if (this.payment_form.total < 0) {
+              this.payment_form.total = 0;
+            }
+          }
+        }).catch((error) => {
+          console.log('Error removing coupon:', error);
+        });
+      });
+    },
 
     async confirmOrder() {
 
@@ -763,6 +969,13 @@ export default {
           return toastr.warning(this.lang.you_are_not_able_topurchase_products, this.lang.Warning + ' !!');
         }
 
+        // Check if already submitting
+        if (this.loading) {
+          return;
+        }
+
+        // Start loading
+        this.loading = true;
         this.$Progress.start();
         this.payment_form.payment_method = this.payment_method
 
@@ -770,30 +983,35 @@ export default {
         if (this.payment_form.sub_total <= 0) {
           toastr.error('Checkout summary is invalid.', this.lang.Error + " !!");
           this.$Progress.fail();
+          this.loading = false;
           return;
         }
 
         if (!this.terms_condition) {
           toastr.error('You must agree to terms and condition', this.lang.Error + " !!");
           this.$Progress.fail();
+          this.loading = false;
           return;
         }
 
         if (!this.form.thana_id) {
           toastr.error('Invalid Address', this.lang.Error + " !!");
           this.$Progress.fail();
+          this.loading = false;
           return;
         }
 
         if (!this.form.phone_no) {
           toastr.error('Empty Phone Number', this.lang.Error + " !!");
           this.$Progress.fail();
+          this.loading = false;
           return;
         }
 
         if (!this.form.name) {
           toastr.error('Name is required', this.lang.Error + " !!");
           this.$Progress.fail();
+          this.loading = false;
           return;
         }
 
@@ -807,6 +1025,24 @@ export default {
         if (!emailPattern.test(this.form.email)) {
           toastr.error('Please enter a valid email address.', this.lang.Error + " !!");
           this.$Progress.fail();
+          this.loading = false;
+          return;
+        }
+
+        // Final validation: Ensure total is not negative before submitting order
+        if (this.payment_form.total < 0) {
+          toastr.error('Order total cannot be negative. Please review your discounts.', this.lang.Error + " !!");
+          this.$Progress.fail();
+          this.loading = false;
+          return;
+        }
+
+        // Ensure coupon discount doesn't cause negative total
+        const maxAllowedCouponDiscount = this.payment_form.sub_total + this.payment_form.tax + this.payment_form.shipping_tax - this.payment_form.discount_offer;
+        if (this.payment_form.coupon_discount > maxAllowedCouponDiscount && this.payment_form.total <= 0) {
+          toastr.error('Coupon discount exceeds order total. Please remove the coupon.', this.lang.Error + " !!");
+          this.$Progress.fail();
+          this.loading = false;
           return;
         }
 
@@ -826,6 +1062,7 @@ export default {
         if (response.data.error) {
           this.$Progress.fail();
           toastr.error(response.data.error, this.lang.Error + ' !!');
+          this.loading = false;
         } else {
           this.$Progress.finish();
           toastr.success('Order confirmed successfully!', 'Success');
@@ -833,15 +1070,20 @@ export default {
           await this.takeOrders();
 
           if (this.payment_form.payment_method === 'online_payment') {
-            return (window.location.href = this.getUrl(
+            // Keep loading state true during redirect for online payment
+            window.location.href = this.getUrl(
                 "get/ssl-response?payment_type=ssl_commerze&code=" +
                 this.code +
                 "&trx_id=" +
                 this.trx_id
-            ));
+            );
+            return;
           }
 
+          // Keep loading state true during complete order process
           this.completeOrders();
+          // Note: loading state will be reset in completeOrders catch block
+          // or kept true until redirect happens
         }
 
 
@@ -849,6 +1091,7 @@ export default {
         this.$Progress.fail();
         toastr.error('Something went wrong. Please try again.', this.lang.Error + ' !!');
         console.error(error);
+        this.loading = false;
       }
 
 
@@ -880,11 +1123,14 @@ export default {
             if (response.data.error) {
 
               toastr.error(response.data.error, this.lang.Error + " !!");
+              // Reset loading state on error so user can try again
+              this.loading = false;
 
             } else {
 
               this.$store.dispatch('resetCart');
 
+              // Keep loading state true during redirect
               if (this.code) {
                 this.$router.push({
                   name: "get.invoice",
@@ -896,12 +1142,109 @@ export default {
                   params: { trx_id: this.trx_id },
                 });
               }
+              // Loading state remains true until page navigates away
 
             }
           })
           .catch((error) => {
+            // Reset loading state on error so user can try again
             this.loading = false;
+            console.error('Complete order error:', error);
           });
+    },
+
+    formatCouponDiscount(coupon) {
+      // Calculate discount dynamically based on current subtotal
+      let discount = 0;
+
+      // Get raw value from coupon table
+      const rawDiscountValue = parseFloat(coupon.coupon_discount || 0);
+
+      if (coupon.discount_type === 'flat') {
+        // Flat discount - use the calculated amount or raw value
+        discount = parseFloat(coupon.discount || rawDiscountValue || 0);
+      } else if (coupon.discount_type === 'percent') {
+        // Percent discount - calculate based on current subtotal
+        const percent = rawDiscountValue;
+        const subtotal = parseFloat(this.payment_form.sub_total || 0);
+        discount = subtotal * (percent / 100);
+
+        // Apply maximum discount cap if exists
+        if (coupon.maximum_discount && discount > parseFloat(coupon.maximum_discount)) {
+          discount = parseFloat(coupon.maximum_discount);
+        }
+      } else {
+        // Fallback - use the calculated discount from backend
+        discount = parseFloat(coupon.discount || 0);
+      }
+
+      // Ensure discount doesn't exceed subtotal
+      if (discount > parseFloat(this.payment_form.sub_total || 0)) {
+        discount = parseFloat(this.payment_form.sub_total || 0);
+      }
+
+      // Format to 2 decimal places
+      return discount.toFixed(2);
+    },
+
+    recalculateCouponDiscounts() {
+      // Recalculate all coupon discounts based on current subtotal
+      if (!this.coupon_list || this.coupon_list.length === 0) {
+        this.payment_form.coupon_discount = 0;
+        return;
+      }
+
+      let totalCouponDiscount = 0;
+
+      for (let i = 0; i < this.coupon_list.length; i++) {
+        const coupon = this.coupon_list[i];
+        let discount = 0;
+
+        // Backend returns calculated discount in 'discount' field
+        // We need to recalculate based on current subtotal
+        const rawDiscountValue = parseFloat(coupon.coupon_discount || 0); // Raw value from coupon table
+
+        if (coupon.discount_type === 'flat') {
+          // Flat discount - use the calculated amount or recalculate
+          discount = parseFloat(coupon.discount || rawDiscountValue || 0);
+        } else if (coupon.discount_type === 'percent') {
+          // Percent discount - calculate based on current subtotal
+          const percent = rawDiscountValue; // e.g., 25 for 25%
+          const subtotal = parseFloat(this.payment_form.sub_total || 0);
+          discount = subtotal * (percent / 100);
+
+          // Apply maximum discount cap if exists
+          if (coupon.maximum_discount && discount > parseFloat(coupon.maximum_discount)) {
+            discount = parseFloat(coupon.maximum_discount);
+          }
+        } else {
+          // Fallback - use the calculated discount from backend
+          discount = parseFloat(coupon.discount || 0);
+        }
+
+        // Ensure discount doesn't exceed subtotal
+        if (discount > parseFloat(this.payment_form.sub_total || 0)) {
+          discount = parseFloat(this.payment_form.sub_total || 0);
+        }
+
+        totalCouponDiscount += discount;
+      }
+
+      this.payment_form.coupon_discount = parseFloat(totalCouponDiscount.toFixed(2));
+
+      // Recalculate total
+      if (this.settings.tax_type == 'after_tax' && this.settings.vat_and_tax_type == 'order_base') {
+        this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.shipping_tax)) - (parseFloat(this.payment_form.discount_offer) + parseFloat(this.payment_form.coupon_discount)));
+        this.payment_form.total += this.payment_form.tax;
+        if(this.payment_form.total < 0){
+          this.payment_form.total = 0;
+        }
+      } else {
+        this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.tax) + parseFloat(this.payment_form.shipping_tax)) - (parseFloat(this.payment_form.discount_offer) + parseFloat(this.payment_form.coupon_discount)));
+        if(this.payment_form.total < 0){
+          this.payment_form.total = 0;
+        }
+      }
     },
 
     sanitizePhoneNumber(event) {
@@ -948,7 +1291,19 @@ export default {
 .cart-new table tbody td {
     background: transparent !important;
     text-align: center !important;
+}
 
+.cart-new table tbody td:first-child {
+    text-align: center !important;
+}
+
+.cart-new table tbody td:nth-child(2) {
+    text-align: left !important;
+}
+
+.cart-new table tbody td:nth-child(2) span {
+    text-align: left !important;
+    display: block;
 }
 
 .cart-new p {
@@ -1006,6 +1361,77 @@ export default {
     padding: 10px;
     border: none;
     border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    display: block;
+    text-decoration: none;
+    outline: none;
+    box-shadow: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.checkout-btn:hover:not(:disabled) {
+    background: #147ab3;
+    text-decoration: none;
+}
+
+.checkout-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+    text-decoration: none;
+}
+
+.checkout-btn:disabled:hover {
+    background: #ccc;
+    text-decoration: none;
+}
+
+/* Coupon input and button disabled state */
+.promo-input:disabled {
+    background: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.promo-btn:disabled {
+    background: #ccc;
+    color: #999;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.promo-btn:disabled:hover {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Applied Coupons List */
+.applied-coupons {
+    background: #f8f9fa;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.applied-coupons .badge {
+    font-size: 12px;
+    padding: 5px 10px;
+}
+
+.applied-coupons .btn-outline-danger {
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    padding: 2px 8px;
+    font-size: 12px;
+}
+
+.applied-coupons .btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
 }
 
 .delivery-card {
@@ -1019,6 +1445,12 @@ export default {
 .delivery-card.active {
     background: #168FC3;
     color: white !important;
+}
+
+.delivery-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f0f0f0;
 }
 
 .payment-method p {
@@ -1047,5 +1479,80 @@ export default {
     font-size: 12px !important;
   }
 
+}
+
+/* v-select styling fixes */
+.cart-new .v-select {
+  position: relative;
+  z-index: 10;
+}
+
+.cart-new .vs__dropdown-menu {
+  z-index: 9999 !important;
+  position: absolute !important;
+  background: white !important;
+  border: 1px solid #ddd !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
+
+.cart-new .vs__dropdown-option {
+  padding: 8px 12px !important;
+  cursor: pointer !important;
+}
+
+.cart-new .vs__dropdown-option:hover {
+  background-color: #f0f0f0 !important;
+}
+
+.cart-new .vs__selected {
+  background-color: white !important;
+}
+
+/* Store Selection Styles */
+.store-selection-item {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.store-selection-item:hover {
+  background-color: #f8f9fa;
+}
+
+.store-selection-item.active {
+  background-color: #168FC3;
+  border-color: #168FC3;
+  color: white !important;
+}
+
+.store-selection-item.active p.store-name {
+  color: white !important;
+}
+
+.store-name {
+  font-weight: 600;
+  margin-bottom: 5px !important;
+}
+
+.store-details-info {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.store-details-info p {
+  margin-bottom: 5px !important;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.store-details-info p strong {
+  font-weight: 600;
+  margin-right: 5px;
 }
 </style>

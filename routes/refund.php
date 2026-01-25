@@ -5,11 +5,11 @@ use App\Http\Controllers\Seller\Addons\RefundController as SellerRefundControlle
 use App\Http\Controllers\Site\Addons\RefundController as SiteRefundController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['XSS','isInstalled'])->group(function () {
+Route::middleware(['XSS',])->group(function () {
     Route::group(
         [
             'prefix' => LaravelLocalization::setLocale(),
-            'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath','isInstalled']
+            'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath',]
         ], function () {
         Route::middleware(['adminCheck', 'loginCheck', 'XSS'])->prefix('admin')->group(function () {
 

@@ -421,12 +421,96 @@ class CartRepository implements CartInterface
         $cart_item->shipping_cost = $shipping_cost;
         $cart_item->save();
 
+        // Recalculate coupon discounts in checkouts table after cart update
+        $this->recalculateCheckoutCouponDiscounts($cart_item->trx_id);
+
         return $cart_item;
+    }
+
+    /**
+     * Recalculate coupon discounts in checkouts table based on current cart subtotal
+     * This ensures coupon_discount field stays in sync when cart quantities change
+     */
+    protected function recalculateCheckoutCouponDiscounts($trx_id)
+    {
+        if (!$trx_id) {
+            return;
+        }
+
+        // Get all active checkouts for this transaction
+        $checkouts = Checkout::where('trx_id', $trx_id)->where('status', 1)->with('coupon')->get();
+
+        foreach ($checkouts as $checkout) {
+            $coupon = $checkout->coupon;
+
+            if (!$coupon) {
+                continue;
+            }
+
+            // Get carts for this checkout (filtered by seller_id if coupon is seller-specific)
+            $carts = Cart::where('trx_id', $trx_id)
+                ->when($coupon->user_id > 1, function ($query) use ($coupon) {
+                    $query->where('seller_id', $coupon->user_id);
+                })
+                ->get();
+
+            if ($coupon->type == 'product_base' && $coupon->product_id) {
+                // Product-based coupon: only calculate discount for specific products
+                $duplicates = array_intersect($coupon->product_id, $carts->pluck('product_id')->toArray());
+                $checkout_carts = $carts->whereIn('product_id', $duplicates);
+
+                $total_coupon_discount = 0;
+                foreach ($checkout_carts as $cart) {
+                    $amount = $this->calculateDiscount($coupon, ($cart->price * $cart->quantity));
+                    $total_coupon_discount += $amount;
+
+                    // Update cart's coupon_discount field
+                    $cart->coupon_discount = $amount;
+                    $cart->coupon_applied = 1;
+                    $cart->save();
+                }
+
+                // Update checkout coupon_discount
+                $checkout->coupon_discount = round($total_coupon_discount, 2);
+                $checkout->save();
+
+            } else {
+                // Cart-wide coupon: calculate discount based on total subtotal
+                $sub_total = 0;
+                foreach ($carts as $cart) {
+                    $sub_total += $cart->price * $cart->quantity;
+
+                    // Reset cart coupon_discount flags
+                    $cart->coupon_applied = 1;
+                    $cart->coupon_discount = 0;
+                    $cart->save();
+                }
+
+                // Calculate discount amount
+                $discount_amount = $this->calculateDiscount($coupon, $sub_total);
+                $max_discount = $coupon->maximum_discount;
+                $coupon_discount = min($discount_amount, $max_discount);
+
+                // Update checkout coupon_discount
+                $checkout->coupon_discount = round($coupon_discount, 2);
+                $checkout->save();
+            }
+        }
     }
 
     public function removeFromCart($id): bool
     {
-        return Cart::destroy($id);
+        $cart = Cart::find($id);
+        $trx_id = $cart ? $cart->trx_id : null;
+
+        $result = Cart::destroy($id);
+
+        // Recalculate coupon discounts after cart item is removed
+        if ($result && $trx_id) {
+            $this->recalculateCheckoutCouponDiscounts($trx_id);
+        }
+
+        return $result;
     }
 
     public function userCart($take = null)
@@ -833,17 +917,52 @@ class CartRepository implements CartInterface
         $shipping_repo  = new ShippingRepository();
         $city           = $shipping_repo->getCity($data['city_id']);
         $cost           = 0;
+        $deliveryMethod = $data["deliveryMethod"] ?? "Standard";
 
         if ($city) {
-            switch ($data["deliveryMethod"] ?? "") {
+            // Validate Express Delivery - only available in Dhaka district
+            if ($deliveryMethod === "Express Delivery") {
+                // Check if the city/state is in Dhaka district
+                // Assuming Dhaka district has a specific state_id or name
+                $dhakaStateId = 3045; // You may need to adjust this based on your database
+                $isDhakaDistrict = ($city->state_id == $dhakaStateId ||
+                                   stripos($city->state->name ?? '', 'Dhaka') !== false ||
+                                   stripos($city->name ?? '', 'Dhaka') !== false);
+
+                if (!$isDhakaDistrict) {
+                    // Express delivery is not available for non-Dhaka districts
+                    // Return error or fall back to standard delivery
+                    return [
+                        'error' => 'Express delivery is only available in Dhaka district',
+                        'shipping_cost' => 0
+                    ];
+                }
+            }
+
+            switch ($deliveryMethod) {
                 case "Pick from Store":
-                    $cost = $city->pickup_store_cost;
+                    $cost = $city->pickup_store_cost ?? 0;
                     break;
                 case "Express Delivery":
-                    $cost = $city->express_delivery_cost;
+                    $cost = $city->express_delivery_cost ?? 0;
                     break;
                 default:
-                    $cost = $city->cost;
+                    // Standard delivery
+                    $cost = $city->cost ?? 0;
+
+                    // Check if all products have free shipping
+                    $allFreeShipping = true;
+                    foreach ($carts as $cart) {
+                        if (!$cart->product->free_shipping) {
+                            $allFreeShipping = false;
+                            break;
+                        }
+                    }
+
+                    // If all products have free shipping, no delivery charge for standard
+                    if ($allFreeShipping) {
+                        $cost = 0;
+                    }
                     break;
             }
         }

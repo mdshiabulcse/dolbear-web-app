@@ -39,7 +39,7 @@ export default {
         if (segment === 'product') {
           if (this.slug) {
             return {
-              name: this.slug,
+              name: this.formatSegment(this.slug),
               path: `/category/${this.convertToSlug(this.slug)}`,
             };
           }
@@ -47,13 +47,13 @@ export default {
 
         if (segment === 'category' ) {
           return {
-            name: segment,
+            name: this.formatSegment(segment),
             path: '/categories',
           };
         }
         if (segment === 'brand') {
           return {
-            name: segment,
+            name: this.formatSegment(segment),
             path: '/products',
           };
         }
@@ -66,7 +66,7 @@ export default {
 
       // Add "Home" as the first breadcrumb
       return [
-        { name: "Home", path: "/" },
+        { name: this.formatSegment("home"), path: "/" },
         ...breadcrumbs,
       ];
     },

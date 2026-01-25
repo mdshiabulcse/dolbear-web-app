@@ -37,7 +37,7 @@ Route::get('cache-clear', [HomeController::class, 'cacheClear'])->name('cache.cl
 Route::get('get-database', [HomeController::class, 'getDb'])->name('get.database');
 
 Route::post('password-check', [HomeController::class, 'passwordVerify'])->name('password.check');
-Route::middleware(['XSS', 'isInstalled'])->group(function () {
+Route::middleware(['XSS'])->group(function () {
     Route::get('settings-data', [HomeController::class, 'defaultAssets']);
     Route::get('viewed-products', [HomeController::class, 'viewedProducts']);
     Route::get('/assets', [HomeController::class, 'index'])->name('index');

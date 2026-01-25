@@ -104,6 +104,15 @@ class UserController extends Controller
             }
 
             $otp = rand(10000, 99999);
+
+            // Developer: Log OTP before sending SMS
+            \Log::info('🔔 DEVELOPER OTP GENERATED', [
+                'phone' => $phone,
+                'otp' => $otp,
+                'purpose' => 'password_reset',
+                'valid_for_minutes' => 5
+            ]);
+
             $smsService = new ElitbuzzSmsService();
             $sent = $smsService->resetPassword($phone, [
                 'otp'  => $otp,

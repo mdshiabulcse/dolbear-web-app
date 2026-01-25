@@ -1,6 +1,6 @@
 <?php
 
-$path = env('APP_URL').'/public';
+$path = env('APP_URL');
 return [
     'name' => env('APP_NAME', 'Yoori PWA'),
     'manifest' => [

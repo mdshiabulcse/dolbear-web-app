@@ -11,6 +11,7 @@ use App\Traits\ApiReturnFormatTrait;
 use App\Traits\ImageTrait;
 use App\Traits\SendMailTrait;
 use App\Traits\SmsSenderTrait;
+use App\Services\ElitbuzzSmsService;
 use App\Utility\AppSettingUtility;
 use Carbon\Carbon;
 use Cartalyst\Sentinel\Checkpoints\NotActivatedException;
@@ -27,6 +28,13 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class AuthController extends Controller
 {
     use ApiReturnFormatTrait,SmsSenderTrait,ImageTrait,SendMailTrait;
+
+    protected $elitbuzzSmsService;
+
+    public function __construct(ElitbuzzSmsService $elitbuzzSmsService)
+    {
+        $this->elitbuzzSmsService = $elitbuzzSmsService;
+    }
 
     public function login(Request $request): \Illuminate\Http\JsonResponse
     {
@@ -88,9 +96,17 @@ class AuthController extends Controller
             $data['phone']          = nullCheck($user->phone);
             $data['email']          = nullCheck($user->email);
             $data['socials']        = $user->socials == null ? [] : $user->socials;
+            $data['user_type']      = $user->user_type;
+            $data['status']         = $user->status;
+
             Cart::where('user_id', getWalkInCustomer()->id)->where('trx_id',$request->trx_id)->update(['user_id' => $user->id]);
 
-            return $this->responseWithSuccess(__('Login Successfully'),$data,200);
+            $response['user']       = $data;
+            $response['carts']      = Cart::where('user_id', $user->id)->where('is_ordered', 0)->get();
+            $response['wishlists']  = 0;
+            $response['compare_list'] = 0;
+
+            return $this->responseWithSuccess(__('Login Successfully'), $response, 200);
 
         } catch (\Exception $e){
             return $this->responseWithError($e->getMessage(),[],500);
@@ -162,15 +178,25 @@ class AuthController extends Controller
             RegistrationRequest::where('phone',$request->phone)->delete();
 
             $otp = rand(10000, 99999);
+
+            // Developer: Log OTP before sending SMS
+            \Log::info('🔔 DEVELOPER OTP GENERATED', [
+                'phone' => $request->phone,
+                'otp' => $otp,
+                'purpose' => 'registration',
+                'valid_for_minutes' => 5
+            ]);
+
             if ($request->phone && addon_is_activated('otp_system')):
-                $sms_templates  = AppSettingUtility::smsTemplates();
-                $sms_template   = $sms_templates->where('tab_key','signup')->first();
-                $sms_body       = str_replace('{otp}', $otp, @$sms_template->sms_body);
-                if (!$this->send($request->phone, $sms_body, $sms_template->template_id)):
+                // Use ElitbuzzSmsService directly for more reliable OTP sending
+                $smsService = new \App\Services\ElitbuzzSmsService();
+                $sent = $smsService->registration($request->phone, ['otp' => $otp]);
+
+                if (!$sent) {
                     return response()->json([
                         'error' => __('Unable to send otp')
                     ]);
-                endif;
+                }
             endif;
             $request['otp'] = $otp;
             RegistrationRequest::create($request->all());
@@ -391,12 +417,20 @@ class AuthController extends Controller
             $data['token']          = $token;
             $data['first_name']     = $user->first_name;
             $data['last_name']      = $user->last_name;
+            $data['id']             = $user->id;
             $data['image']          = $user->profile_image;
             $data['phone']          = nullCheck($user->phone);
             $data['email']          = nullCheck($user->email);
-            $data['socials']        = $user->socials;
+            $data['socials']        = $user->socials == null ? [] : $user->socials;
+            $data['user_type']      = $user->user_type;
+            $data['status']         = $user->status;
 
-            return $this->responseWithSuccess(__('Login Successfully'),$data,200);
+            $response['user']       = $data;
+            $response['carts']      = Cart::where('user_id', $user->id)->where('is_ordered', 0)->get();
+            $response['wishlists']  = 0;
+            $response['compare_list'] = 0;
+
+            return $this->responseWithSuccess(__('Login Successfully'), $response, 200);
 
         } catch (\Exception $e){
             return $this->responseWithError($e->getMessage(),[],500);
@@ -579,13 +613,22 @@ class AuthController extends Controller
             $data['token']          = $token;
             $data['first_name']     = $user->first_name;
             $data['last_name']      = $user->last_name;
+            $data['id']             = $user->id;
             $data['image']          = $user->profile_image;
             $data['phone']          = nullCheck($user->phone);
             $data['email']          = nullCheck($user->email);
-            $data['socials']        = $user->socials;
+            $data['socials']        = $user->socials == null ? [] : $user->socials;
+            $data['user_type']      = $user->user_type;
+            $data['status']         = $user->status;
+
             Cart::where('user_id', getWalkInCustomer()->id)->where('trx_id',$request->trx_id)->update(['user_id' => $user->id]);
 
-            return $this->responseWithSuccess(__('Login Successfully'),$data,200);
+            $response['user']       = $data;
+            $response['carts']      = Cart::where('user_id', $user->id)->where('is_ordered', 0)->get();
+            $response['wishlists']  = 0;
+            $response['compare_list'] = 0;
+
+            return $this->responseWithSuccess(__('Login Successfully'), $response, 200);
         } catch (\Exception $e) {
             return $this->responseWithError($e->getMessage(),[],500);
         }

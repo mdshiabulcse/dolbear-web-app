@@ -2,15 +2,15 @@
     <div class="container">
         <div class=" d-none d-md-flex gap-2">
             <button v-for="(tab, index) in tabs" :key="index"
-                :class="['product-specification-btn', { active: activeTab === index }]" @click="activeTab = index">
+                :class="['product-specification-btn', { active: activeTab === index }]" @click="scrollToSection(index)">
                 {{ tab.name }}
             </button>
         </div>
 
         <div class="product-specification-content">
-            <div v-for="(tab, index) in tabs" :key="index" class="content mt-3">
+            <div v-for="(tab, index) in tabs" :key="index" class="content mt-3" :id="'section-' + index">
                 <button :key="index" :class="['product-specification-btn content-btn', { active: activeTab === index }]"
-                    @click="activeTab = index">
+                    @click="scrollToSection(index)">
                     {{ tab.name }}
                 </button>
 
@@ -436,6 +436,15 @@ export default {
 
     },
     methods: {
+        scrollToSection(index) {
+            this.activeTab = index;
+            this.$nextTick(() => {
+                const element = document.getElementById('section-' + index);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        },
         fetchReviews() {
 
           if (this.reviews.data.length == 0) {

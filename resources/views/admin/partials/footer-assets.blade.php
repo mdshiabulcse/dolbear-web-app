@@ -35,6 +35,7 @@
 {!! Toastr::message() !!}
 <script src="{{ static_asset('admin/js/page/jquery.selectric.min.js') }}"></script>
 <script src="{{ static_asset('admin/js/select2.min.js') }}"></script>
+<script src="{{ static_asset('admin/js/dropzone.min.js') }}"></script>
 @stack('page-script')
 <script src="{{ static_asset('admin/js/custom.js') }}?version={{ settingHelper('current_version') }}"></script>
 <script src="{{ static_asset('admin/js/media.js') }}"></script>

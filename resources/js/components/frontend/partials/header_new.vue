@@ -34,11 +34,11 @@
               </div>
             </div>
 
-            <a :href="`tel:${settings.footer_contact_phone}`">
+            <a :href="`tel:${cleanContactPhone}`">
               <img :src="`${baseUrl}/images/img/icon/phone-call.png`" alt="logo">
             </a>
 
-            <router-link :to="{ name: 'home' }">
+            <router-link :to="{ name: 'offers' }">
               <img :src="`${baseUrl}/images/img/icon/gift.png`" alt="logo">
             </router-link>
             <router-link :to="{ name: 'TrackOrderNew' }">
@@ -96,9 +96,9 @@
       </div>
       <div class="offcanvas-footer">
 
-        <p>Sub Total: {{ subTotal }}৳ </p>
+        <p>Sub Total: {{ subTotal }}৳</p>
         <span></span>
-        <p>Total: {{ total }}৳ </p>
+        <p>Total: {{ total }}৳</p>
 
         <!-- <button class="view-cart col-6" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
           aria-controls="offcanvasRight">
@@ -442,6 +442,38 @@ export default {
     compareList() {
       return this.$store.getters.getCompareList;
     },
+    cleanContactPhone() {
+      // Extract first valid phone number from settings.header_contact_phone
+      // Handles cases where multiple phone numbers might be concatenated
+      if (!this.settings.header_contact_phone) return '';
+
+      const phone = this.settings.header_contact_phone.toString().trim();
+
+      // If the phone number is unusually long (concatenated numbers), extract the first valid BD number
+      // BD phone numbers are typically 11-14 digits (with +880 prefix)
+      if (phone.length > 15) {
+        // Try to extract a valid BD phone number pattern
+        // Look for +880 followed by 10 digits, or 0 followed by 10 digits
+        const bdPhonePattern = /(\+?880)?1[3-9]\d{8}/;
+        const match = phone.match(bdPhonePattern);
+
+        if (match) {
+          return match[0];
+        }
+
+        // If no BD pattern found, extract first 11-14 digits
+        const digitsOnly = phone.replace(/\D/g, '');
+        if (digitsOnly.length >= 11) {
+          // Take first 13 digits (typical BD format: 880 + 11 digits)
+          return digitsOnly.substring(0, 13);
+        }
+
+        // Fallback: return first 11 digits
+        return digitsOnly.substring(0, 11);
+      }
+
+      return phone;
+    },
   },
   methods: {
 
@@ -781,6 +813,11 @@ export default {
         return this.$router.push({ name: "checkout", query: { cart_page: 1 } });
       }
       return true;
+    },
+    formatPhoneNumber(phoneNumber) {
+      if (!phoneNumber) return '';
+      // Remove all non-numeric characters except +
+      return phoneNumber.replace(/[^0-9+]/g, '');
     },
   },
 };

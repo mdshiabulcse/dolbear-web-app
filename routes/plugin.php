@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Plugin\PluginController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
-Route::middleware(['XSS', 'isInstalled'])->group(function () {
+Route::middleware(['XSS', ])->group(function () {
     Route::group(
         [
             'prefix' => LaravelLocalization::setLocale(),

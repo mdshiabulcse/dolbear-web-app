@@ -5,11 +5,11 @@ use App\Http\Controllers\Admin\Addons\PosSystemController;
 use App\Http\Controllers\Site\AddressController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['XSS', 'isInstalled'])->group(function () {
+Route::middleware(['XSS', ])->group(function () {
     Route::group(
         [
             'prefix' => LaravelLocalization::setLocale(),
-            'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath', 'isInstalled']
+            'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath', ]
         ], function () {
 
         Route::middleware(['AdminSellerCheck','loginCheck'])->prefix('admin/pos')->group(function () {

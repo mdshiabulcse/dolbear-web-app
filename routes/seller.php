@@ -25,7 +25,7 @@ use App\Http\Controllers\Seller\PayoutController;
 use App\Http\Controllers\Seller\WalletController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['XSS','isInstalled'])->group(function () {
+Route::middleware(['XSS'])->group(function () {
     Route::group(
         [
             'prefix' => LaravelLocalization::setLocale(),

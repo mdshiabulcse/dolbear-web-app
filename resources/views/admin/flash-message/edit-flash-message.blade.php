@@ -65,20 +65,38 @@
                                     </div>
                                 </div>
 
+                                <div class="form-group row mb-4">
+                                    <label class="col-form-label text-md-right col-12 col-md-3 col-lg-3" for="rating">Rating</label>
+                                    <div class="col-sm-12 col-md-7">
+                                        <select class="form-control select2" name="rating" id="rating">
+                                            <option value="5" {{ (old('rating') ? old('rating') : $message->rating) == 5 ? 'selected' : '' }}>5 Stars - Excellent</option>
+                                            <option value="4" {{ (old('rating') ? old('rating') : $message->rating) == 4 ? 'selected' : '' }}>4 Stars - Very Good</option>
+                                            <option value="3" {{ (old('rating') ? old('rating') : $message->rating) == 3 ? 'selected' : '' }}>3 Stars - Good</option>
+                                            <option value="2" {{ (old('rating') ? old('rating') : $message->rating) == 2 ? 'selected' : '' }}>2 Stars - Fair</option>
+                                            <option value="1" {{ (old('rating') ? old('rating') : $message->rating) == 1 ? 'selected' : '' }}>1 Star - Poor</option>
+                                        </select>
+                                        @if ($errors->has('rating'))
+                                            <div class="invalid-feedback">
+                                                <p>{{ $errors->first('rating') }}</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+
                                 <div class="form-group row">
                                     <label class="col-form-label text-md-right col-12 col-md-3 col-lg-3" for="zone">Status</label>
                                     <div class="col-sm-12 col-md-7">
                                         <select class="form-control select2" name="status" id="status">
-                                            <option selected value="1">Active</option>
-                                            <option value="0">Inactive</option>
+                                            <option value="1" {{ (old('status') ? old('status') : $message->status) == 1 ? 'selected' : '' }}>Active</option>
+                                            <option value="0" {{ (old('status') ? old('status') : $message->status) == 0 ? 'selected' : '' }}>Inactive</option>
                                         </select>
-    
+
                                         @if ($errors->has('status'))
                                             <div class="invalid-feedback">
                                                 <p>{{ $errors->first('status') }}</p>
                                             </div>
                                         @endif
-                                    </div>              
+                                    </div>
                                 </div>
                                 
                                

@@ -33,8 +33,11 @@ class SubscriberRepository implements SubscriberInterface
 
         DB::beginTransaction();
         try {
+            // Check if $request is a string (email) or an object
+            $email = is_string($request) ? $request : $request->email;
+
             $subscriber = new Subscriber();
-            $subscriber->email        = $request->email;
+            $subscriber->email = $email;
             $subscriber->save();
 
             DB::commit();

@@ -155,23 +155,29 @@ document.addEventListener("DOMContentLoaded", function () {
   const quantityInput = document.querySelector(
     ".cart-item-details-btn-quantity"
   );
-  quantityInput.value = "0"; // Set the initial value
+  if (quantityInput) {
+    quantityInput.value = "0"; // Set the initial value
 
-  const minusButton = document.querySelector(".minus");
-  minusButton.addEventListener("click", () => {
-    let currentQuantity = parseInt(quantityInput.value);
-    if (currentQuantity > 0) {
-      currentQuantity--;
-      quantityInput.value = currentQuantity;
+    const minusButton = document.querySelector(".minus");
+    if (minusButton) {
+      minusButton.addEventListener("click", () => {
+        let currentQuantity = parseInt(quantityInput.value);
+        if (currentQuantity > 0) {
+          currentQuantity--;
+          quantityInput.value = currentQuantity;
+        }
+      });
     }
-  });
 
-  const plusButton = document.querySelector(".plus");
-  plusButton.addEventListener("click", () => {
-    let currentQuantity = parseInt(quantityInput.value);
-    currentQuantity++;
-    quantityInput.value = currentQuantity;
-  });
+    const plusButton = document.querySelector(".plus");
+    if (plusButton) {
+      plusButton.addEventListener("click", () => {
+        let currentQuantity = parseInt(quantityInput.value);
+        currentQuantity++;
+        quantityInput.value = currentQuantity;
+      });
+    }
+  }
 });
 
 // mobile search

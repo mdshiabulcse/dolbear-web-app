@@ -26,6 +26,7 @@ class FlashMessageRequest extends FormRequest
         return [
             'name' => 'required',
             'description' => 'required',
+            'rating' => 'nullable|integer|min:1|max:5',
             'status' => 'nullable',
         ];
     }

@@ -40,6 +40,7 @@ From Fan Messages
                                         <th>{{__('#')}}</th>
                                         <th>Name</th>
                                         <th>Description</th>
+                                        <th>Rating</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -50,6 +51,16 @@ From Fan Messages
                                             <td>{{ $flashMessage->firstItem() + $key }}</td>
                                             <td>{{ $item->name }}</td>
                                             <td title="{{ $item->description }}">{{ \Illuminate\Support\Str::limit($item->description, 30, '...') }}</td>
+                                            <td>
+                                                @for($i = 1; $i <= 5; $i++)
+                                                    @if($i <= $item->rating)
+                                                        <i class="bx bxs-star text-warning"></i>
+                                                    @else
+                                                        <i class="bx bx-star text-muted"></i>
+                                                    @endif
+                                                @endfor
+                                                <span class="ml-1">{{ $item->rating }}/5</span>
+                                            </td>
                                             <td>
                                                 @if ($item->status == 1)
                                                     <span class="badge badge-pill badge-success">Success</span>
@@ -71,7 +82,7 @@ From Fan Messages
                                                 data-original-title="{{ __('Permanent Delete') }}">
                                                 <i class='bx bx-trash'></i>
                                             </a></td>
-                                            
+
                                         </tr>
 
                                     @endforeach

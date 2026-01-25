@@ -22,14 +22,15 @@ class FlashMessageRepository implements FlashMessageInterface
             $flashMessage->name = $request->name;
             $flashMessage->status = $request->status;
             $flashMessage->description = $request->description;
+            $flashMessage->rating = $request->rating ?? 5;
 
             $flashMessage->save();
-        
+
             return true;
         } catch (\Exception $e) {
-            
+
             Log::error($e->getMessage());
-        
+
         }
     }
 
@@ -46,13 +47,14 @@ class FlashMessageRepository implements FlashMessageInterface
     public function update($request)
     {
         $data = FlashMessage::find($request->id);
-    
+
         $data->name = $request->name;
         $data->status = $request->status;
         $data->description = $request->description;
-    
+        $data->rating = $request->rating ?? 5;
+
         $data->save();
-    
+
         return true;
     }
 

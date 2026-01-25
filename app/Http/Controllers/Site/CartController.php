@@ -32,7 +32,7 @@ class CartController extends Controller
             $carts = $this->cart->all()->where('is_buy_now',0);
         }
 
-        $hasFreeShipping = $carts->contains(function ($cartItem) {
+        $hasFreeShipping = $carts->every(function ($cartItem) {
             return isset($cartItem->product) && $cartItem->product->free_shipping == 1;
         });
 
@@ -173,8 +173,15 @@ class CartController extends Controller
     {
         try {
             $carts = $this->cart->all();
+            $result = $this->cart->shippingCostFind($carts, $request->all());
+
+            // Check if result contains an error (for express delivery validation)
+            if (is_array($result) && isset($result['error'])) {
+                return response()->json($result);
+            }
+
             $response = [
-                'shipping_cost' => $this->cart->shippingCostFind($carts, $request->all())
+                'shipping_cost' => $result
             ];
             return response()->json($response);
         } catch (\Exception $e) {

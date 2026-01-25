@@ -71,6 +71,11 @@ class OrderRepository implements OrderInterface
                 $q->where('erp_code', $id)
                     ->whereNotNull('erp_code');
             })
+            ->orWhere(function ($q) use ($id) {
+                // Search by code field (with or without # prefix)
+                $q->where('code', $id)
+                    ->orWhere('code', '#' . $id);
+            })
             ->first();
     }
 
@@ -753,14 +758,14 @@ class OrderRepository implements OrderInterface
                     'shipping_address' => $billing_address,
                     'payment_type' => $data['payment_form']['payment_method'],
                     'delivery_method' => $data['deliveryMethod'],
-                    'sub_total' => $sub_total,
-                    'discount' => $total_discount,
-                    'coupon_discount' => $coupon_discount,
+                    'sub_total' => round($sub_total, 2),
+                    'discount' => round($total_discount, 2),
+                    'coupon_discount' => round($coupon_discount, 2),
                     'coupon_codes' => $coupon_codes,
-                    'total_tax' => $total_tax,
-                    'total_amount' => $total_amount,
-                    'shipping_cost' => $shipping_cost,
-                    'total_payable' => $total_payable,
+                    'total_tax' => round($total_tax, 2),
+                    'total_amount' => round($total_amount, 2),
+                    'shipping_cost' => round($shipping_cost, 2),
+                    'total_payable' => round($total_payable, 2),
                     'code' => settingHelper('order_prefix') . '-' . $this->generate_random_string(10, 'number'),
                     'trx_id' => $carts->first()->trx_id,
                     'store_id' => array_key_exists('store_id', $data) && !empty($data['store_id']) ? $data['store_id'] : null,

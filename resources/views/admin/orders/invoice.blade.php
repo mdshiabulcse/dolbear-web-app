@@ -325,7 +325,7 @@ body {
 
             <tr>
                 <td colspan="5" class="thankyou_container">
-                    <div class="fs-1 " style="margin-bottom: 5px">Thanks for using dolbear.tech!</div>
+                    <div class="fs-1 " style="margin-bottom: 5px">Thanks for using dolbear.com.bd!</div>
                     <div class="fs-1" style="color: rgba(128, 128, 128, 0.25); ">Think Tech, Think Dolbear</div>
 
                 </td>

@@ -25,9 +25,13 @@
                 <div  class="product-offer-text">{{ product.special_discount_type == "flat" ? priceFormat(product.special_discount_check) + " " +
                     lang.off : product.special_discount_check + "% " + lang.off }}</div>
             </div>
-            <div class="d-flex justify-content-center gap-2">
-                <button class="product-button outline" @click="addToCart()">Add List</button>
-                <button class="product-button primary" @click="openDirectBuyModal()">Buy Now</button>
+            <div class="product-button-group">
+                <button class="product-button outline" @click="addToCart()">
+                    <span class="btn-text">Add to Cart</span>
+                </button>
+                <button class="product-button primary" @click="openDirectBuyModal()">
+                    <span class="btn-text">Buy Now</span>
+                </button>
             </div>
         </div>
 
@@ -256,12 +260,40 @@ export default {
     transform: translateY(-50%);
 }
 
+.product-button-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+
 button.product-button {
-    padding: 4px 26px;
+    padding: 6px 16px;
     border-radius: 21px;
     font-size: 13px;
     background: none;
     font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
+    max-width: 48%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+button.product-button .btn-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
 }
 
 button.product-button:hover {
@@ -335,11 +367,13 @@ button.product-button:hover {
         justify-content: center !important;
     }
 
+    .product-button-group {
+        gap: 6px;
+    }
+
     button.product-button {
-        padding: 3px 8px;
-        border: 1px solid #1BADEB;
-        border-radius: 18px;
-        font-size: 14px;
+        padding: 5px 12px;
+        font-size: 12px;
     }
 
 }
@@ -371,11 +405,13 @@ button.product-button:hover {
         justify-content: center !important;
     }
 
+    .product-button-group {
+        gap: 5px;
+    }
+
     button.product-button {
-        padding: 3px 8px;
-        border: 1px solid #1BADEB;
-        border-radius: 18px;
-        font-size: 13px;
+        padding: 4px 10px;
+        font-size: 11px;
     }
 
     .product-card-title {
@@ -411,10 +447,12 @@ button.product-button:hover {
         justify-content: center !important;
     }
 
+    .product-button-group {
+        gap: 4px;
+    }
+
     button.product-button {
-        padding: 3px 8px;
-        border: 1px solid #1BADEB;
-        border-radius: 18px;
+        padding: 4px 8px;
         font-size: 10px;
     }
 
@@ -471,11 +509,13 @@ button.product-button:hover {
         justify-content: center !important;
     }
 
+    .product-button-group {
+        gap: 4px;
+    }
+
     button.product-button {
-        padding: 3px 8px;
-        border: 1px solid #1BADEB;
-        border-radius: 18px;
-        font-size: 10px;
+        padding: 3px 6px;
+        font-size: 9px;
     }
 
     .product-card-title {
@@ -512,13 +552,15 @@ button.product-button:hover {
         justify-content: center !important;
     }
 
+    .product-button-group {
+        gap: 3px;
+    }
+
     button.product-button {
-        padding: 3px 8px;
-        border: 1px solid #1BADEB;
-        border-radius: 18px;
+        padding: 3px 5px;
         font-size: 8px;
     }
- 
+
 }
 
 @media only screen and (min-width: 300px) and (max-width: 359px) {
@@ -545,11 +587,14 @@ button.product-button:hover {
     display: flex !important ;
     justify-content: center !important;
 }
+
+.product-button-group {
+    gap: 2px;
+}
+
 button.product-button {
-    padding: 3px 8px;
-    border: 1px solid #1BADEB;
-    border-radius: 18px;
-    font-size: 8px;
+    padding: 2px 4px;
+    font-size: 7px;
 }
 }
 

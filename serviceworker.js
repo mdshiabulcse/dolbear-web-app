@@ -18,7 +18,14 @@ self.addEventListener("install", event => {
     event.waitUntil(
         caches.open(staticCacheName)
             .then(cache => {
-                return cache.addAll(filesToCache);
+                return cache.addAll(filesToCache.map(url => {
+                    // Add request with error handling
+                    return new Request(url, { cache: 'reload' });
+                })).catch(error => {
+                    console.log('Service Worker: Cache addAll failed', error);
+                    // Continue even if some files fail to cache
+                    return Promise.resolve();
+                });
             })
     )
 });

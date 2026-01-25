@@ -126,7 +126,7 @@
 
         <h4 v-if="productDetails?.warrenty" style="text-transform: capitalize;">{{ productDetails?.warrenty }} Official Warranty. </h4>
 
-        <button class="product-details-card-button buy-now">Free Delivery</button>
+        <button v-if="productDetails?.free_shipping" class="product-details-card-button buy-now">Free Delivery</button>
 
         <div class="price-section d-flex mt-3">
           <span class="space"></span>
@@ -163,7 +163,7 @@
             </div>
             <button class="product-details-card-button add-cart ms-2"
               @click="addToCart(productDetails.minimum_order_quantity)">
-              Add Cart
+              Add to Cart
             </button>
             <button @click="openDirectBuyModal(productDetails)" class="product-details-card-button buy-now">Buy Now</button>
           </div>

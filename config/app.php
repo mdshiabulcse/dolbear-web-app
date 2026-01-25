@@ -50,7 +50,7 @@ return [
 
     'debug' => (bool) env('APP_DEBUG', false),
 
-    'app_installed' => (bool) env('APP_INSTALLED', false),
+    'app_installed' => true,
 
     'demo_mode' => (bool) env('DEMO_MODE', false),
 

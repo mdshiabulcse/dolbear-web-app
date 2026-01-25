@@ -9,18 +9,7 @@
 
 @section('main-content')
     <section class="section">
-        @if(settingHelper('purchase_code') == '' && !config('app.demo_mode'))
-            <div class="row">
-                <div class="col-md-12 text-left">
-                    <div class="alert alert-danger">
-                        <p class="font-medium bold">Please update your purchase code here <a
-                                    href="{{ route('general.setting') }}" class="text-a">General Settings</a> to enable
-                            your dashboard</p>
-                    </div>
-                </div>
-            </div>
-        @else
-            <div class="row">
+        <div class="row">
                 <div class="col-md-3">
                     <div class="mini-stats-wid card">
                         <div class="card-body">
@@ -577,14 +566,12 @@
                     </div>
                 @endif --}}
             </div>
-        @endif
     </section>
 @endsection
 @push('page-specific')
     <script src="{{ static_asset('admin/js/jquery.blockUI.js') }}"></script>
 @endpush
-@if(settingHelper('purchase_code') != '' && !config('app.demo_mode'))
-    @push('script')
+@push('script')
         <script src="{{ static_asset('admin/js/chart.js') }}"></script>
         <script>
             jQuery(function ($) {
@@ -900,4 +887,3 @@
             });
         </script>
     @endpush
-@endif

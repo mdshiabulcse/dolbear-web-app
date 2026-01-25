@@ -77,8 +77,8 @@ class MediaRepository implements MediaInterface
             return $response;
         } catch (\Exception $e){
             DB::rollback();
-
-            return false;
+            \Log::error('Media upload error: ' . $e->getMessage());
+            return $e->getMessage();
         }
     }
 

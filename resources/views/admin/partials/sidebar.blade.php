@@ -531,11 +531,11 @@
                                 </li>
                             @endif
                         @endif
-                        <!-- @if (hasPermission('subscriber_read')) -->
+                        @if (hasPermission('subscriber_read'))
                             <li class="@yield('subscriber')"><a class="nav-link"
                                     href="{{ route('subscribers') }}">{{ __('Subscriber') }}</a>
                             </li>
-                        <!-- @endif -->
+                        @endif
                         @if (settingHelper('coupon_system') == 1)
                             @if (hasPermission('coupon_read'))
                                 <li class="@yield('coupon')"><a class="nav-link"

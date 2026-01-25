@@ -112,7 +112,13 @@ class MediaController extends Controller
             $type = get_yrsetting('supported_mimes');
             $extension = strtolower($request->file('file')->getClientOriginalExtension());
             $name = strtolower($request->file('file')->getClientOriginalName());
+
+            if (!isset($type[$extension])) {
+                return response()->json(__('File type not supported: ') . $extension, 500);
+            }
+
             $response = $this->medias->store($request->file('file'), ($type[$extension]));
+
             if ($response === false) {
                 return response()->json(__('Unable to upload' . ' ' . $name), 500);
             } elseif ($response === 's3_error') {
@@ -121,9 +127,13 @@ class MediaController extends Controller
                 } else {
                     return response()->json(__('Unable to upload to S3, check your configuration'), 500);
                 }
+            } elseif (is_string($response) && $response !== 's3_error') {
+                return response()->json(__('Upload error: ') . $response, 500);
             }
+
             return true;
         } catch (\Exception $e) {
+            \Log::error('MediaController store error: ' . $e->getMessage());
             return response()->json($e->getMessage(), 500);
         }
     }
