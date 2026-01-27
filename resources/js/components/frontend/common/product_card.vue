@@ -209,8 +209,7 @@ export default {
     background: #FFFFFF;
     text-align: center;
     padding: 11px;
-    min-width: 258px;
-    min-width: 258px;
+    width: 100%;
 }
 
 .product-card-title {
@@ -426,18 +425,25 @@ button.product-button:hover {
     }
 
     .product-card {
-        max-width: 198px !important;
-        min-width: 198px !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
         height: 340px !important;
+        padding: 6px;
+    }
+
+    .product-card img {
+        height: 140px;
     }
 
     .product-card p{
-        margin-top: 20px;
+        margin-top: 12px;
+        margin-bottom: 8px;
         font-size: 11px;
         font-weight: 400;
         width: 100% !important;
-        height: 44px;
+        height: 40px;
         overflow: hidden;
+        line-height: 1.3;
     }
 
     .product-card .price {
@@ -445,15 +451,19 @@ button.product-button:hover {
         font-weight: 500;
         display: flex !important ;
         justify-content: center !important;
+        margin-bottom: 8px;
     }
 
     .product-button-group {
         gap: 4px;
+        margin-top: 8px;
     }
 
     button.product-button {
-        padding: 4px 8px;
+        padding: 8px 8px;
         font-size: 10px;
+        min-height: 32px;
+        line-height: 1.2;
     }
 
     .product-card-title {
@@ -461,7 +471,7 @@ button.product-button:hover {
     }
     .product-offer{
     display: block;
-    padding: 3px 10px;
+    padding: 3px 8px;
     font-weight: 500;
     border-radius: 3px;
     height: auto;
@@ -488,34 +498,45 @@ button.product-button:hover {
     }
 
     .product-card {
-        max-width: 174px !important;
-        min-width: 174px !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
         height: 340px !important;
+        padding: 5px;
+    }
+
+    .product-card img {
+        height: 135px;
     }
 
     .product-card p{
-        margin-top: 20px;
-        font-size: 11px;
+        margin-top: 10px;
+        margin-bottom: 6px;
+        font-size: 10px;
         font-weight: 400;
         width: 100% !important;
-        height: 44px;
+        height: 38px;
         overflow: hidden;
+        line-height: 1.3;
     }
 
     .product-card .price {
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 500;
         display: flex !important ;
         justify-content: center !important;
+        margin-bottom: 6px;
     }
 
     .product-button-group {
-        gap: 4px;
+        gap: 3px;
+        margin-top: 6px;
     }
 
     button.product-button {
-        padding: 3px 6px;
+        padding: 6px 6px;
         font-size: 9px;
+        min-height: 30px;
+        line-height: 1.1;
     }
 
     .product-card-title {
@@ -531,34 +552,45 @@ button.product-button:hover {
     }
 
     .product-card {
-        max-width: 145px !important;
-        min-width: 145px !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
         height: 340px !important;
+        padding: 4px;
+    }
+
+    .product-card img {
+        height: 130px;
     }
 
     .product-card p{
-        margin-top: 20px;
-        font-size: 10px;
+        margin-top: 8px;
+        margin-bottom: 4px;
+        font-size: 9px;
         font-weight: 400;
         width: 100% !important;
-        height: 44px;
+        height: 36px;
         overflow: hidden;
+        line-height: 1.2;
     }
 
     .product-card .price {
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 500;
         display: flex !important ;
         justify-content: center !important;
+        margin-bottom: 4px;
     }
 
     .product-button-group {
-        gap: 3px;
+        gap: 2px;
+        margin-top: 4px;
     }
 
     button.product-button {
-        padding: 3px 5px;
+        padding: 6px 4px;
         font-size: 8px;
+        min-height: 28px;
+        line-height: 1.1;
     }
 
 }
@@ -572,29 +604,39 @@ button.product-button:hover {
     max-width: 100% !important;
     min-width: 100% !important;
     height: 340px !important;
+    padding: 3px;
+}
+.product-card img {
+    height: 125px;
 }
 .product-card p{
-    margin-top: 20px;
-    font-size: 10px;
+    margin-top: 6px;
+    margin-bottom: 2px;
+    font-size: 8px;
     font-weight: 400;
     width: 100% !important;
-    height: 44px;
+    height: 32px;
     overflow: hidden;
+    line-height: 1.2;
 }
 .product-card .price {
-    font-size: 10px;
+    font-size: 8px;
     font-weight: 500;
     display: flex !important ;
     justify-content: center !important;
+    margin-bottom: 2px;
 }
 
 .product-button-group {
     gap: 2px;
+    margin-top: 2px;
 }
 
 button.product-button {
-    padding: 2px 4px;
+    padding: 5px 3px;
     font-size: 7px;
+    min-height: 26px;
+    line-height: 1.1;
 }
 }
 

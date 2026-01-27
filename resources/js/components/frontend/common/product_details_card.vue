@@ -11,8 +11,10 @@
 
             <VueSlickCarousel v-bind="slick_settings" :rtl="settings.text_direction == 'rtl'">
               <div v-for="(image, small_image_index) in productDetails.gallery.small" :key="small_image_index"
-                :class="{ active: small_image_index == current_index }" @click="activeImage(small_image_index)"
-                class="thumb-item ">
+                :class="{ active: small_image_index == current_index }"
+                class="thumb-item "
+                @click.prevent="activeImage(small_image_index)"
+                @touchend.prevent="activeImage(small_image_index)">
                 <div class="thumbnail-img">
                   <img :src="image" :alt="productDetails.product_name" />
                 </div>
@@ -126,7 +128,7 @@
 
         <h4 v-if="productDetails?.warrenty" style="text-transform: capitalize;">{{ productDetails?.warrenty }} Official Warranty. </h4>
 
-        <button v-if="productDetails?.free_shipping" class="product-details-card-button buy-now">Free Delivery</button>
+        <button v-if="productDetails?.free_shipping === 1 || productDetails?.free_shipping === true" class="product-details-card-button buy-now">Free Delivery</button>
 
         <div class="price-section d-flex mt-3">
           <span class="space"></span>
@@ -1204,7 +1206,7 @@ button.product-details-card-button.buy-now {
     flex-direction: column !important;
     width: 70px !important;
     margin-left: 10px !important;
-   
+
 
   }
 
@@ -1215,6 +1217,43 @@ button.product-details-card-button.buy-now {
   .product-image img {
     height: 265px !important;
     width: 285px !important;
+  }
+}
+
+/* Thumbnail active state styling */
+.thumb-item {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.thumb-item.active {
+  border-color: #1E6AAF;
+  box-shadow: 0 0 8px rgba(30, 106, 175, 0.5);
+}
+
+.thumb-item:hover {
+  border-color: #1E6AAF;
+  opacity: 0.8;
+}
+
+.thumb-item .thumbnail-img img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Mobile thumbnail improvements */
+@media screen and (max-width: 768px) {
+  .thumb-item {
+    margin: 0 2px;
+  }
+
+  .thumb-item.active {
+    border-width: 3px;
+    transform: scale(1.05);
   }
 }
 </style>

@@ -47,6 +47,32 @@ export default {
     }
 }
 </script>
-<style >
-    
+<style scoped>
+.row {
+    margin: 0 -8px;
+}
+
+@media screen and (max-width: 767px) {
+    .row > [class*="col-"] {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        margin-bottom: 16px !important;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .row > [class*="col-"] {
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+        margin-bottom: 12px !important;
+    }
+}
+
+@media screen and (max-width: 360px) {
+    .row > [class*="col-"] {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+        margin-bottom: 10px !important;
+    }
+}
 </style>

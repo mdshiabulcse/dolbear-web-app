@@ -124,14 +124,14 @@
       style="
         font-family: 'TypoRound', sans-serif;
         bottom: 0;
-        height: 50px;
+        height: 60px;
         background-color: black;
         width: 100%;
         z-index: 999;
-        padding: 1px 20px;
+        padding: 8px 20px 0;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
       "
     >
-
 
       <div class=" d-flex flex-column align-items-center text-center" style = "margin-top: 6px" >
         <img
@@ -147,26 +147,16 @@
 
       <div class=" d-flex flex-column align-items-center text-center" style = "margin-top: 7px" >
         <img
-          :src="getUrl('images/footer-images/bestSeller.svg')"
-          alt="visa_pay_banner"
+          :src="getUrl('images/footer-images/shop.svg')"
+          alt="shop"
           class="mb-0"
           width="16px"
             height="16px"
           @click="$router.push('/products')"
         />
-        <p>Products</p>
+        <p>Shop</p>
       </div>
-      <div class=" d-flex flex-column align-items-center text-center" style = "margin-top: 7px" >
-        <img
-          :src="getUrl('images/footer-images/storeLocation.svg')"
-          alt="visa_pay_banner"
-          class="mb-0"
-          width="16px"
-            height="16px"
-          @click="$router.push('/store')"
-        />
-        <p>Stores</p>
-      </div>
+
       <div class=" d-flex flex-column align-items-center text-center">
         <a :href="`tel:${cleanFooterPhone}`" style="color: white">
           <img

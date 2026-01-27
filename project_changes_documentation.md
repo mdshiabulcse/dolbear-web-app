@@ -3314,7 +3314,81 @@ $table->double('total_payable',20,3)->default(0.00);
 
 ---
 
-**Document Version:** 3.2
-**Last Updated:** January 25, 2026 - Session 5 (Decimal Precision & Display Formatting Fix)
+## January 27, 2026 - Session 6 (Bug Fixes & Mobile Responsive Improvements)
+
+### 1. Free Shipping Button Bug Fix
+
+**Page:** Product Details Page
+**File:** `resources/js/components/frontend/common/product_details_card.vue`
+**Line:** 131
+
+**Issue:** "Free Delivery" button was displaying for all products regardless of the `free_shipping` field value.
+
+**Solution:** Updated condition to properly check if free_shipping equals 1 (integer) or true (boolean). Changed from `v-if="productDetails?.free_shipping"` to `v-if="productDetails?.free_shipping === 1 || productDetails?.free_shipping === true"`
+
+**Impact:** Button now only shows when product actually has free shipping enabled.
+
+---
+
+### 2. Home Page Blog Section Mobile Responsive Redesign
+
+**Page:** Home Page - Blog Section
+**Files:**
+- `resources/js/components/frontend/common/blog_card.vue`
+- `resources/js/components/frontend/homepage/New/blogs.vue`
+
+**Issue:** Blog cards displayed poorly on mobile devices with fixed dimensions, large fonts, and poor text readability over background images.
+
+**Changes Made:**
+
+**blog_card.vue:**
+- Changed fixed height (321px) to flexible min-height (280px) with auto
+- Reduced font sizes progressively: 24px → 20px → 18px → 16px → 14px
+- Reduced padding progressively: 24px → 20px → 16px → 12px → 10px
+- Added gradient overlay for better text readability over images
+- Added 5 responsive breakpoints (991px, 767px, 480px, 360px)
+- Added text truncation with -webkit-line-clamp
+
+**blogs.vue:**
+- Added responsive row spacing with negative margins
+- Added mobile padding adjustments (8px, 6px, 4px)
+- Added responsive margin-bottom for blog cards
+
+**Impact:** Blog cards now display properly on all screen sizes with readable text and proper spacing.
+
+---
+
+### 3. Product Image Gallery Thumbnail Active State Fix (Mobile)
+
+**Page:** Product Details Page
+**File:** `resources/js/components/frontend/common/product_details_card.vue`
+**Lines:** 12-21 (template), 1223-1258 (styles)
+
+**Issue:** On mobile devices, clicking product image thumbnails didn't update the visual active state. The thumbnail highlight always showed the first image as selected.
+
+**Solution:**
+- Added `@touchend.prevent` event handler for mobile touch events
+- Added `@click.prevent` to ensure click events fire correctly
+- Added CSS styling for `.thumb-item.active` class with blue border (#1E6AAF) and glow effect
+- Added mobile-specific styling with scale transform (1.05) for better visibility
+
+**Impact:** Users can now clearly see which product image is selected on both desktop and mobile devices.
+
+---
+
+## Summary of Today's Changes
+
+| Issue | Page | Files Changed | Type |
+|-------|------|---------------|------|
+| Free Shipping Bug | Product Details | `product_details_card.vue` | Bug Fix |
+| Blog Mobile Responsive | Home Page | `blog_card.vue`, `blogs.vue` | UI/UX |
+| Image Gallery Mobile | Product Details | `product_details_card.vue` | Bug Fix + UI |
+
+**Build Status:** ✅ All changes compiled successfully
+
+---
+
+**Document Version:** 3.3
+**Last Updated:** January 27, 2026 - Session 6 (Bug Fixes & Mobile Responsive Improvements)
 **Status:** Active Development
 

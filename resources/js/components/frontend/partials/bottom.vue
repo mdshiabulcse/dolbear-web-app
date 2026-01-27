@@ -268,33 +268,41 @@
     </div>
     <div class="mb-bottom"></div>
 
-    <div class="footer_fixd_section d-flex text-white row position-fixed pt-3 d-sm-block d-md-none"
-      style="font-family:  'TypoRound', sans-serif; bottom: 0; height: 75px; background-color: rgba(0, 0, 0, 0.8); width: 103%; z-index: 999;">
+    <div class="footer_fixd_section d-flex justify-content-between text-white position-fixed d-sm-block d-md-none"
+      style="font-family:  'TypoRound', sans-serif; bottom: 0; height: 60px; background-color: black; width: 100%; z-index: 999; padding: 8px 20px 0; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);">
 
-      <div class="col-3 text-center">
-        <img :src="getUrl('images/footer-images/offers.svg')" alt="visa_pay_banner" class="mb-2" width="25px"
-          height="25px" @click="$router.push('/offer/products')" />
-        <p class="">Offers</p>
+      <div class="d-flex flex-column align-items-center text-center" style="margin-top: 6px">
+        <img :src="getUrl('images/footer-images/offers.svg')" alt="visa_pay_banner" class="mb-0" width="16px"
+          height="16px" @click="$router.push('/offer/products')" />
+        <p>Offers</p>
       </div>
 
-      <div class="col-3 text-center">
-        <img :src="getUrl('images/footer-images/bestSeller.svg')" alt="visa_pay_banner" class="mb-2" width="25px"
-          height="25px" @click="$router.push('/products')" />
-        <p class="">Products</p>
+      <div class="d-flex flex-column align-items-center text-center" style="margin-top: 7px">
+        <img :src="getUrl('images/footer-images/shop.svg')" alt="shop" class="mb-0" width="16px"
+          height="16px" @click="$router.push('/products')" />
+        <p>Shop</p>
       </div>
-      <div class="col-3 text-center">
-        <img :src="getUrl('images/footer-images/storeLocation.svg')" alt="visa_pay_banner" class="mb-2" width="25px"
-          height="25px" @click="$router.push('/store')" />
-        <p class="">Stores</p>
-      </div>
-      <div class="col-3 text-center">
+
+      <div class="d-flex flex-column align-items-center text-center">
         <a href="tel:+1234567890" style="color: white;">
-          <img :src="getUrl('images/footer-images/phone.svg')" alt="phone_icon" class="mb-2" width="25px"
-            height="25px" />
-          <p>Call/Text</p>
+          <img :src="getUrl('images/footer-images/phone.svg')" alt="phone_icon" class="mb-0" width="16px"
+            height="16px" />
+          <p class="mobile_navbar_text">Call/Text</p>
         </a>
       </div>
 
+      <div class="d-flex flex-column align-items-center text-center">
+        <router-link style="color: white" v-if="authUser && authUser?.user_type === 'customer'" :to="{ name: 'dashboard' }">
+          <img :src="getUrl('images/img/icon/profile.png')" alt="phone_icon" class="mb-0" width="16px"
+            height="16px" />
+          <p class="mobile_navbar_text">Account</p>
+        </router-link>
+        <router-link style="color: white" v-else :to="{ name: 'login' }">
+          <img :src="getUrl('images/img/icon/profile.png')" alt="phone_icon" class="mb-0" width="16px"
+            height="16px" />
+          <p class="mobile_navbar_text">Account</p>
+        </router-link>
+      </div>
 
     </div>
     <!-- /.footer-bottom -->

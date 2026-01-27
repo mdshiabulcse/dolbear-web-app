@@ -396,8 +396,6 @@ export default {
           review_loading: false,
           like_loading: false,
           reply_loading: false,
-          
-          productDetails: {},
 
             activeTab: 0,
             tabs: [

@@ -6,6 +6,7 @@ use App\Services\PathaoService;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Admin\PathaoCourierRequest;
@@ -102,6 +103,7 @@ class PathaoCourierController extends Controller
 
     public function updateStatus(PathaoWebhookRequest $request)
     {
+        Log::info('Pathao status update:', $request->all());
         $this->pathao->updateStatus($request);
     }
 

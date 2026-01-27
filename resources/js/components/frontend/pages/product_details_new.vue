@@ -1,16 +1,20 @@
 <template>
   <div class="container">
-    <Breadcrumb :slug="productDetails?.category_title" />
+    <Breadcrumb :slug="productDetails?.category_title || 'product'" />
     <product_details_card :productDetails="productDetails"></product_details_card>
 
     <Product_specification :productDetails="productDetails"></product_specification>
 
-    <h4 class="mb-2 mt-2">Related Products</h4>
-    <div class="d-flex flex-wrap gap-2">
-      <div v-for="product in productDetails?.related_products" :key="product.id">
-        <product_card :product="product"></product_card>
-      </div>
+    <h4 class="mb-3 mt-4 related-products-title">Related Products</h4>
+    <div class="related-products-grid" v-if="productDetails?.related_products && productDetails.related_products.length > 0">
+      <product_card
+        v-for="product in productDetails.related_products"
+        :key="product.id"
+        :product="product"
+        :maxWidth="'100%'"
+      />
     </div>
+    <p v-else class="text-muted">No related products found</p>
 
   </div>
 </template>
@@ -114,3 +118,58 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.related-products-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #1BADEB;
+  padding-bottom: 0.5rem;
+}
+
+.related-products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* Small mobile - still 2 columns */
+@media screen and (max-width: 360px) {
+  .related-products-grid {
+    gap: 0.25rem;
+  }
+}
+
+/* Tablet - 3 columns */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .related-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+/* Desktop - 4 columns */
+@media screen and (min-width: 1025px) {
+  .related-products-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* Large desktop - 5 columns */
+@media screen and (min-width: 1400px) {
+  .related-products-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+  }
+}
+
+.text-muted {
+  color: #6c757d;
+  font-style: italic;
+  padding: 2rem 0;
+}
+</style>

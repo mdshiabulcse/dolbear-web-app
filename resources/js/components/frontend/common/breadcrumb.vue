@@ -24,7 +24,7 @@ export default {
   props: {
     slug: {
       type: String,
-      required: true,
+      default: 'product',
     },
   },
   computed: {
