@@ -19,21 +19,25 @@
                              :style="{ width: cardWidth + 'px', 'margin-right': gap + 'px', flexShrink: '0' }">
 
                             <!-- ============================================ -->
-                            <!-- RATING STARS - SIMPLE SOLUTION -->
+                            <!-- RATING STARS - USING SVG ICONS -->
                             <!-- ============================================ -->
                             <div class="rating-stars">
                                 <!-- Loop 5 times for 5 stars -->
                                 <!-- star will be 1, 2, 3, 4, 5 -->
-                                <!-- getStarClass returns 'bxs-star' or 'bx-star' -->
-                                <i v-for="star in 5"
-                                   :key="star"
-                                   class="bx"
-                                   :class="getStarClass(message.rating, star)"></i>
+                                <!-- showFilledStar returns true/false -->
+                                <svg v-for="star in 5"
+                                     :key="star"
+                                     class="star-icon"
+                                     :class="star <= message.rating ? 'star-filled' : 'star-empty'"
+                                     viewBox="0 0 24 24"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
                             </div>
 
                             <!-- Customer Name -->
-                            <h4>{{ message.name }}</h4>
 
+                            <h4>{{ message.name }}</h4>
                             <!-- Review Description -->
                             <p style="color: #212529;">{{ message.description }}</p>
                         </div>
@@ -94,14 +98,6 @@ export default {
                     toastr.error(response.data.error, this.lang.Error + " !!");
                 } else {
                     this.messages = response.data.data;
-
-                    // DEBUG: Check what we got
-                    console.log('=== DEBUG INFO ===');
-                    console.log('Messages loaded:', this.messages);
-                    console.log('First message:', this.messages[0]);
-                    console.log('Rating value:', this.messages[0]?.rating);
-                    console.log('Rating type:', typeof this.messages[0]?.rating);
-                    console.log('Rating as number:', Number(this.messages[0]?.rating));
                 }
             }).catch((error) => {
                 console.error('Error loading messages:', error);
@@ -129,13 +125,15 @@ export default {
         },
 
         // ============================================
-        // UPDATE RESPONSIVE SETTINGS
+        // UPDATE RESPONSIBLE SETTINGS
         // ============================================
         updateVisibleCards() {
             if (window.innerWidth < 768) {
                 // Mobile: Show 1 card
                 this.visibleCards = 1;
-                this.cardWidth = Math.min(window.innerWidth - 90, 355);
+                // Calculate available width considering arrows (32px each), gap (8px each side), and padding
+                const availableWidth = window.innerWidth - 40; // Container padding
+                this.cardWidth = Math.min(availableWidth - 80, 355); // Subtract arrow buttons and gaps
             } else if (window.innerWidth < 992) {
                 // Tablet: Show 2 cards
                 this.visibleCards = 2;
@@ -225,27 +223,37 @@ export default {
 }
 
 /* ============================================ */
-/* RATING STARS */
+/* RATING STARS - SVG ICONS */
 /* ============================================ */
 .rating-stars {
     display: flex;
     justify-content: center;
-    gap: 3px;
+    align-items: center;
+    gap: 4px;
     margin-bottom: 10px;
+    min-height: 30px;
+    position: relative;
+    z-index: 1;
 }
 
-.rating-stars .bx {
-    font-size: 22px;
+.star-icon {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    flex-shrink: 0;
 }
 
 /* Filled star - Gold color */
-.rating-stars .bxs-star {
-    color: #FFD700;
+.star-icon.star-filled {
+    fill: #FFD700;
+    stroke: #FFD700;
 }
 
-/* Empty star - Gray color */
-.rating-stars .bx-star {
-    color: #d0d0d0;
+/* Empty star - Gray color with stroke */
+.star-icon.star-empty {
+    fill: #f5f5f5;
+    stroke: #d0d0d0;
+    stroke-width: 1;
 }
 
 /* ============================================ */
@@ -346,6 +354,8 @@ export default {
 @media screen and (max-width: 768px) {
     .card_new {
         padding: 30px 15px;
+        max-width: 100%;
+        overflow: hidden;
     }
 
     .card-title_new {
@@ -355,12 +365,19 @@ export default {
 
     .feedback-slider-wrapper {
         gap: 8px;
+        max-width: 100%;
+    }
+
+    .feedback-slider-container {
+        max-width: 100%;
+        overflow-x: hidden;
     }
 
     .slider-arrow {
         width: 32px;
         height: 32px;
         font-size: 18px;
+        flex-shrink: 0;
     }
 
     .slider-dots {
@@ -380,10 +397,29 @@ export default {
     .feedback-card {
         height: auto;
         min-height: 200px;
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-word;
     }
 
-    .rating-stars .bx {
-        font-size: 20px;
+    .star-icon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .rating-stars {
+        min-height: 28px;
+    }
+
+    .feedback-card h4 {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .feedback-card p {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 }
 
@@ -393,6 +429,8 @@ export default {
 @media screen and (max-width: 480px) {
     .card_new {
         padding: 20px 10px;
+        max-width: 100%;
+        overflow: hidden;
     }
 
     .card-title_new {
@@ -402,28 +440,47 @@ export default {
 
     .feedback-slider-wrapper {
         gap: 5px;
+        max-width: 100%;
+    }
+
+    .feedback-slider-container {
+        max-width: 100%;
+        overflow-x: hidden;
     }
 
     .slider-arrow {
         width: 30px;
         height: 30px;
         font-size: 16px;
+        flex-shrink: 0;
     }
 
     .feedback-card {
         padding: 12px 15px;
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
     }
 
-    .rating-stars .bx {
-        font-size: 18px;
+    .star-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .rating-stars {
+        min-height: 26px;
     }
 
     .feedback-card h4 {
         font-size: 14px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .feedback-card p {
         font-size: 14px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 }
 </style>

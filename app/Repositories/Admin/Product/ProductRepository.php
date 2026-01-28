@@ -1181,6 +1181,12 @@ class ProductRepository implements ProductInterface
             }
         }
 
+        if (array_key_exists('has_offer', $data) && $data['has_offer']) {
+            $products->where('special_discount', '>', 0)
+                ->where('special_discount_start', '<=', Carbon::now()->format('Y-m-d H:i:s'))
+                ->where('special_discount_end', '>=', Carbon::now()->format('Y-m-d H:i:s'));
+        }
+
         if (array_key_exists('attribute_value_id', $data) && is_array($data['attribute_value_id']) && count($data['attribute_value_id']) > 0) {
             $products->where(function ($query) use ($data) {
                 foreach ($data['attribute_value_id'] as $attribute_value) {

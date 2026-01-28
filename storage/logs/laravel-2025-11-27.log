@@ -1,5 +1,0 @@
-[2025-11-27 16:19:14] production.INFO: order updated  
-[2025-11-27 16:19:14] production.INFO: order dispatch  
-[2025-11-27 16:20:32] production.INFO: order payload {"customer":"test yt 123 test yy","order_type":"Shopping Cart","is_pos":1,"pos_profile":"Dolbear Online","shipping_address":"safayat mahmud, 01818119335, safayat.viserx@gmail.com, something address yy, Badda, Dhaka, Dhaka","posting_date":"2025-11-27","po_date":"2025-11-27","po_no":"#30089","apply_discount_on":"Net Total","discount_amount":0.0,"items":[{"item_code":"0201001701","item_name":"Soundcore selet 4 Go","qty":1,"rate":1}],"shipping_address_name":null,"payments":[{"mode_of_payment":"Cash - Dolbear HQ","amount":0}]} 
-[2025-11-27 16:20:34] production.INFO: order updated  
-[2025-11-27 16:20:34] production.INFO: Order 2406 synced successfully.  

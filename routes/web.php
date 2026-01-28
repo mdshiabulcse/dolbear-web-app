@@ -285,6 +285,7 @@ Route::middleware(['XSS'])->group(function () {
 
     Route::get('home/load-attributes', [ProductController::class, 'loadAttributes']);
     Route::get('home/filtered_products', [ProductController::class, 'filterProducts']);
+    Route::get('shop/products', [ProductController::class, 'filterProducts']);
     Route::get('home/filter_data', [ProductController::class, 'filterData'])->name('filter.data');
     Route::get('home/load-categories', [ProductController::class, 'loadCategories'])->name('load.category');
     Route::get('home/load-brands', [ProductController::class, 'loadBrands'])->name('load.brands');

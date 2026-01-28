@@ -140,7 +140,7 @@
           class="mb-0"
           width="16px"
             height="16px"
-          @click="$router.push('/offer/products')"
+          @click="$router.push('/offers')"
         />
         <p>Offers</p>
       </div>
@@ -152,7 +152,7 @@
           class="mb-0"
           width="16px"
             height="16px"
-          @click="$router.push('/products')"
+          @click="$router.push('/shop-all')"
         />
         <p>Shop</p>
       </div>

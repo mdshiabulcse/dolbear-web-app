@@ -717,7 +717,7 @@ class ProductController extends Controller
                 if ($slug) {
                     $page = $brand->brand($slug);
                 }
-            } else if ($route == 'product.by.offer') {
+            } else if ($route == 'product.by.offer' || $route == 'offers') {
                 $type = 'offer';
             } else if ($route == 'product.by.selling') {
                 $type = 'best_selling';

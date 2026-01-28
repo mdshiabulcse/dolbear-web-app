@@ -509,7 +509,6 @@
               <option value="oldest">{{ lang.oldest }}</option>
               <option value="top_rated">{{ lang.top_rated }}</option>
               <option value="top_selling">{{ lang.top_selling }}</option>
-              <option value="discount_high_low">{{ lang.discount_high_low }}</option>
             </select>
             <!-- <div class="d-flex gap-1">
               <div class="grid-view-tab" @click="activeClass = 'grid-view-tab'"
@@ -622,12 +621,11 @@ export default {
         rating: [],
         attribute_value_id: [],
         paginate: 24,
-        sort: "discount_high_low",
+        sort: "newest",
         slug: this.$route.params.slug,
         page: 1,
         route: this.$route.name,
         key: this.$route.query.q,
-        has_offer: true,
       },
       category_routes: ["product.by.gadget", "product.by.category"],
       total_product: 0,
@@ -747,7 +745,7 @@ export default {
         if (data) {
           products = this.dataAssign(data);
         }
-      } else if (this.form.route == "product.by.offer" || this.form.route == "offers") {
+      } else if (this.form.route == "product.by.offer") {
         products = this.$store.getters.getOfferProducts;
       } else if (this.form.route == "product.by.selling") {
         products = this.$store.getters.getSellingProducts;
