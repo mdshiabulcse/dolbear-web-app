@@ -6,8 +6,6 @@
     <categories></categories>
     <products></products>
     <blogs></blogs>
-    <video_section></video_section>
-    <recommended_by></recommended_by>
     <feedback></feedback>
     <get_offer></get_offer>
    
@@ -24,8 +22,6 @@ import services from "../homepage/services";
 import categories from "../homepage/New/categories.vue";
 import products from "../homepage/New/products.vue";
 import blogs from "../homepage/New/blogs.vue";
-import video_section from "../common/video_section.vue";
-import recommended_by from "../common/recommended_by.vue";
 import feedback from "../common/feedback.vue";
 import get_offer from "../common/get_offer.vue";
 
@@ -74,8 +70,6 @@ export default {
     categories,
     products,
     blogs,
-    video_section,
-    recommended_by,
     feedback,
     get_offer,
 

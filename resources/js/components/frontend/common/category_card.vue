@@ -26,11 +26,11 @@ export default {
 .category-card-link {
     text-decoration: none;
     display: block;
+    width: 100%;
 }
 
 .category-card {
-    height: 160px;
-    width: 156px;
+    width: 100%;
     border-radius: 15px;
     background: #FFFFFF;
     padding: 21px;
@@ -38,6 +38,8 @@ export default {
     align-items: center;
     justify-content: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    aspect-ratio: 1;
+    min-height: 160px;
 }
 
 .category-card:hover {
@@ -85,9 +87,8 @@ export default {
 /* Medium screens - tablets */
 @media screen and (max-width: 1024px) {
     .category-card {
-        width: 140px;
-        height: 145px;
         padding: 18px;
+        min-height: 145px;
     }
 
     .category-card img {
@@ -103,9 +104,8 @@ export default {
 
 @media screen and (max-width: 768px) {
     .category-card {
-        width: 125px;
-        height: 130px;
         padding: 15px;
+        min-height: 130px;
     }
 
     .category-card img {
@@ -122,9 +122,8 @@ export default {
 /* Large mobile */
 @media screen and (max-width: 576px) {
     .category-card {
-        width: 110px;
-        height: 115px;
         padding: 12px;
+        min-height: 115px;
     }
 
     .category-card img {
@@ -141,9 +140,8 @@ export default {
 /* Small mobile */
 @media screen and (max-width: 430px) {
     .category-card {
-        width: 95px;
-        height: 100px;
         padding: 10px;
+        min-height: 100px;
     }
 
     .category-card img {
@@ -164,9 +162,8 @@ export default {
 
 @media screen and (max-width: 390px) {
     .category-card {
-        width: 88px;
-        height: 95px;
         padding: 8px;
+        min-height: 95px;
     }
 
     .category-card img {
@@ -182,9 +179,8 @@ export default {
 
 @media screen and (max-width: 360px) {
     .category-card {
-        width: 82px;
-        height: 90px;
         padding: 8px;
+        min-height: 90px;
     }
 
     .category-card img {

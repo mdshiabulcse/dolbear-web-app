@@ -2,7 +2,6 @@
   <div>
     <router-view></router-view>
     <vue-progress-bar></vue-progress-bar>
-    <whatsapp-chat></whatsapp-chat>
     <div class="product_modal home_modal">
       <div class="modal fade" id="pop_up" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -79,7 +78,6 @@ export default {
     }
   },
   components: {
-    'whatsapp-chat': () => import('./common/whatsapp_chat.vue')
   },
   props: ['languages', 'flags', 'currencies', 'user','user_wishlists', 'active_language', 'active_currency', 'wishlists', 'carts', 'categories', 'sliders', 'services', 'settings_data', 'viewed_products', 'pages', 'compare_list', 'default_currency',
     'home_components', 'default_assets', 'add_ons', 'shop_follower', 'lang_keywords', 'banners'],

@@ -116,59 +116,6 @@
   </div>
 </div>
 </section>
-<!-- video sectio -->
-<section class="video-sec">
-<template>
-<video class="d-none d-sm-block" autoplay preload playsinline loop :poster="posterLarge" muted>
-<source :src="videoWebm" type="video/webm">
-<source :src="videoMp4" type="video/mp4">
-<source :src="videoOgg" type="video/ogg">
-</video>
-<video class="d-sm-none" autoplay preload playsinline loop :poster="posterSmall" muted>
-<source :src="videoWebm" type="video/webm">
-<source :src="videoMp4" type="video/mp4">
-<source :src="videoOgg" type="video/ogg">
-</video>
-</template>
-<!-- button -->
-<button class="video-btn" data-bs-toggle="modal" data-bs-target="#exampleModal">New Arrivals
-  <svg class="arrow ms-3" width="9" height="14" viewBox="0 0 9 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M1.82822e-07 0.499999L9 7L-9.53674e-07 13.5L1.82822e-07 0.499999Z" fill="white"/>
-  </svg>
-  </button>
-  <!-- youtube video -->
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-      <div class="modal-content">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="white" aria-hidden="true" ><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-        <div class="modal-body">
-          <iframe width="100%" height="100%" src="https://www.youtube.com/embed/mFv0tMZHMfA?enablejsapi=1&origin=https%3A%2F%2Fwww.anker.com&widgetid=6" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- recomonded slider -->
-<section class="recomonded">
-<div class="container">
-  <h2 class="section-heading text-center mb-3 mb-md-5">Recommended By</h2>
-  <div class="recomonded-accordion pt-3 pt-md-5">
-    
-    <div class="recomonded-accordion-item" v-for="(item, index) in recommendation" :key="index">
-      <div class="item-imgs">
-        <img :src="item.image" alt="images" class="img-fluid">
-      </div>
-      <div class="item-text">
-        <p>{{ item.name }}</p>
-        <p>{{ item.description }}</p>
-      </div>
-    </div>
-    
-  </div>
-
-</div>
-</section>
 <!-- get back 15% off -->
 <section class="first-offer bg-black">
 <div class="container">
@@ -214,19 +161,12 @@ export default {
   data() {
     return {
       show_shimmer: true,
-      posterLarge: 'https://cdn.shopify.com/s/files/1/0650/3769/7280/files/charge-brand-video.jpg?v=1671519405',
-      posterSmall: 'https://cdn.shopify.com/s/files/1/0650/3769/7280/files/charge_brand_video_0-767.jpg?v=1671519405',
-      videoWebm: 'https://res.cloudinary.com/anker-dtc/video/upload/c_scale,w_1920/v1/anker/home-charger/charge-pc.webm?_a=ATRSRAA0',
-      videoMp4: 'https://res.cloudinary.com/anker-dtc/video/upload/c_scale,w_1920/v1/anker/home-charger/charge-pc.mp4?_a=ATRSRAA0',
-      videoOgg: 'https://res.cloudinary.com/anker-dtc/video/upload/c_scale,w_1920/v1/anker/home-charger/charge-pc.ogv?_a=ATRSRAA0',
-
       latestProduct: [],
       tabList: ['is_new_arrived', 'is_best_seller', 'is_bundle_deals'],
       currentTab: "is_new_arrived",
       featuredProduct: [],
       availableProduct: [],
       sortedProduct: [],
-      recommendation: [],
       screenWidth: window.innerWidth,
       sliderProductsShow: '',
       carouselKey: ''
@@ -237,7 +177,6 @@ export default {
     this.checkShopComponent("best_selling_product");
     this.updateWidth();
     this.availableProducts();
-    this.recommendationData();
   },
   created() {
     window.addEventListener('resize', this.updateWidth);
@@ -319,50 +258,6 @@ export default {
       }).catch((error) => {
         this.$Progress.fail();
       })
-    },
-    recommendationData() {
-      let url = this.getUrl('recommended/all');
-      this.$Progress.start();
-      axios.get(url,{params:this.$route.params.type}).then((response) => {
-        if (response.data.error) {
-          this.$Progress.fail();
-          toastr.error(response.data.error, this.lang.Error + ' !!');
-        } else {
-
-          this.recommendation = response.data.data
-
-          setTimeout(() => {
-            this.initAccordion()
-          }, 2000);
-
-
-          this.$Progress.finish();
-        }
-      }).catch((error) => {
-        this.$Progress.fail();
-      })
-    },
-    // Recomonded By accordion hover effect function
-    initAccordion() {
-      const accordionItems = document.querySelectorAll('.recomonded-accordion-item');
-
-      // Loop through each accordion item
-      accordionItems.forEach(item => {
-        // Add event listeners for hover
-        item.addEventListener('mouseover', () => {
-          // Remove 'active' class from all item-text elements
-          document.querySelectorAll('.item-text').forEach(text => {
-            text.classList.remove('active');
-          });
-          // Add 'active' class to item-text in current accordion item
-          item.querySelector('.item-text').classList.add('active');
-        });
-
-        // Add mouseout event to keep 'active' class when mouse leaves the item
-        item.addEventListener('mouseout', () => {
-          item.querySelector('.item-text').classList.add('active');
-        });
-      });
     },
     //product carousel responsive
     updateWidth() {
