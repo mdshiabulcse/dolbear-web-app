@@ -83,7 +83,7 @@
 </div>
 </section>
 <!-- offer -->
-<section class="offer pb-3 pb-md-5 bg-light-white">
+<section class="offer pb-3 pb-md-5 bg-white">
 <div class="container">
   <div class="row">
     <div class="col-6">
@@ -100,7 +100,7 @@
 </div>
 </section>
 <!-- Featured Product -->
-<section class="featured bg-light-white">
+<section class="featured bg-white">
 <div class="container">
   <h2 class="section-heading text-center mb-3 mb-md-5">Featured Product</h2>
   <div class="featured-grid">
@@ -117,7 +117,7 @@
 </div>
 </section>
 <!-- get back 15% off -->
-<section class="first-offer bg-black">
+<section class="first-offer bg-white">
 <div class="container">
   <div class="row justify-content-center align-items-center">
     <div class="col-lg-4 mb-3 mb-lg-0">

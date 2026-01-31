@@ -6595,7 +6595,7 @@ th.one-line-text a:nth-child(2) {
 /* category-section */
 
 .category-section {
-	background-color: #f8f8f8;
+	/*background-color: #f8f8f8;*/
 }
 
 .category-section .title h1 {

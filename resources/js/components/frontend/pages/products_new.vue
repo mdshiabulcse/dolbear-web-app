@@ -940,7 +940,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .grid-view-tab {
   font-size: 21px;
 }
@@ -980,21 +980,96 @@ export default {
 
 .image-container {
   display: flex;
-  justify-content: center; /* Horizontally center */
-  align-items: center;    /* Vertically center */
-  width: 1266px;          /* Container width */
-  height: 188px;          /* Container height */
-  overflow: hidden;       /* Ensures no overflow of the image */
-  background-color: #f0f0f0; /* Optional background for visibility */
+  justify-content: center;
+  align-items: center;
+  width: 100% !important;
+  max-width: 1266px !important;
+  height: auto !important;
+  overflow: hidden !important;
+  background-color: #f0f0f0;
+  margin: 0 auto;
+  border-radius: 8px;
 }
 
 .image-container img {
-  width: 100%;
-  height: 100%;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: cover;      /* Ensures the image covers the container */
-  object-position: center; /* Centers the focal point of the image */
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+  display: block !important;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Extra large devices (1200px and up) */
+@media (min-width: 1200px) {
+  .image-container {
+    max-width: 1266px !important;
+  }
+
+  .image-container img {
+    max-height: 188px !important;
+  }
+}
+
+/* Large devices (992px and up to 1199.98px) */
+@media (max-width: 1199.98px) {
+  .image-container {
+    max-width: 100% !important;
+  }
+
+  .image-container img {
+    max-height: 150px !important;
+  }
+}
+
+/* Medium devices (768px and up to 991.98px) */
+@media (max-width: 991.98px) {
+  .image-container {
+    max-width: 100% !important;
+    border-radius: 6px;
+  }
+
+  .image-container img {
+    max-height: 120px !important;
+  }
+}
+
+/* Small devices (576px and up to 767.98px) */
+@media (max-width: 767.98px) {
+  .image-container {
+    max-width: 100% !important;
+    border-radius: 6px;
+  }
+
+  .image-container img {
+    max-height: 100px !important;
+  }
+}
+
+/* Extra small devices (575.98px and down) */
+@media (max-width: 575.98px) {
+  .image-container {
+    max-width: 100% !important;
+    border-radius: 4px;
+  }
+
+  .image-container img {
+    max-height: 80px !important;
+  }
+}
+
+/* Very small devices (380px and down) */
+@media (max-width: 380px) {
+  .image-container {
+    max-width: 100% !important;
+    min-height: 100px !important;
+    border-radius: 4px;
+  }
+
+  .image-container img {
+    max-height: 70px !important;
+    min-height: 100px !important;
+  }
 }
 
 </style>

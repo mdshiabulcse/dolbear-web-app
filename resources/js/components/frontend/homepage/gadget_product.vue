@@ -1,6 +1,6 @@
 <template>
-  <section class="products-section category-products ajax_scroll bg-color-products">
-    <div class="container bg-color-products" v-if="gadget_product && lengthCounter(products) > 0">
+  <section class="products-section category-products ajax_scroll bg-white">
+    <div class="container bg-white" v-if="gadget_product && lengthCounter(products) > 0">
       <!-- <div class="title justify-content-between" :class="{ 'title-bg' : addons.includes('ishopet') }">
 				<h1>{{ category }}</h1>
 				<router-link :to="{ name: 'product.by.gadget', params: { slug: gadget_product.slug } }">{{ lang.more_products }} <span class="icon mdi mdi-name mdi-arrow-right"></span></router-link>
@@ -192,8 +192,7 @@ export default {
     .custom-btn:hover {
       background-color: #f8f9fa; /* Change background color on hover */
     }
-	.bg-color-products {
-		background-color:#F2F2F2;
- ;
+	.bg-white {
+		background-color:#FFFFFF;
 	}
 </style>

@@ -107,7 +107,7 @@
     font-weight: 600;
   }
   .bg-color {
-    background-color: #0B0B0B;
+    background-color: #FFFFFF;
     padding-top: 5%;
     padding-bottom: 10%;
   }

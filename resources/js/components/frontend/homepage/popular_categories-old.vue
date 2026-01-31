@@ -1,5 +1,5 @@
 <template>
-  <section class="categories-section bg-color">
+  <section class="categories-section bg-white">
     <h1 class="text-center text-white">Popular Categories</h1>
 
     <div class="container" v-if="lengthCounter(countCategories) >0">
@@ -140,7 +140,7 @@ export default {
   font-weight: 600;
 }
 .bg-color {
-  background-color: #0B0B0B;
+  background-color: #FFFFFF;
   padding-top: 5%;
   padding-bottom: 10%;
 }

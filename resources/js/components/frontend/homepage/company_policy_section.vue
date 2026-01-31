@@ -1,5 +1,5 @@
 <template>
-  <div class="custom-padding-top bg-color">
+  <div class="custom-padding-top bg-white">
     <div class="container">
       <div class="row horizontal-scroll">
         <div class="col-md-2 col-sm-4">
@@ -180,6 +180,6 @@
   margin-left: 10%;
 }
 .bg-color {
-  background-color: #d9d9d9;
+  background-color: #FFFFFF;
 }
 </style>

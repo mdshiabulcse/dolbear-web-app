@@ -1,5 +1,5 @@
 <template>
-  <section class="offers-section bg-color" >
+  <section class="offers-section bg-white" >
     <div class="container">
       <div class="row" v-if="countBanner > 0">
         <div v-for="(banner,index,i) in banners" :key="index" :class="defineClass()">
@@ -89,6 +89,6 @@ export default {
 
 <style scoped>
 .bg-color {
-  background-color: #0B0B0B;
+  background-color: #FFFFFF;
 }
 </style>
