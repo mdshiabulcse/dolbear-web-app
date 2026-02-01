@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\Addons\AffiliateController;
 use App\Http\Controllers\Admin\Product\CategoryController;
 use App\Http\Controllers\Admin\Addons\RewardSystemController;
 use App\Http\Controllers\Admin\Marketing\SubscriberController;
+use App\Http\Controllers\SslCommerzPaymentController;
 
 
 Route::get('cache-clear', [HomeController::class, 'cacheClear'])->name('cache.clear');
@@ -178,6 +179,19 @@ Route::middleware(['XSS'])->group(function () {
 
     Route::get('user/delivery-address', [AddressController::class, 'deliveryAddress'])->name('user.delivery.address');
 
+    // SSLCOMMERZ Start - MUST be before catch-all routes
+    Route::get('/example1', [SslCommerzPaymentController::class, 'exampleEasyCheckout']);
+    Route::get('/example2', [SslCommerzPaymentController::class, 'exampleHostedCheckout']);
+    Route::any('/pay', [SslCommerzPaymentController::class, 'index']);
+    Route::post('/pay-via-ajax', [SslCommerzPaymentController::class, 'payViaAjax']);
+    Route::post('/success', [SslCommerzPaymentController::class, 'success']);
+    Route::post('/fail', [SslCommerzPaymentController::class, 'fail']);
+    Route::post('/cancel', [SslCommerzPaymentController::class, 'cancel']);
+    Route::match(['get', 'post'], '/ipn', [SslCommerzPaymentController::class, 'ipn']);
+    // Test endpoint to verify IPN is accessible from browser
+    Route::get('/ipn-test', [SslCommerzPaymentController::class, 'ipnTest']);
+    // SSLCOMMERZ END
+
     //vue js redirect by laravel route
     Route::get('/{anypath}', [HomeController::class, 'index'])->where('path', '*')->name('home.page');
     Route::get('user/{anypath}', [HomeController::class, 'index'])->where('path', '*')->middleware('loginCheck');
@@ -296,6 +310,7 @@ Route::middleware(['XSS'])->group(function () {
     Route::get('/settings/data', [HomeController::class, 'settingsData'])->name('settings.data');
     Route::get('/seller/coupons/{id}', [CouponController::class, 'coupons'])->name('front.seller.coupons');
     Route::match(['post', 'get'], 'get/ssl-response', [PaymentController::class, 'sslResponse'])->name('ssl.response');
+    Route::match(['post', 'get'], 'sslcommerz/ipn', [PaymentController::class, 'sslcommerzIpn'])->name('sslcommerz.ipn');
     Route::get('get/country-list', [AddressController::class, 'countries'])->name('get.country');
     Route::get('get/division-list', [AddressController::class, 'divisions'])->name('get.division');
     Route::get('set/text-direction/{dir}', [HomeController::class, 'textDirection'])->name('set.text-direction');

@@ -223,19 +223,14 @@ class OrderController extends Controller
 
             $checkout = $this->cart->checkoutCoupon($carts, ['coupon'],authUser());
 
-            $order = $this->order->confirmOrder($checkout, $carts, $request->all(),authUser());
+            $orders = $this->order->confirmOrder($checkout, $carts, $request->all(),authUser());
 
-            // if (is_array($order)) {
-            //     $data = [
-            //         'success' => __('Order done')
-            //     ];
-            // } else {
-            //     $data = [
-            //         'error' => $order
-            //     ];
-            // }
             DB::commit();
-            // return response()->json($data);
+
+            // Return success response - keeping it simple for compatibility
+            return response()->json([
+                'success' => true
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
 

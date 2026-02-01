@@ -19,6 +19,7 @@ use App\Utility\PaytmChecksum;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use MercadoPago\Item;
@@ -532,6 +533,169 @@ class PaymentController extends Controller
             return response()->json([
                 'error' => $e->getMessage()
             ]);
+        }
+    }
+
+    /**
+     * SSLCOMMERZ IPN (Instant Payment Notification) Handler
+     * This method receives server-to-server callbacks from SSLCOMMERZ
+     *
+     * @param Request $request
+     * @param OfflineMethodInterface $offlineMethod
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function sslcommerzIpn(Request $request, OfflineMethodInterface $offlineMethod)
+    {
+        Log::info('SSLCOMMERZ IPN: Received callback', [
+            'all_data' => $request->all(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'tran_id' => $request->input('tran_id'),
+            'val_id' => $request->input('val_id'),
+            'status' => $request->input('status'),
+            'amount' => $request->input('amount'),
+            'currency' => $request->input('currency'),
+        ]);
+
+        try {
+            // Validate required parameters
+            $tran_id = $request->input('tran_id');
+            $val_id = $request->input('val_id');
+            $amount = $request->input('amount');
+            $currency = $request->input('currency');
+            $card_type = $request->input('card_type');
+
+            if (!$tran_id) {
+                Log::error('SSLCOMMERZ IPN: Missing transaction ID', [
+                    'all_data' => $request->all()
+                ]);
+                return response()->json(['error' => 'Missing transaction ID'], 400);
+            }
+
+            // Find orders by transaction ID
+            $orders = $this->order->takePaymentOrder($tran_id);
+
+            if (!$orders || count($orders) == 0) {
+                Log::warning('SSLCOMMERZ IPN: No orders found for transaction', [
+                    'tran_id' => $tran_id,
+                    'val_id' => $val_id
+                ]);
+                return response()->json(['error' => 'Order not found'], 404);
+            }
+
+            Log::info('SSLCOMMERZ IPN: Orders found', [
+                'tran_id' => $tran_id,
+                'order_count' => count($orders),
+                'order_codes' => $orders->pluck('code')->toArray()
+            ]);
+
+            // Determine user (could be authenticated, token-based, or guest)
+            $user = authUser();
+            $token = null;
+            $is_guest = false;
+
+            if (!$user) {
+                // Try JWT token authentication
+                try {
+                    $user = JWTAuth::parseToken()->authenticate();
+                    $token = $this->apiToken($request->all());
+                } catch (\Exception $e) {
+                    // No valid token, treat as guest
+                    $user = getWalkInCustomer();
+                    $is_guest = true;
+                }
+            }
+
+            Log::info('SSLCOMMERZ IPN: User determined', [
+                'user_id' => $user ? $user->id : null,
+                'is_guest' => $is_guest,
+                'has_token' => !empty($token)
+            ]);
+
+            // Validate transaction with SSLCOMMERZ API
+            if (settingHelper('is_sslcommerz_sandbox_mode_activated') == 1) {
+                config(['sslcommerz.apiDomain' => 'https://sandbox.sslcommerz.com']);
+            } else {
+                config(['sslcommerz.apiDomain' => 'https://securepay.sslcommerz.com']);
+            }
+
+            config(['sslcommerz.apiCredentials.store_id' => settingHelper('sslcommerz_id')]);
+            config(['sslcommerz.apiCredentials.store_password' => settingHelper('sslcommerz_password')]);
+
+            $sslc = new SslCommerzNotification();
+
+            // Prepare validation data
+            $post_data = $request->all();
+            $validation = $sslc->orderValidate($post_data, $tran_id, $amount, $currency);
+
+            if (!$validation) {
+                Log::error('SSLCOMMERZ IPN: Transaction validation failed', [
+                    'tran_id' => $tran_id,
+                    'val_id' => $val_id,
+                    'amount' => $amount,
+                    'currency' => $currency,
+                    'error' => $sslc->error ?? 'Unknown validation error'
+                ]);
+                return response()->json(['error' => 'Validation failed'], 400);
+            }
+
+            Log::info('SSLCOMMERZ IPN: Transaction validated successfully', [
+                'tran_id' => $tran_id
+            ]);
+
+            // Prepare order completion data
+            $data = [
+                'trx_id' => $tran_id,
+                'payment_type' => 'ssl_commerze',
+                'card_type' => $card_type,
+            ];
+
+            if ($token) {
+                $data['token'] = $token;
+            }
+
+            if ($is_guest) {
+                $data['guest'] = 1;
+            }
+
+            // Get order codes
+            $code = $this->codeGenerator(['code' => $orders->first()->code ?? '']);
+            if ($code) {
+                $data['code'] = $code;
+            }
+
+            Log::info('SSLCOMMERZ IPN: Attempting to complete order', [
+                'data' => $data,
+                'user_id' => $user ? $user->id : null
+            ]);
+
+            // Complete the order
+            DB::beginTransaction();
+            $this->order->completeOrder($data, $user, $offlineMethod);
+            DB::commit();
+
+            Log::info('SSLCOMMERZ IPN: Order completed successfully', [
+                'tran_id' => $tran_id,
+                'code' => $code,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'IPN processed successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('SSLCOMMERZ IPN: Exception occurred', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'tran_id' => $request->input('tran_id'),
+                'all_data' => $request->all()
+            ]);
+
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 

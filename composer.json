@@ -71,7 +71,8 @@
     },
     "files": [
       "app/Helpers/SettingHelper.php",
-      "app/Helpers/Helpers.php"
+      "app/Helpers/Helpers.php",
+      "app/Helpers/SecurityLogger.php"
     ]
   },
   "autoload-dev": {

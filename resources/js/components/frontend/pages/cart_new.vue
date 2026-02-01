@@ -1070,16 +1070,16 @@ export default {
           await this.takeOrders();
 
           if (this.payment_form.payment_method === 'online_payment') {
-            // Keep loading state true during redirect for online payment
+            // For online payment: redirect to SSLCOMMERZ payment initiation
+            // The takeOrders() method will have fetched the order with the code
+            // Redirect using trx_id only (code will be fetched from order)
             window.location.href = this.getUrl(
-                "get/ssl-response?payment_type=ssl_commerze&code=" +
-                this.code +
-                "&trx_id=" +
-                this.trx_id
+                "pay?trx_id=" + this.trx_id
             );
             return;
           }
 
+          // For Cash on Delivery: complete the order
           // Keep loading state true during complete order process
           this.completeOrders();
           // Note: loading state will be reset in completeOrders catch block

@@ -106,6 +106,7 @@
               <p class="mobile_helpline">Helpline</p>
             </div>
           </a>
+
           <router-link to="/outlets" class="d-flex footer-small-card store-card mt-3">
             <img src="/images/img/icon/store1.png" alt="store" />
             <span>|</span>
@@ -114,6 +115,13 @@
               <p class="mobile_helpline">Find Our Stores</p>
             </div>
           </router-link>
+
+          <div class="mt-3">
+            <a target="_blank" href="https://www.sslcommerz.com/" title="SSLCommerz">
+              <img src="https://securepay.sslcommerz.com/public/image/SSLCommerz-Pay-With-logo-All-Size-01.png" alt="SSLCommerz" class="ssl-logo-img" />
+            </a>
+          </div>
+
           <p class="mt-4">{{ settings.copyright }}</p>
         </div>
       </div>
@@ -638,6 +646,25 @@ export default {
 
 .mobile_helpline{
   color:  #212529;
+}
+
+/* SSLCOMMERZ Logo Styling */
+.ssl-logo-img {
+  width: 150px;
+  height: auto;
+  max-width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  .ssl-logo-img {
+    width: 120px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .ssl-logo-img {
+    width: 100px;
+  }
 }
 }
 </style>

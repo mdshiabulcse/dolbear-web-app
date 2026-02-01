@@ -11,8 +11,10 @@ class VerifyCsrfToken extends Middleware
      *
      * @var array
      */
+
+    protected $addHttpCookie = true;
     protected $except = [
-        'user/complete-order','user/complete-order/*','get/ssl-response','invoice/*','/user/recharge-wallet','/user/recharge-wallet/*','paystack/initialize','paytm/success*','user/complete-recharge','user/complete-recharge*',
-        'my-wallet','payment','seller/complete-purchase','user/payment/paytmRedirect','paytm/success'
+        'user/complete-order','user/complete-order/*','get/ssl-response','sslcommerz/ipn','invoice/*','/user/recharge-wallet','/user/recharge-wallet/*','paystack/initialize','paytm/success*','user/complete-recharge','user/complete-recharge*',
+        'my-wallet','payment','seller/complete-purchase','user/payment/paytmRedirect','paytm/success','/pay-via-ajax', '/success','/cancel','/fail','/ipn'
     ];
 }
