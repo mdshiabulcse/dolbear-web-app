@@ -34,6 +34,7 @@ use App\Models\CommissionHistory;
 use App\Models\PointSetting;
 use App\Traits\RandomStringTrait;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use App\Repositories\Admin\Addon\WalletRepository;
 use App\Repositories\Interfaces\Admin\OrderInterface;
