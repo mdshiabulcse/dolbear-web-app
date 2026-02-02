@@ -1,7 +1,7 @@
 @php
-        Midtrans\Config::$serverKey = 'env('MIDTRANS_SERVER_KEY')';
-                Midtrans\Config::$clientKey = 'env('MIDTRANS_CLIENT_KEY')';
-                Midtrans\Config::$isProduction = true;
+        Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+                Midtrans\Config::$clientKey = env('MIDTRANS_CLIENT_KEY');
+                Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
                 Midtrans\Config::$isSanitized = true;
                 Midtrans\Config::$is3ds = true;
 
@@ -19,7 +19,7 @@
 
 <head>
     <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js"
-            data-client-key="env('MIDTRANS_CLIENT_KEY')
+            data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
 </head>
 
 <body>

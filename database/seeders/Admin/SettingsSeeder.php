@@ -51,7 +51,7 @@ class SettingsSeeder extends Seeder
         Setting::create(['title' => 'sendgrid_mail_address',                   'value'  => 'ex4useonly@gmail.com',                                       'lang' => 'en']);
         Setting::create(['title' => 'sendgrid_name',                           'value'  => 'yoori',                                    'lang' => 'en']);
         Setting::create(['title' => 'sendgrid_mail_username',                  'value'  => 'apikey',                                   'lang' => 'en']);
-        Setting::create(['title' => 'sendgrid_mail_password',                  'value'  => 'env('SENDGRID_API_KEY').sv0lXE8IgKiP49NkjXC095w1oqSMParT8RJW_He76cQ',             'lang' => 'en']);
+        Setting::create(['title' => 'sendgrid_mail_password',                  'value'  => env('SENDGRID_API_KEY'),             'lang' => 'en']);
         Setting::create(['title' => 'sendgrid_mail_encryption_type',           'value'  => 'tls',                                      'lang' => 'en']);
 
         Setting::create(['title' => 'sendmail_path',                           'value'  => '/usr/sbin/sendmail -bs',                   'lang' => 'en']);
@@ -61,7 +61,7 @@ class SettingsSeeder extends Seeder
         Setting::create(['title' => 'mailgun_mail_address',                    'value'  => 'ex4useonly@gmail.com',                     'lang' => 'en']);
         Setting::create(['title' => 'mailgun_name',                            'value'  => 'yoori',                                    'lang' => 'en']);
         Setting::create(['title' => 'mailgun_mail_username',                   'value'  => 'postmaster@sandbox1c585606ebde4674a70a41195656d3ca.mailgun.org',                      'lang' => 'en']);
-        Setting::create(['title' => 'mailgun_mail_password',                   'value'  => 'env('MAILGUN_API_KEY')',                                  'lang' => 'en']);
+        Setting::create(['title' => 'mailgun_mail_password',                   'value'  => env('MAILGUN_API_KEY'),                                  'lang' => 'en']);
         Setting::create(['title' => 'mailgun_mail_encryption_type',            'value'  => 'tls',                                      'lang' => 'en']);
 
         Setting::create(['title' => 'mailgun_domain',                          'value'  => "postmaster@sandbox1c585606ebde4674a70a41195656d3ca.mailgun.org",                      'lang' => 'en']);
@@ -76,8 +76,8 @@ class SettingsSeeder extends Seeder
 
         //Storage
         Setting::create(['title' => 'default_storage',                         'value'  => 'local',                                    'lang' => 'en']);
-        Setting::create(['title' => 'aws_access_key_id',                       'value'  => 'env('AWS_ACCESS_KEY_ID')',                     'lang' => 'en']);
-        Setting::create(['title' => 'aws_secret_access_key',                   'value'  => 'env('AWS_SECRET_ACCESS_KEY')', 'lang' => 'en']);
+        Setting::create(['title' => 'aws_access_key_id',                       'value'  => env('AWS_ACCESS_KEY_ID'),                     'lang' => 'en']);
+        Setting::create(['title' => 'aws_secret_access_key',                   'value'  => env('AWS_SECRET_ACCESS_KEY'), 'lang' => 'en']);
         Setting::create(['title' => 'aws_default_region',                      'value'  => 'ap-south-1',                               'lang' => 'en']);
         Setting::create(['title' => 'aws_bucket',                              'value'  => 'demo11223',                                'lang' => 'en']);
 
