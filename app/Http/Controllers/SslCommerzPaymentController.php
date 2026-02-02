@@ -417,9 +417,9 @@ class SslCommerzPaymentController extends Controller
                     'notes' => 'Success callback - order already completed by IPN',
                 ]);
 
-                // Store order code in session for frontend to load invoice
-                session()->put('last_order_code', $first_order->code);
-                return redirect('payment')->with('success', 'Payment already completed! Thank you for your order.');
+                // Store trx_id in session for frontend to load invoice (same as other payment gateways)
+                session()->put('trx_id', $first_order->trx_id);
+                return redirect('invoice/' . $first_order->trx_id)->with('success', 'Payment already completed! Thank you for your order.');
             }
 
             // ─────────────────────────────────────────────────────────────
@@ -483,9 +483,9 @@ class SslCommerzPaymentController extends Controller
                     'notes' => 'Success callback after validation - order already completed by IPN',
                 ]);
 
-                // Store order code in session for frontend to load invoice
-                session()->put('last_order_code', $first_order->code);
-                return redirect('payment')->with('success', 'Payment completed successfully!');
+                // Store trx_id in session for frontend to load invoice (same as other payment gateways)
+                session()->put('trx_id', $first_order->trx_id);
+                return redirect('invoice/' . $first_order->trx_id)->with('success', 'Payment completed successfully!');
             }
 
             // ─────────────────────────────────────────────────────────────
@@ -529,9 +529,9 @@ class SslCommerzPaymentController extends Controller
                     'gateway_tran_id' => $tran_id,
                 ]);
 
-                // Store order code in session for frontend to load invoice
-                session()->put('last_order_code', $first_order->code);
-                return redirect('payment')->with('success', 'Payment completed successfully!');
+                // Store trx_id in session for frontend to load invoice (same as other payment gateways)
+                session()->put('trx_id', $first_order->trx_id);
+                return redirect('invoice/' . $first_order->trx_id)->with('success', 'Payment completed successfully!');
 
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -550,9 +550,9 @@ class SslCommerzPaymentController extends Controller
                     'error_message' => $e->getMessage(),
                 ]);
 
-                // Store order code in session for frontend to load invoice
-                session()->put('last_order_code', $first_order->code);
-                return redirect('payment')->with('warning', 'Payment was successful but there was an issue completing your order. Please contact support with: ' . $first_order->code);
+                // Store trx_id in session for frontend to load invoice (same as other payment gateways)
+                session()->put('trx_id', $first_order->trx_id);
+                return redirect('invoice/' . $first_order->trx_id)->with('warning', 'Payment was successful but there was an issue completing your order. Please contact support with: ' . $first_order->code);
             }
 
         } catch (\Exception $e) {
