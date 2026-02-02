@@ -57,6 +57,7 @@ use App\Http\Controllers\Admin\Setup\GeneralSettingsController;
 use App\Http\Controllers\Admin\Setup\StorageSettingsController;
 use App\Http\Controllers\Admin\StoreFront\StoreFrontController;
 use App\Http\Controllers\Admin\Payment\PaymentGatewayController;
+use App\Http\Controllers\Admin\PaymentLogController;
 use App\Http\Controllers\Admin\Setup\AdminPanelSettingController;
 use App\Http\Controllers\Admin\Support\SupportDepartmentController;
 use App\Http\Controllers\Admin\PathaoCourier\PathaoCourierController;
@@ -392,6 +393,15 @@ Route::middleware(['XSS'])->group(function () {
                 Route::get('test-payment', [PaymentGatewayController::class, 'testPayment'])->name('test.payment')->middleware('PermissionCheck:payment_gateway_update');
                 Route::post('stripe-payment', [PaymentGatewayController::class, 'stripePayment'])->name('stripe.payment')->middleware('PermissionCheck:payment_gateway_update');
                 Route::put('admin-payment-status-change', [PaymentGatewayController::class, 'update'])->name('admin.payment.status.change')->middleware('PermissionCheck:payment_gateway_update');
+
+                /// /Payment-Logs
+                Route::get('payment-logs', [PaymentLogController::class, 'index'])->name('payment.logs.index');
+                Route::get('payment-logs/{id}', [PaymentLogController::class, 'show'])->name('payment.logs.show');
+                Route::get('payment-logs/transaction/{trxId}', [PaymentLogController::class, 'byTransaction'])->name('payment.logs.transaction');
+                Route::get('payment-logs/order/{orderCode}', [PaymentLogController::class, 'byOrder'])->name('payment.logs.order');
+                Route::get('payment-logs-dashboard', [PaymentLogController::class, 'dashboard'])->name('payment.logs.dashboard');
+                Route::post('payment-logs-cleanup', [PaymentLogController::class, 'cleanup'])->name('payment.logs.cleanup');
+                Route::get('payment-logs-export', [PaymentLogController::class, 'export'])->name('payment.logs.export');
 
                 //profile & settings routes
                 Route::get('profile', [StaffController::class, 'profile'])->name('admin.profile');

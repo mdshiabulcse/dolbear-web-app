@@ -741,6 +741,13 @@
                         <span>{{ __('Payment Gateway') }}</span></a>
                 </li>
             @endif
+
+            {{-- Payment Logs --}}
+            <li><a class="nav-link" href="{{ route('payment.logs.index') }}"><i
+                        class="bx bx-receipt" aria-hidden="true"></i>
+                    <span>{{ __('User Logs') }}</span></a>
+            </li>
+
             @if (hasPermission('shipping_configuration_read') ||
                     hasPermission('country_read') ||
                     hasPermission('state_read') ||
