@@ -332,12 +332,12 @@ trait PaymentTrait
     public function sslResponseOutput($data): array
     {
         return [
-            'card_type'     => $data['card_type'],
-            'store_amount'  => $data['store_amount'],
-            'card_no'       => $data['card_no'],
-            'card_issuer'   => $data['card_issuer'],
-            'card_brand'    => $data['card_brand'],
-            'base_fair'     => $data['base_fair'],
+            'card_type'     => $data['card_type'] ?? '',
+            'store_amount'  => $data['store_amount'] ?? '',
+            'card_no'       => $data['card_no'] ?? '',
+            'card_issuer'   => $data['card_issuer'] ?? '',
+            'card_brand'    => $data['card_brand'] ?? '',
+            'base_fair'     => $data['base_fair'] ?? '',
         ];
     }
 

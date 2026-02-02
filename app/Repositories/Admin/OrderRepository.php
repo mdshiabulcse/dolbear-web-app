@@ -871,6 +871,23 @@ class OrderRepository implements OrderInterface
             ->where('status', 0)->get();
     }
 
+    /**
+     * Find orders by payment gateway transaction ID (e.g., SSLCommerz tran_id)
+     * This is used for IPN callbacks where the gateway sends their transaction ID
+     *
+     * @param string $gateway_tran_id
+     * @return mixed
+     */
+    public function takePaymentOrderByGatewayTranId($gateway_tran_id)
+    {
+        return Order::where('gateway_tran_id', $gateway_tran_id)
+            ->with(['orderDetails.product.productLanguages'])
+            ->when(settingHelper('seller_system') != 1, function ($q) {
+                $q->where('seller_id', 1);
+            })
+            ->where('status', 0)->get();
+    }
+
 
     public function completeOrder($data, $user, $offline)
     {
@@ -891,6 +908,10 @@ class OrderRepository implements OrderInterface
                     Sentinel::login($orders->first()->user);
                     $user = authUser();
                 }
+                // FIX: Get carts for the user when using code path
+                $carts = Cart::where('user_id', $user->id)->where('trx_id', $orders->first()->trx_id)->when(session()->get('is_buy_now'), function ($query) {
+                    $query->where('is_buy_now', session()->get('is_buy_now'));
+                })->get();
 
             } else {
 
@@ -977,6 +998,19 @@ class OrderRepository implements OrderInterface
                 }
 
                 $order->status = 1;
+
+                // Log payment status update for debugging
+                Log::info('ORDER_PAYMENT_STATUS: Updating order payment status', [
+                    'order_code' => $order->code,
+                    'trx_id' => $order->trx_id,
+                    'gateway_tran_id' => $order->gateway_tran_id,
+                    'payment_type' => $data['payment_type'],
+                    'status_before' => 'pending (0)',
+                    'status_after' => 'completed (1)',
+                    'payment_status' => $order->payment_status,
+                    'is_paid' => $order->status == 1 && $order->payment_status == 'paid',
+                    'offline_method_id' => $order->offline_method_id,
+                ]);
 
                 $order->save();
                 $this->paymentHistoryEvent('order_payment_' . $order->payment_status . '_event', $order->id, 'With_' . $data['payment_type']);

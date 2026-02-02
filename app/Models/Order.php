@@ -57,6 +57,7 @@ class Order extends Model
         'offline_method_id',
         'offline_method_file',
         'trx_id',
+        'gateway_tran_id',
         'shipping_method',
         'is_coupon_system_active',
         'tax_method',

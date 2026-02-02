@@ -50,6 +50,8 @@ interface OrderInterface
 
     public function takePaymentOrder($trx_id);
 
+    public function takePaymentOrderByGatewayTranId($gateway_tran_id);
+
     public function completeOrder($data,$user,$offline);
 
     public function checkCodByTrx($trx_id);

@@ -34,6 +34,83 @@ use App\Http\Controllers\Admin\Marketing\SubscriberController;
 use App\Http\Controllers\SslCommerzPaymentController;
 
 
+// Simple Artisan Commands via Routes
+Route::get('migrate-run', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return "Migration completed successfully!";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
+
+
+Route::get('seed-run', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        return "Database seeded successfully!";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
+
+Route::get('storage-link', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        return "Storage linked successfully!";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
+
+Route::get('config-clear', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        return "Config cache cleared!";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
+
+Route::get('route-clear', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        return "Route cache cleared!";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
+
+Route::get('view-clear', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        return "View cache cleared!";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
+
+Route::get('cache-clear-all', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        return "All caches cleared!";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
+
+Route::get('optimize-clear', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+        return "Optimization cleared!";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
+
 Route::get('cache-clear', [HomeController::class, 'cacheClear'])->name('cache.clear');
 Route::get('get-database', [HomeController::class, 'getDb'])->name('get.database');
 
@@ -309,7 +386,7 @@ Route::middleware(['XSS'])->group(function () {
     Route::get('/shop-page-data/{slug}', [\App\Http\Controllers\Admin\SellerController::class, 'shop'])->name('shop.details');
     Route::get('/settings/data', [HomeController::class, 'settingsData'])->name('settings.data');
     Route::get('/seller/coupons/{id}', [CouponController::class, 'coupons'])->name('front.seller.coupons');
-    Route::match(['post', 'get'], 'get/ssl-response', [PaymentController::class, 'sslResponse'])->name('ssl.response');
+//    Route::match(['post', 'get'], 'get/ssl-response', [PaymentController::class, 'sslResponse'])->name('ssl.response');
     Route::match(['post', 'get'], 'sslcommerz/ipn', [PaymentController::class, 'sslcommerzIpn'])->name('sslcommerz.ipn');
     Route::get('get/country-list', [AddressController::class, 'countries'])->name('get.country');
     Route::get('get/division-list', [AddressController::class, 'divisions'])->name('get.division');
