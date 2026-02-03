@@ -246,7 +246,7 @@
       <div class="mobile-search-quicke-link">
 
         <div v-for="product in phone_search_products" :key="product.id">
-          <a :href="'/product/' + product.slug">{{ product.product_name }}</a>
+          <a @click="closeMobileSearchAndNavigate" :href="'/product/' + product.slug">{{ product.product_name }}</a>
         </div>
 
       </div>
@@ -757,6 +757,14 @@ export default {
         });
     },
 
+    closeMobileSearchAndNavigate() {
+      // Close the mobile search overlay when a result is clicked
+      this.is_search_box_active = false;
+      // Clear the search input and results
+      this.phoneSearchKey = '';
+      this.phone_search_products = [];
+    },
+
     categoryMenu() {
       this.$store.commit("setSmCategory", !this.smCategory);
       this.show_sm_category = !this.show_sm_category;
@@ -1233,6 +1241,46 @@ input.search-input-new {
   .offcanvas-body {
   background-color: white !important;
   height: auto !important;
+}
+
+/* Mobile search suggestions dropdown style */
+.mobile-search-quicke-link {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 10px 0;
+  margin-top: 15px;
+  z-index: 10;
+}
+
+.mobile-search-quicke-link div {
+  margin-bottom: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-search-quicke-link div:last-child {
+  border-bottom: none;
+}
+
+.mobile-search-quicke-link a {
+  display: flex;
+  align-items: center;
+  color: white !important;
+  text-decoration: none;
+  padding: 12px 15px;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.mobile-search-quicke-link a:hover {
+  background-color: #57D9FF;
+  color: black !important;
 }
 }
 </style>

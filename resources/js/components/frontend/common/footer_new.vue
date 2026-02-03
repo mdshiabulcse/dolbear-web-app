@@ -77,7 +77,7 @@
             </p>
           </div>
         </div>
-        <div class="col-12 col-md-6 col-lg-2 footer-menu-new" >
+        <div class="col-6 col-md-6 col-lg-2 footer-menu-new" >
           <h4>Quick Links</h4>
           <ul v-for="(link, i) in usefulLinks" :key="i">
             <li  >
@@ -86,7 +86,7 @@
           </ul>
         </div>
 
-        <div class="col-12 col-md-6 col-lg-2 footer-menu-new">
+        <div class="col-6 col-md-6 col-lg-2 footer-menu-new">
           <h4>About US</h4>
           <ul>
             <li v-for="(menu, i) in footerMenu" :key="i">
@@ -626,9 +626,18 @@ export default {
 @media screen and (max-width: 768px) {
   .footer-logo-new {
     height: 58px;
-    margin-left: -11px;
+    margin-left: -8px;
     margin-top: -11px;
     margin-right: 17px;
+  }
+
+  /* Fix social media icons alignment on mobile */
+  .footer-logo-new + div {
+    padding: 0 !important;
+  }
+
+  .footer-logo-new + div .social-icon {
+    height: 35px;
   }
 }
 

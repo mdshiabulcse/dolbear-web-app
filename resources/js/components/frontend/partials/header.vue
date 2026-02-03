@@ -260,30 +260,34 @@
     </div>
     <!-- mobile searchbar -->
     <div class="mobile-search" :class="is_search_box_active ? 'show' : ''">
-      <div class="close-search" @click="is_search_box_active = false">
+      <div class="close-search" @click="closeMobileSearch">
         X
       </div>
       <div class="mobile-search-bar mt-5 row align-items-center">
-        <!-- <svg stroke="white" class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-          <path d="M21.71 20.29l-4.78-4.78A7.92 7.92 0 0 0 18 10c0-4.41-3.59-8-8-8S2 5.59 2 10s3.59 8 8 8c1.92 0 3.68-.68 5.06-1.81l4.78 4.78c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/>
-
-      </svg> -->
-
-      <div class="col-10"> <input type="search" v-model="phoneSearchKey" placeholder="Search"></div>
-      <div class="col-2"><svg stroke="white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-          <path d="M21.71 20.29l-4.78-4.78A7.92 7.92 0 0 0 18 10c0-4.41-3.59-8-8-8S2 5.59 2 10s3.59 8 8 8c1.92 0 3.68-.68 5.06-1.81l4.78 4.78c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/>
-
-      </svg></div>
-
-     
-     
-      </div>
-      <div class="mobile-search-quicke-link">
-
-        <div v-for="product in phone_search_products" :key="product.id">
-          <a :href="'/product/' + product.slug">{{ product.product_name }}</a>
+        <div class="col-10">
+          <input
+            type="search"
+            v-model="phoneSearchKey"
+            placeholder="Search"
+            autocomplete="off"
+          >
         </div>
+        <div class="col-2">
+          <svg stroke="white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+            <path d="M21.71 20.29l-4.78-4.78A7.92 7.92 0 0 0 18 10c0-4.41-3.59-8-8-8S2 5.59 2 10s3.59 8 8 8c1.92 0 3.68-.68 5.06-1.81l4.78 4.78c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/>
+          </svg>
+        </div>
+      </div>
 
+      <!-- Mobile search dropdown results -->
+      <div v-if="phone_search_products.length > 0" class="mobile-search-results">
+        <div v-for="product in phone_search_products" :key="product.id">
+          <a @click="closeMobileSearchAndNavigate" :href="'/product/' + product.slug">
+            <div class="mobile-search-result-item">
+              <span class="product-name">{{ product.product_name }}</span>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
 
@@ -686,6 +690,22 @@ export default {
         });
     },
 
+    closeMobileSearchAndNavigate() {
+      // Close the mobile search overlay when a result is clicked
+      this.is_search_box_active = false;
+      // Clear the search input and results
+      this.phoneSearchKey = '';
+      this.phone_search_products = [];
+    },
+
+    closeMobileSearch() {
+      // Close the mobile search overlay when X button is clicked
+      this.is_search_box_active = false;
+      // Clear the search input and results
+      this.phoneSearchKey = '';
+      this.phone_search_products = [];
+    },
+
     categoryMenu() {
       this.$store.commit("setSmCategory", !this.smCategory);
       this.show_sm_category = !this.show_sm_category;
@@ -968,6 +988,46 @@ input.input-text {
     margin-right: 10px;
 }
 
+
+/* Mobile search results styling */
+.mobile-search-results {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 10px 0;
+  margin-top: 15px;
+  z-index: 10;
+}
+
+.mobile-search-results div {
+  margin-bottom: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-search-results div:last-child {
+  border-bottom: none;
+}
+
+.mobile-search-results a {
+  display: flex;
+  align-items: center;
+  color: white !important;
+  text-decoration: none;
+  padding: 12px 15px;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.mobile-search-results a:hover {
+  background-color: #57D9FF;
+  color: black !important;
+}
 
 
 </style>
