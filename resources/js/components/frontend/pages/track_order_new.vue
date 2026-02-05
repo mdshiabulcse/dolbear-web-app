@@ -1,16 +1,36 @@
 <template>
     <div class="container track-order-container" :style="{ height: orderData ? 'auto' : '47vh' }">
         <h4>Track your Order</h4>
+        <p class="text-muted small mb-3">Enter your order code (e.g., #30124) to track your order</p>
         <div class="d-flex mb-2 gap-2">
-            <input type="text" placeholder="Enter your order id" class="track-order-input" v-model="searchOrder">
-            <button class="track-order-btn" @click="trackOrder">Search</button>
+            <input
+                type="text"
+                placeholder="Enter your order code (e.g., #30124)"
+                class="track-order-input"
+                v-model="searchOrder"
+                @keyup.enter="trackOrder"
+            >
+            <button class="track-order-btn" @click="trackOrder" :disabled="loading">
+                {{ loading ? 'Searching...' : 'Search' }}
+            </button>
         </div>
+
+        <!-- Error Message -->
+        <div v-if="errorMessage" class="alert alert-danger" role="alert">
+            {{ errorMessage }}
+        </div>
+
+        <!-- Success Message -->
+        <div v-if="successMessage" class="alert alert-success" role="alert">
+            {{ successMessage }}
+        </div>
+
         <div class="d-flex justify-content-center" style="color: #168FC3;">
 <!--            <h4>Unlock 5% Off Your Second Order!</h4>-->
         </div>
         <div class="d-flex justify-content-between sec-order-no mb-2" v-if="orderData">
-            <p>Your Order No: {{ orderData?.code }}</p>
-            <p>{{ orderData?.delivery_status?.toUpperCase().replace(/_/g, ' ') }}</p>
+            <p><strong>Order No:</strong> {{ orderData?.code }}</p>
+            <p><strong>Status:</strong> {{ orderData?.delivery_status?.toUpperCase().replace(/_/g, ' ') }}</p>
         </div>
 
         <div class="d-flex justify-content-between product-info-sec mb-2"
@@ -106,6 +126,9 @@ export default {
         return {
             searchOrder: "",
             orderData: "",
+            loading: false,
+            errorMessage: "",
+            successMessage: "",
 
         }
     },
@@ -121,7 +144,7 @@ export default {
             this.searchOrder = code;
             await this.trackOrder();
         }
-        
+
     },
 
     methods: {
@@ -163,19 +186,45 @@ export default {
             return eventMessages[event] || "No additional information available.";
         },
         async trackOrder() {
+            // Clear previous messages
+            this.errorMessage = "";
+            this.successMessage = "";
+            this.orderData = "";
 
-            if (this.searchOrder == "") {
+            // Validate input
+            if (!this.searchOrder || this.searchOrder.trim() === "") {
+                this.errorMessage = "Please enter an order code or ID.";
                 return;
-            } else {
+            }
 
+            this.loading = true;
+
+            try {
                 const baseUrl = `${window.location.protocol}//${window.location.host}`;
 
-                await axios.post(`${baseUrl}/track-order`, {
-                    order_id: this.searchOrder,
-                }).then((response) => {
-                    this.orderData = response.data?.order;
-
+                const response = await axios.post(`${baseUrl}/track-order`, {
+                    order_id: this.searchOrder.trim(),
                 });
+
+                if (response.data?.order) {
+                    this.orderData = response.data.order;
+                    this.successMessage = "Order found successfully!";
+                } else if (response.data?.error) {
+                    this.errorMessage = response.data.error;
+                } else {
+                    this.errorMessage = "Order not found. Please check your order code or ID and try again.";
+                }
+            } catch (error) {
+                console.error('Track order error:', error);
+                if (error.response?.data?.error) {
+                    this.errorMessage = error.response.data.error;
+                } else if (error.response?.data?.message) {
+                    this.errorMessage = error.response.data.message;
+                } else {
+                    this.errorMessage = "An error occurred while tracking your order. Please try again later.";
+                }
+            } finally {
+                this.loading = false;
             }
         }
     }
@@ -191,6 +240,32 @@ export default {
     font-size: 20px;
     font-weight: 700;
     line-height: 39px;
+}
+
+.track-order-container .small {
+    font-size: 14px;
+    font-weight: 400;
+    color: #6c757d;
+}
+
+/* Alert styles */
+.alert {
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
 }
 
 .product-info-sec img {
@@ -217,6 +292,13 @@ export default {
     border: none;
     box-shadow: 0px 3px 3px 0px #00000029;
     text-align: center;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.track-order-container .track-order-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .track-order-container p {

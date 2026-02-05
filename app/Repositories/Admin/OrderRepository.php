@@ -531,11 +531,43 @@ class OrderRepository implements OrderInterface
         return true;
     }
 
-    //for frontend api
+    //for frontend api - track order by code or id
     public function orderByCode($orderCode)
     {
-        return Order::with('orderDetails.product', 'deliveryHistories')
-            ->where('code', $orderCode)->first();
+        $query = Order::with('orderDetails.product', 'deliveryHistories');
+
+        // Handle array input from request
+        if (is_array($orderCode) && isset($orderCode['order_id'])) {
+            $orderCode = $orderCode['order_id'];
+        }
+
+        // Check if input is numeric (ID) or string (code)
+        if (is_numeric($orderCode)) {
+            return $query->where('id', $orderCode)->first();
+        }
+
+        // Remove any whitespace and convert to string
+        $searchCode = trim((string)$orderCode);
+
+        // Handle codes with or without # prefix
+        // Search by exact code match first
+        $order = $query->where('code', $searchCode)->first();
+
+        // If not found and doesn't have # prefix, try with # prefix
+        if (!$order && strpos($searchCode, '#') !== 0) {
+            $order = Order::with('orderDetails.product', 'deliveryHistories')
+                ->where('code', '#' . $searchCode)
+                ->first();
+        }
+
+        // If still not found and has # prefix, try without it
+        if (!$order && strpos($searchCode, '#') === 0) {
+            $order = Order::with('orderDetails.product', 'deliveryHistories')
+                ->where('code', ltrim($searchCode, '#'))
+                ->first();
+        }
+
+        return $order;
     }
 
     public function orders($take)
