@@ -194,17 +194,26 @@
               <ul class="menu-main p-0 mb-0">
                 <li class="nav-item menu-item-has-children"
                 v-for="(menu, i) in headerMenu"
-                      :key= i 
+                      :key= i
+                      :class="{ 'expanded': expanded_items.includes(i) }"
                 >
-                  <router-link
-                     @click.native="subMenuActive(i,menu.url)"
-                    :to="menu.url === 'javascript:void(0)' ? '' : menu.url" 
-                    class="nav-items">
-                    {{ menu.label }}
-                  </router-link>
-                  
+                  <div class="menu-link-wrapper">
+                    <router-link
+                       @click.native="subMenuActive(i,menu.url)"
+                      :to="menu.url === 'javascript:void(0)' ? '' : menu.url"
+                      class="nav-items"
+                      :class="{ 'submenu-toggle': menu.url === 'javascript:void(0)' }">
+                      {{ menu.label }}
+                    </router-link>
+                    <span v-if="menu.url === 'javascript:void(0)'" class="submenu-arrow" @click="subMenuActive(i, menu.url)">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4.5 2L8 6L4.5 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </div>
 
-                  <div v-if="menu.url === 'javascript:void(0)'" class="sub-menu mega-menu mega-menu-column-4" :class="{ 'active': menu_key === i }">
+
+                  <div v-if="menu.url === 'javascript:void(0)'" class="sub-menu mega-menu mega-menu-column-4">
                     <div class="container row">
                       <div class="list-item col-md-3">
                         <ul>
@@ -215,9 +224,27 @@
                       </div>
                     </div>
                   </div>
-                  
+
                 </li>
-                
+
+                <!-- Offers Menu Item with Live Badge -->
+                <li class="nav-item menu-offers">
+                  <div class="menu-link-wrapper">
+                    <router-link
+                      @click.native="activeToggleMenuMobile"
+                      :to="{ name: 'offer.products' }"
+                      class="nav-items">
+                      Offers
+                      <span class="live-offer-badge">
+                        <svg class="offer-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <span class="offer-text">LIVE</span>
+                      </span>
+                    </router-link>
+                  </div>
+                </li>
+
               </ul>
             </nav>
           </div>
@@ -345,6 +372,7 @@ export default {
       is_menu_active: false,
       is_sub_menu_active: false,
       menu_key: null,
+      expanded_items: [],
 
       is_search_box_active: false,
     };
@@ -449,17 +477,32 @@ export default {
   methods: {
     activeToggleMenuMobile() {
       this.is_menu_active = !this.is_menu_active;
+      // Reset submenu states when closing menu
+      if (!this.is_menu_active) {
+        this.is_sub_menu_active = false;
+        this.menu_key = null;
+        this.expanded_items = [];
+      }
     },
-   
 
-    subMenuActive(i,url){
-    if (url === 'javascript:void(0)') {
-      this.menu_key = i;
-      this.is_sub_menu_active = true;
-    }else{
-      this.is_menu_active = false;
-    }
-     
+    subMenuActive(i, url) {
+      if (url === 'javascript:void(0)') {
+        // Toggle the expanded state for accordion-style submenu
+        const index = this.expanded_items.indexOf(i);
+        if (index > -1) {
+          // Item is already expanded, collapse it
+          this.expanded_items.splice(index, 1);
+        } else {
+          // Expand the item
+          this.expanded_items.push(i);
+        }
+        // Don't activate the slide-in submenu anymore
+        // this.menu_key = i;
+        // this.is_sub_menu_active = true;
+      } else {
+        // For regular links, close the menu
+        this.is_menu_active = false;
+      }
     },
    
     handleScroll() {
@@ -1029,5 +1072,55 @@ input.input-text {
   color: black !important;
 }
 
+
+/* Mobile menu improvements */
+.navbar .menu .menu-link-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  position: relative;
+}
+
+.navbar .menu .submenu-arrow {
+  position: absolute;
+  right: 20px;
+  top: 0;
+  height: 44px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #FFFFFF !important;
+  transition: transform 0.3s ease, color 0.3s ease;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.navbar .menu .submenu-arrow:hover {
+  color: #57D9FF !important;
+}
+
+.navbar .menu .submenu-arrow svg {
+  pointer-events: none;
+}
+
+.navbar .menu .menu-item-has-children.expanded .submenu-arrow {
+  transform: rotate(90deg);
+}
+
+.navbar .menu .menu-item-has-children.expanded .submenu-arrow svg {
+  transform: rotate(90deg);
+}
+
+/* Submenu collapse/expand state */
+.navbar .menu .menu-item-has-children.expanded > .sub-menu {
+  display: block !important;
+  max-height: 1000px !important;
+  overflow-y: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
 
 </style>

@@ -234,7 +234,13 @@ export default {
       if (this.authUser.user_type != 'customer') {
         return toastr.warning(this.lang.you_are_not_able_topurchase_products, this.lang.Warning + ' !!');
       }
-      this.$router.push({name: 'checkout'});
+
+      // If total is 0, redirect to payment page instead of checkout
+      if (this.payment_form.total === 0) {
+        this.$router.push({name: 'payment'});
+      } else {
+        this.$router.push({name: 'checkout'});
+      }
     },
     parseData(carts, checkouts, coupons) {
       this.resetForm();

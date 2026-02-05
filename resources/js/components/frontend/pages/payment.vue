@@ -1032,6 +1032,12 @@ export default {
     gdpr_page,
   },
   mounted() {
+    // Redirect to cart if total is 0 or less
+    if (this.payment_form.total <= 0) {
+      toastr.warning('Your cart total is 0. Please add items to your cart.', this.lang.Warning + ' !!');
+      this.$router.push({name: 'cart'});
+      return;
+    }
     this.takeOrders();
   },
   watch: {
