@@ -127,6 +127,16 @@ Route::prefix('v100')->group(function() {
             Route::get('campaign-data','campaignData');
         });
 
+        //events API routes
+        Route::controller(\App\Http\Controllers\Api\V100\EventController::class)->group(function (){
+            Route::get('get-events','events');
+            Route::get('event-details/{id}','eventDetails');
+            Route::get('event-products','eventProducts');
+            Route::get('event-data','eventData');
+            Route::get('products-by-event/{id}','eventProducts');
+            Route::get('active-events','activeEvents');
+        });
+
         Route::prefix('category')->group(function () {
             Route::get('all', [CategoryController::class, 'allCategory']);
             Route::get('feature-category', [CategoryController::class, 'featureCategory']);

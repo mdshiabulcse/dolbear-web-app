@@ -192,6 +192,55 @@ class Product extends Model
         return $this->hasOne(CampaignProduct::class);
     }
 
+    /**
+     * Relationship: Product belongs to many events
+     * Same product can be in multiple events
+     */
+    public function eventProducts()
+    {
+        return $this->hasMany(EventProduct::class);
+    }
+
+    /**
+     * Relationship: Get active events for this product
+     */
+    public function activeEvents()
+    {
+        return $this->hasManyThrough(
+            Event::class,
+            EventProduct::class,
+            'product_id',
+            'id',
+            'id',
+            'event_id'
+        )->where('event_products.is_active', 1)
+            ->where('event_products.status', 'active')
+            ->where('events.status', 'active')
+            ->where('events.is_active', 1)
+            ->orderBy('events.event_priority', 'asc');
+    }
+
+    /**
+     * Relationship: Get currently active event with highest priority
+     */
+    public function currentActiveEvent()
+    {
+        return $this->hasOneThrough(
+            Event::class,
+            EventProduct::class,
+            'product_id',
+            'id',
+            'id',
+            'event_id'
+        )->where('event_products.is_active', 1)
+            ->where('event_products.status', 'active')
+            ->where('events.status', 'active')
+            ->where('events.is_active', 1)
+            ->where('events.event_schedule_start', '<=', now())
+            ->where('events.event_schedule_end', '>=', now())
+            ->orderBy('events.event_priority', 'asc');
+    }
+
     public function getProductNameAttribute()
     {
         return @$this->getTranslation('name',languageCheck());

@@ -359,7 +359,7 @@ button, input, optgroup, select, textarea {
   position: sticky;
   top: 90px;
   padding: 0px !important;
-  /* z-index: 99; */
+  z-index: 100;
   background-color: #d9d9da !important;
   transition: all 0.5s cubic-bezier(0.4, 0, 0.6, 1);
 }
@@ -371,16 +371,17 @@ button, input, optgroup, select, textarea {
 @media (max-width: 991px) {
   .navbar {
     top: 0;
+    z-index: 100;
   }
 }
 @media (max-width: 991px) {
   .navbar .menu {
-    height: 0;
+    height: auto;
   }
 }
 @media (max-width: 991px) {
   .navbar .menu.active {
-    height: 100vh;
+    height: auto;
   }
 }
 
@@ -615,13 +616,17 @@ button, input, optgroup, select, textarea {
     max-width: 320px;
     background-color: #ffffff;
     left: 0;
-    top: 0;
-    bottom: 0;
+    top: 50px;
+    bottom: 65px;
+    height: auto;
+    max-height: none;
     overflow: hidden;
     transition: transform 0.3s ease;
-    z-index: 1099;
+    z-index: 99;
     transform: translateX(-100%);
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
   }
   .navbar .menu.active {
     transform: translateX(0%);
@@ -633,13 +638,13 @@ button, input, optgroup, select, textarea {
     border-bottom: 1px solid #e5e5e5;
   }
   .navbar .menu > ul > li > a {
-    line-height: 44px;
-    height: 44px;
+    line-height: 36px;
+    height: 36px;
     padding: 0 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
     color: #1a1a1a !important;
     text-decoration: none;
@@ -650,10 +655,12 @@ button, input, optgroup, select, textarea {
     background-color: #f8f8f8;
     color: #1a1a1a !important;
   }
-  /* Also target router-link and nav-items specifically */
+  /* Also target router-link, nav-items, and span.nav-items specifically */
   .navbar .menu .nav-items,
-  .navbar .menu > ul > li > .nav-items {
+  .navbar .menu > ul > li > .nav-items,
+  .navbar .menu > ul > li > span.nav-items {
     color: #1a1a1a !important;
+    cursor: pointer;
   }
   .navbar .menu > ul > li > a.submenu-toggle {
     padding-right: 40px;
@@ -663,12 +670,12 @@ button, input, optgroup, select, textarea {
   }
   .navbar .menu > ul > li > a i {
     position: absolute;
-    height: 44px;
+    height: 36px;
     width: 40px;
     top: 0;
     right: 0;
     text-align: center;
-    line-height: 44px;
+    line-height: 36px;
     color: #666;
     transition: transform 0.3s ease;
   }
@@ -677,7 +684,7 @@ button, input, optgroup, select, textarea {
   }
   .navbar .menu .mobile-menu-head {
     display: flex;
-    height: 60px;
+    height: 45px;
     border-bottom: 1px solid #e5e5e5;
     justify-content: space-between;
     align-items: center;
@@ -685,22 +692,22 @@ button, input, optgroup, select, textarea {
     z-index: 501;
     position: sticky;
     top: 0;
-    background-color: #1a1a1a;
+    background-color: #ffffff;
     width: 100%;
-    padding: 0 20px;
+    padding: 0 15px;
     flex-shrink: 0;
   }
   .navbar .menu .mobile-menu-head.active {
-    background: #1a1a1a;
+    background: #ffffff;
     border-color: #e5e5e5;
   }
   .navbar .menu .mobile-menu-head .go-back {
-    height: 60px;
+    height: 45px;
     display: flex;
     align-items: center;
     cursor: pointer;
-    color: #ffffff;
-    font-size: 15px;
+    color: #000000;
+    font-size: 13px;
     font-weight: 500;
     display: none;
   }
@@ -711,26 +718,41 @@ button, input, optgroup, select, textarea {
     margin-right: 8px;
   }
   .navbar .menu .mobile-menu-head .current-menu-title {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 600;
-    color: #ffffff;
+    color: #000000;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
   .navbar .menu .mobile-menu-head .mobile-menu-close {
-    height: 60px;
-    width: 60px;
+    height: 45px;
+    width: 45px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ffffff;
-    font-size: 32px;
-    font-weight: 300;
-    line-height: 1;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #000000 !important;
+    font-size: 32px !important;
+    font-weight: bold !important;
+    line-height: 1 !important;
+    background-color: #ffffff !important;
+    border-radius: 0;
+    transition: all 0.2s ease;
+  }
+  .navbar .menu .mobile-menu-head .mobile-menu-close:hover,
+  .navbar .menu .mobile-menu-head .mobile-menu-close:focus {
+    color: #000000 !important;
+    background-color: #f0f0f0 !important;
+  }
+  /* Override Bootstrap text-light class */
+  .navbar .menu .mobile-menu-head .mobile-menu-close.text-light {
+    color: #000000 !important;
+  }
+  .navbar .menu .mobile-menu-head .mobile-menu-close.text-light:hover {
+    color: #000000 !important;
   }
   .navbar .menu .menu-main {
-    height: calc(100% - 60px);
+    height: calc(100% - 45px);
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -741,6 +763,85 @@ button, input, optgroup, select, textarea {
   .navbar .menu .menu-main::-webkit-scrollbar-thumb {
     background-color: #ddd;
     border-radius: 4px;
+  }
+
+  /* Submenu Arrow Styling */
+  .navbar .menu .submenu-arrow {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 36px;
+    width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #1a1a1a;
+    transition: transform 0.3s ease, color 0.2s ease;
+    z-index: 10;
+  }
+  .navbar .menu .submenu-arrow:hover {
+    color: #57D9FF;
+  }
+  .navbar .menu .menu-item-has-children.expanded .submenu-arrow {
+    transform: translateY(-50%) rotate(90deg);
+  }
+  .navbar .menu .submenu-arrow svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* Responsive Font Sizes for Mobile Menu */
+  @media (max-width: 480px) {
+    .navbar .menu > ul > li > a {
+      font-size: 13px !important;
+      line-height: 38px !important;
+      height: 38px !important;
+      padding: 0 18px !important;
+    }
+    .navbar .menu > ul > li .sub-menu > ul > li > a,
+    .navbar .menu > ul > li .sub-menu.mega-menu > .container .list-item > ul > li > a {
+      font-size: 12px !important;
+      line-height: 36px !important;
+      padding: 0 18px 0 32px !important;
+    }
+    .navbar .menu .mobile-menu-head .current-menu-title {
+      font-size: 13px !important;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .navbar .menu > ul > li > a {
+      font-size: 12px !important;
+      line-height: 36px !important;
+      height: 36px !important;
+      padding: 0 15px !important;
+    }
+    .navbar .menu > ul > li .sub-menu > ul > li > a,
+    .navbar .menu > ul > li .sub-menu.mega-menu > .container .list-item > ul > li > a {
+      font-size: 11px !important;
+      line-height: 34px !important;
+      padding: 0 15px 0 30px !important;
+    }
+    .navbar .menu .mobile-menu-head .current-menu-title {
+      font-size: 12px !important;
+    }
+  }
+
+  @media (min-width: 481px) and (max-width: 575px) {
+    .navbar .menu > ul > li > a {
+      font-size: 14px !important;
+      line-height: 40px !important;
+      height: 40px !important;
+      padding: 0 20px !important;
+    }
+    .navbar .menu > ul > li .sub-menu > ul > li > a,
+    .navbar .menu > ul > li .sub-menu.mega-menu > .container .list-item > ul > li > a {
+      font-size: 13px !important;
+      line-height: 38px !important;
+      padding: 0 20px 0 35px !important;
+    }
   }
 
   /* Collapsible Submenu Style */
@@ -755,7 +856,7 @@ button, input, optgroup, select, textarea {
     width: 100%;
     max-width: none;
     min-width: auto;
-    display: none;
+    display: block !important;
     transform: none;
     background-color: #0B0B0B;
     max-height: 0;
@@ -764,8 +865,8 @@ button, input, optgroup, select, textarea {
   }
   .navbar .menu > ul > li.expanded > .sub-menu,
   .navbar .menu > ul > li.expanded.sub-menu-open > .sub-menu {
-    display: block;
-    max-height: 500px;
+    display: block !important;
+    max-height: 500px !important;
     overflow-y: auto;
   }
   .navbar .menu > ul > li .sub-menu.mega-menu-column-4 > .container {
@@ -788,9 +889,9 @@ button, input, optgroup, select, textarea {
   .navbar .menu > ul > li .sub-menu > ul > li > a,
   .navbar .menu > ul > li .sub-menu.mega-menu > .container .list-item > ul > li > a {
     display: block;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 400;
-    line-height: 44px;
+    line-height: 38px;
     padding: 0 20px 0 35px;
     color: #FFFFFF !important;
     text-decoration: none;
@@ -832,20 +933,7 @@ button, input, optgroup, select, textarea {
     }
   }
   .menu-overlay {
-    position: fixed;
-    background-color: rgba(0, 0, 0, 0.5);
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: calc(100% - 60px);
-    z-index: 1098;
-    visibility: hidden;
-    opacity: 0;
-    transition: all 0.5s ease;
-  }
-  .menu-overlay.active {
-    visibility: visible;
-    opacity: 1;
+    display: none;
   }
 
   /* Live Offer Icon Animation */
@@ -910,6 +998,30 @@ button, input, optgroup, select, textarea {
 
   .navbar .menu > ul > li.menu-offers:hover > a {
     background: linear-gradient(90deg, rgba(255, 107, 107, 0.15), rgba(255, 142, 83, 0.15));
+  }
+
+  /* Smaller menu text for small mobile devices */
+  @media (max-width: 380px) {
+    .navbar .menu > ul > li > a {
+      font-size: 12px !important;
+      line-height: 40px !important;
+      height: 40px !important;
+      padding: 0 15px !important;
+    }
+    .navbar .menu .mobile-menu-head .current-menu-title {
+      font-size: 15px !important;
+    }
+    .navbar .menu .mobile-menu-head .mobile-menu-close {
+      height: 50px !important;
+      width: 50px !important;
+      font-size: 28px !important;
+    }
+    .navbar .menu > ul > li .sub-menu > ul > li > a,
+    .navbar .menu > ul > li .sub-menu.mega-menu > .container .list-item > ul > li > a {
+      font-size: 13px !important;
+      line-height: 40px !important;
+      padding: 0 15px 0 30px !important;
+    }
   }
 }
 .cart-item-details-btn-quantity:hover::-webkit-inner-spin-button,

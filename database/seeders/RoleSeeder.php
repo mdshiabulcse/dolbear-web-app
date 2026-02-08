@@ -182,6 +182,16 @@ class RoleSeeder extends Seeder
             'campaign_product_update',
             'campaign_product_delete',
 
+            'event_create',
+            'event_read',
+            'event_update',
+            'event_delete',
+
+            'event_product_create',
+            'event_product_read',
+            'event_product_update',
+            'event_product_delete',
+
             'bulk_sms_read',
             'send_bulk_sms',
 

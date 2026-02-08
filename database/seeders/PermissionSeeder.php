@@ -111,6 +111,8 @@ class PermissionSeeder extends Seeder
             'bulk_sms'              => ['read' => 'bulk_sms_read', 'send_sms' => 'send_bulk_sms','otp_setting_read'=> 'otp_setting_read','otp_setting_update'=> 'otp_setting_update','sms_template_read'=> 'sms_template_read','sms_template_update'=> 'sms_template_update'],
             'campaign'              => ['read' => 'campaign_read','create'  => 'campaign_create', 'update'=> 'campaign_update', 'delete'=>'campaign_delete','campaign_request_read'=> 'campaign_request_read','campaign_request_approved'=> 'campaign_request_approved'],
             'campaign_product'      => ['read' => 'campaign_product_read','create'=> 'campaign_product_create','update'=> 'campaign_product_update','delete' => 'campaign_product_delete'],
+            'event'                 => ['read' => 'event_read','create' => 'event_create', 'update'=> 'event_update', 'delete'=> 'event_delete'],
+            'event_product'         => ['read' => 'event_product_read','create'=> 'event_product_create','update'=> 'event_product_update','delete' => 'event_product_delete'],
             'subscriber'            => ['read' => 'subscriber_read','delete'=> 'subscriber_delete' ],
             'coupon'                => ['read' => 'coupon_read', 'create'   => 'coupon_create','update'                 => 'coupon_update', 'delete'            => 'coupon_delete'],
             'blog'                  => ['read' => 'blog_read', 'create'=> 'blog_create', 'update' => 'blog_update', 'delete' => 'blog_delete' ,'restore'  => 'blog_restore'],

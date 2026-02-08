@@ -198,14 +198,20 @@
                       :class="{ 'expanded': expanded_items.includes(i) }"
                 >
                   <div class="menu-link-wrapper">
-                    <router-link
-                       @click.native="subMenuActive(i,menu.url)"
-                      :to="menu.url === 'javascript:void(0)' ? '' : menu.url"
-                      class="nav-items"
-                      :class="{ 'submenu-toggle': menu.url === 'javascript:void(0)' }">
+                    <!-- Use span instead of router-link for items with submenu -->
+                    <span v-if="menu.url === 'javascript:void(0)'"
+                          class="nav-items submenu-toggle"
+                          @click="subMenuActive(i, menu.url, $event)">
+                      {{ menu.label }}
+                    </span>
+                    <!-- Use router-link only for regular links -->
+                    <router-link v-else
+                       @click.native="subMenuActive(i,menu.url, $event)"
+                      :to="menu.url"
+                      class="nav-items">
                       {{ menu.label }}
                     </router-link>
-                    <span v-if="menu.url === 'javascript:void(0)'" class="submenu-arrow" @click="subMenuActive(i, menu.url)">
+                    <span v-if="menu.url === 'javascript:void(0)'" class="submenu-arrow" @click.stop="subMenuActive(i, menu.url, $event)">
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4.5 2L8 6L4.5 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
@@ -485,8 +491,13 @@ export default {
       }
     },
 
-    subMenuActive(i, url) {
+    subMenuActive(i, url, event) {
       if (url === 'javascript:void(0)') {
+        // Prevent default navigation behavior
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
         // Toggle the expanded state for accordion-style submenu
         const index = this.expanded_items.indexOf(i);
         if (index > -1) {

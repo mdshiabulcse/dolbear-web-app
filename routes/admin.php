@@ -437,6 +437,19 @@ Route::middleware(['XSS'])->group(function () {
                 Route::get('campaign-product/requests-status', [CampaignController::class, 'campaignProductRequestStatus'])->name('campaign.product.request.status')->middleware('PermissionCheck:campaign_product_update');
                 Route::get('campaign/requests', [CampaignController::class, 'campaignRequests'])->name('campaign.requests')->middleware('PermissionCheck:campaign_product_read');
 
+                //events
+                Route::get('events', [\App\Http\Controllers\Admin\EventController::class, 'index'])->name('events');
+                Route::get('events/create', [\App\Http\Controllers\Admin\EventController::class, 'create'])->name('events.create');
+                Route::post('events/store', [\App\Http\Controllers\Admin\EventController::class, 'store'])->name('events.store');
+                Route::get('events/{id}', [\App\Http\Controllers\Admin\EventController::class, 'show'])->name('events.show');
+                Route::get('events/{id}/edit', [\App\Http\Controllers\Admin\EventController::class, 'edit'])->name('events.edit');
+                Route::put('events/{id}', [\App\Http\Controllers\Admin\EventController::class, 'update'])->name('events.update');
+                Route::delete('delete/events/{id}', [\App\Http\Controllers\Admin\EventController::class, 'destroy'])->name('events.delete');
+                Route::match(['put', 'post'], 'events-status-change', [\App\Http\Controllers\Admin\EventController::class, 'statusChange'])->name('events.status.change');
+                Route::post('events/{eventId}/add-product', [\App\Http\Controllers\Admin\EventController::class, 'addProduct'])->name('events.add.product');
+                Route::delete('events/{eventId}/remove-product', [\App\Http\Controllers\Admin\EventController::class, 'removeProduct'])->name('events.remove.product');
+                Route::put('events/{eventId}/products/{productId}', [\App\Http\Controllers\Admin\EventController::class, 'updateEventProduct'])->name('events.update.product');
+                Route::get('events/active', [\App\Http\Controllers\Admin\EventController::class, 'getActiveEvents'])->name('events.active');
 
                 Route::get('coupons', [CouponController::class, 'index'])->name('coupons')->middleware('PermissionCheck:coupon_read');
                 Route::post('coupon-store', [CouponController::class, 'store'])->name('coupon.store')->middleware('PermissionCheck:coupon_create');
