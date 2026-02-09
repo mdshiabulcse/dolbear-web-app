@@ -342,17 +342,8 @@ const Analytics = {
                 }
             });
 
-            // Facebook Pixel - View Cart
-            if (this.isFacebookReady()) {
-                window.fbq('track', 'ViewContent', {
-                    content_ids: carts.map(c => c.sku || String(c.product_id)),
-                    content_type: 'product',
-                    content_name: 'Shopping Cart',
-                    value: totalValue,
-                    currency: currency,
-                    num_items: carts.reduce((sum, item) => sum + parseInt(item.quantity), 0)
-                });
-            }
+            // NOTE: Facebook Pixel tracking removed to prevent duplicates
+            // GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
 
             console.log('[Analytics] View cart tracked. Total:', totalValue, 'Currency:', currency, 'Items:', carts.length);
         } catch (error) {
@@ -385,16 +376,8 @@ const Analytics = {
                 }
             });
 
-            // Facebook Pixel - Add to Cart
-            if (this.isFacebookReady()) {
-                window.fbq('track', 'AddToCart', {
-                    content_ids: [product.sku || String(product.product_id)],
-                    content_type: 'product',
-                    content_name: product.product_name || '',
-                    value: value,
-                    currency: currency
-                });
-            }
+            // NOTE: Facebook Pixel tracking removed to prevent duplicates
+            // GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
 
             console.log('[Analytics] Add to cart tracked:', product.product_name, 'Qty:', quantity, 'Value:', value, 'Currency:', currency);
         } catch (error) {
@@ -461,16 +444,8 @@ const Analytics = {
                 }
             });
 
-            // Facebook Pixel - InitiateCheckout
-            if (this.isFacebookReady()) {
-                window.fbq('track', 'InitiateCheckout', {
-                    content_ids: carts.map(c => c.sku || String(c.product_id)),
-                    content_type: 'product',
-                    value: totalValue,
-                    currency: currency,
-                    num_items: carts.reduce((sum, item) => sum + parseInt(item.quantity), 0)
-                });
-            }
+            // NOTE: Facebook Pixel tracking removed to prevent duplicates
+            // GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
 
             console.log('[Analytics] Begin checkout tracked. Total:', totalValue, 'Currency:', currency, 'Items:', carts.length);
         } catch (error) {
@@ -517,11 +492,9 @@ export default {
         this.removeAllCoupons();
       }
 
-      // Analytics: Re-track cart view when cart changes
-      this.$nextTick(() => {
-        this.cartViewTracked = false; // Reset flag to allow tracking on cart changes
-        this.trackCartView();
-      });
+      // ❌ REMOVED: Don't re-track view_cart on cart changes
+      // view_cart should only fire once on page load, not when cart contents change
+      // Cart changes are tracked with add_to_cart and remove_from_cart events
     },
   },
   computed: {

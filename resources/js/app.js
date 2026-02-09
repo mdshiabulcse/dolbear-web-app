@@ -55,6 +55,10 @@ import helper from './helper';
 import storeData from './store/index';
 import module from './store/module';
 
+// Import Analytics helper for tracking
+import Analytics from './helpers/analytics';
+window.Analytics = Analytics;
+
 const store = new Vuex.Store({
     modules: {
         module,

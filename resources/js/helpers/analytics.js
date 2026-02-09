@@ -25,7 +25,7 @@ const Analytics = {
 		if (activeCurrency && activeCurrency.code) {
 			return activeCurrency.code;
 		}
-		return 'USD'; // Default fallback
+		return 'BDT'; // Default fallback - Bangladeshi Taka
 	},
 
 	/**
@@ -68,17 +68,8 @@ const Analytics = {
 				}
 			});
 
-			// Facebook Pixel - ViewContent
-			if (this.isFacebookReady()) {
-				window.fbq('track', 'ViewContent', {
-					content_name: productDetails.product_name || '',
-					content_category: category,
-					content_ids: [sku],
-					content_type: 'product',
-					value: parseFloat(price),
-					currency: currency
-				});
-			}
+			// NOTE: Facebook Pixel tracking removed to prevent duplicates
+			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
 
 			console.log('[Analytics] Product view tracked:', productDetails.product_name);
 		} catch (error) {
@@ -121,17 +112,8 @@ const Analytics = {
 				}
 			});
 
-			// Facebook Pixel - AddToCart
-			if (this.isFacebookReady()) {
-				window.fbq('track', 'AddToCart', {
-					content_name: productDetails.product_name || '',
-					content_category: category,
-					content_ids: [sku],
-					content_type: 'product',
-					value: totalValue,
-					currency: currency
-				});
-			}
+			// NOTE: Facebook Pixel tracking removed to prevent duplicates
+			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
 
 			console.log('[Analytics] Add to cart tracked:', productDetails.product_name, 'Qty:', quantity);
 		} catch (error) {
@@ -176,20 +158,98 @@ const Analytics = {
 				}
 			});
 
-			// Facebook Pixel - InitiateCheckout
-			if (this.isFacebookReady()) {
-				window.fbq('track', 'InitiateCheckout', {
-					content_ids: carts.map(c => c.sku || String(c.product_id)),
-					content_type: 'product',
-					value: totalValue,
-					currency: currency,
-					num_items: carts.reduce((sum, item) => sum + parseInt(item.quantity), 0)
-				});
-			}
+			// NOTE: Facebook Pixel tracking removed to prevent duplicates
+			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
 
 			console.log('[Analytics] Begin checkout tracked. Total:', totalValue, 'Items:', carts.length);
 		} catch (error) {
 			console.error('[Analytics] Error tracking begin checkout:', error);
+		}
+	},
+
+	/**
+	 * ============================================
+	 * VIEW CART TRACKING
+	 * ============================================
+	 * Call this when user views shopping cart
+	 */
+	trackViewCart(carts, activeCurrency) {
+		if (!this.isGTMReady() || !carts || !Array.isArray(carts) || carts.length === 0) {
+			console.warn('[Analytics] GTM not ready or no cart data');
+			return;
+		}
+
+		try {
+			const currency = this.getCurrencyCode(activeCurrency);
+			const totalValue = carts.reduce((sum, item) => {
+				return sum + (parseFloat(item.price - (item.discount || 0)) * parseInt(item.quantity));
+			}, 0);
+
+			const items = carts.map(cart => ({
+				item_id: cart.sku || String(cart.product_id),
+				item_name: cart.product_name || '',
+				item_variant: cart.variant || '',
+				item_category: cart.category_name || '',
+				price: parseFloat(cart.price - (cart.discount || 0)),
+				quantity: parseInt(cart.quantity)
+			}));
+
+			// GA4 - View Cart
+			window.dataLayer.push({
+				event: 'view_cart',
+				ecommerce: {
+					currency: currency,
+					value: totalValue,
+					items: items
+				}
+			});
+
+			// NOTE: Facebook Pixel tracking removed to prevent duplicates
+			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
+
+			console.log('[Analytics] View cart tracked. Total:', totalValue, 'Currency:', currency, 'Items:', carts.length);
+		} catch (error) {
+			console.error('[Analytics] Error tracking view cart:', error);
+		}
+	},
+
+	/**
+	 * ============================================
+	 * REMOVE FROM CART TRACKING
+	 * ============================================
+	 * Call this when user removes item from cart
+	 */
+	trackRemoveFromCart(product, quantity, activeCurrency) {
+		if (!this.isGTMReady() || !product) {
+			console.warn('[Analytics] GTM not ready or no product data');
+			return;
+		}
+
+		try {
+			const currency = this.getCurrencyCode(activeCurrency);
+			const price = parseFloat(product.price - (product.discount || 0));
+			const value = price * parseInt(quantity);
+
+			// GA4 - Remove from Cart
+			window.dataLayer.push({
+				event: 'remove_from_cart',
+				ecommerce: {
+					currency: currency,
+					value: value,
+					items: [{
+						item_id: product.sku || String(product.product_id),
+						item_name: product.product_name || '',
+						item_variant: product.variant || '',
+						item_category: product.category_name || '',
+						price: price,
+						quantity: parseInt(quantity)
+					}]
+				}
+			});
+
+			console.log('[Analytics] Remove from cart tracked:', product.product_name, 'Qty:', quantity, 'Value:', value, 'Currency:', currency);
+		} catch (error) {
+			console.error('[Analytics] Error tracking remove from cart:', error);
 		}
 	},
 
@@ -242,16 +302,8 @@ const Analytics = {
 					}
 				});
 
-				// Facebook Pixel - Purchase
-				if (this.isFacebookReady()) {
-					window.fbq('track', 'Purchase', {
-						content_ids: order.order_details.map(d => d.sku || String(d.product_id || '')),
-						content_type: 'product',
-						value: parseFloat(order.total_payable),
-						currency: currency,
-						num_items: order.order_details.length
-					});
-				}
+				// NOTE: Facebook Pixel tracking removed to prevent duplicates
+				// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
 
 				console.log('[Analytics] Purchase tracked for order:', order.code, 'Total:', order.total_payable);
 			});
@@ -278,13 +330,8 @@ const Analytics = {
 				search_term: searchTerm.trim()
 			});
 
-			// Facebook Pixel - Search
-			if (this.isFacebookReady()) {
-				window.fbq('track', 'Search', {
-					search_string: searchTerm.trim(),
-					content_category: 'Products'
-				});
-			}
+			// NOTE: Facebook Pixel tracking removed to prevent duplicates
+			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
 
 			console.log('[Analytics] Search tracked:', searchTerm);
 		} catch (error) {
@@ -325,17 +372,8 @@ const Analytics = {
 				}
 			});
 
-			// Facebook Pixel - AddToWishlist
-			if (this.isFacebookReady()) {
-				window.fbq('track', 'AddToWishlist', {
-					content_name: productDetails.product_name || '',
-					content_category: category,
-					content_ids: [sku],
-					content_type: 'product',
-					value: parseFloat(price),
-					currency: currency
-				});
-			}
+			// NOTE: Facebook Pixel tracking removed to prevent duplicates
+			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
 
 			console.log('[Analytics] Add to wishlist tracked:', productDetails.product_name);
 		} catch (error) {
@@ -389,14 +427,8 @@ const Analytics = {
 				}
 			});
 
-			// Facebook Custom Event
-			if (this.isFacebookReady()) {
-				window.fbq('trackCustom', 'ViewCampaign', {
-					campaign_name: campaign.title || campaign.name || '',
-					campaign_id: String(campaign.id),
-					campaign_type: campaign.type || 'campaign'
-				});
-			}
+			// NOTE: Facebook Pixel tracking removed to prevent duplicates
+			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
 
 			console.log('[Analytics] Campaign view tracked:', campaign.title || campaign.name);
 		} catch (error) {
@@ -409,3 +441,6 @@ const Analytics = {
 if (typeof module !== 'undefined' && module.exports) {
 	module.exports = Analytics;
 }
+
+// ES6 export for modern JavaScript
+export default Analytics;

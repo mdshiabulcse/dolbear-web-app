@@ -300,10 +300,8 @@ export default {
     carts(newValue, oldValue) {
       this.getAddress();
 
-      // Analytics: Re-track when carts change
-      this.$nextTick(() => {
-        this.trackCheckout();
-      });
+      // ❌ REMOVED: Don't re-track begin_checkout when carts change
+      // begin_checkout should only fire once when user enters checkout page
     },
     lang(newValue, oldValue) {
       this.address_submit_button = this.lang.add;

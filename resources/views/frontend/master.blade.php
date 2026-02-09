@@ -176,11 +176,11 @@
         </script>
     @endif
 
-    @if(settingHelper('custom_header_script'))
+{{--    @if(settingHelper('custom_header_script'))--}}
 
-        {!! base64_decode(settingHelper('custom_header_script')) !!}
+{{--        {!! base64_decode(settingHelper('custom_header_script')) !!}--}}
 
-    @endif
+{{--    @endif--}}
 
     @laravelPWA
 
@@ -206,10 +206,10 @@
     {{-- ============================================= --}}
     <!-- Facebook Pixel Code with Advanced Matching -->
     <script>
-        // Prevent duplicate initialization - check if already loaded
-        if (!window.fbPixelInitialized && typeof window.fbq === 'undefined') {
+        // Prevent duplicate initialization - use OR (||) not AND (&&)
+        // Also check if fbq is already defined to prevent re-initialization in SPA
+        if (!window.fbPixelInitialized || typeof window.fbq === 'undefined') {
             window.fbPixelInitialized = true;
-            window.fbPageViewTracked = false;
 
             !function (f, b, e, v, n, t, s) {
                 n = f.fbq = function () {
@@ -249,13 +249,8 @@
             @endif
 
             // Initialize Facebook Pixel with Advanced Matching
+            // IMPORTANT: fbq('init') automatically fires PageView - DO NOT call it again!
             fbq('init', '756455577290976', fbAdvancedMatchingData);
-
-            // Track PageView (only once per page load)
-            if (!window.fbPageViewTracked) {
-                fbq('track', 'PageView');
-                window.fbPageViewTracked = true;
-            }
 
             // Store user data globally for use in Vue components
             window.fbPixelData = {
