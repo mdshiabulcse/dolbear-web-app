@@ -206,9 +206,10 @@
     {{-- ============================================= --}}
     <!-- Facebook Pixel Code with Advanced Matching -->
     <script>
-        // Prevent duplicate initialization
-        if (typeof window.fbq === 'undefined' && !window.fbPixelInitialized) {
+        // Prevent duplicate initialization - check if already loaded
+        if (!window.fbPixelInitialized && typeof window.fbq === 'undefined') {
             window.fbPixelInitialized = true;
+            window.fbPageViewTracked = false;
 
             !function (f, b, e, v, n, t, s) {
                 n = f.fbq = function () {
@@ -250,8 +251,11 @@
             // Initialize Facebook Pixel with Advanced Matching
             fbq('init', '756455577290976', fbAdvancedMatchingData);
 
-            // Track PageView
-            fbq('track', 'PageView');
+            // Track PageView (only once per page load)
+            if (!window.fbPageViewTracked) {
+                fbq('track', 'PageView');
+                window.fbPageViewTracked = true;
+            }
 
             // Store user data globally for use in Vue components
             window.fbPixelData = {
@@ -287,24 +291,12 @@
         })(window, document, 'script', 'dataLayer', 'GTM-54BWTWX9');</script>
     <!-- End Google Tag Manager -->
 
-    <!-- Google Tag Manager -->
-    <script>(function (w, d, s, l, i) {
-            w[l] = w[l] || [];
-            w[l].push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
-            var f = d.getElementsByTagName(s)[0], j = d.createElement(s);
-            j.async = true;
-            j.src = "https://server.dolbear.com.bd/duqfolossoymk.js?" + i;
-            f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', '5r4u4dn=AglEKCc%2BQllfLy47JCtWSh1QS0FCVQsCVgkWAxEWDh5FDhYCXREL');</script>
-    <!-- End Google Tag Manager -->
+
 
     {{-- ============================================= --}}
     {{-- FACEBOOK PIXEL HELPER FUNCTIONS              --}}
     {{-- ============================================= --}}
     <script>
-        // Flag to prevent duplicate initialization
-        window.fbPixelInitialized = false;
-
         // Helper function to store user data (DO NOT re-initialize pixel)
         window.storeFacebookPixelUser = function(userData) {
             if (!userData) {
@@ -347,12 +339,7 @@
 </noscript>
 <!-- End Google Tag Manager (noscript) -->
 
-<!-- Google Tag Manager (noscript) -->
-<noscript>
-    <iframe src="https://server.dolbear.com.bd/ns.html?id=GTM-54BWTWX9" height="0" width="0"
-            style="display:none;visibility:hidden"></iframe>
-</noscript>
-<!-- End Google Tag Manager (noscript) -->
+
 
 <!-- Hotjar Tag Manager (noscript) -->
 
