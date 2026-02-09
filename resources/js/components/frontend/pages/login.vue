@@ -149,6 +149,9 @@ export default {
           this.$store.dispatch('user', response.data.user);
           this.$store.dispatch('compareList', response.data.compare_list);
           this.$store.dispatch('wishlists', response.data.wishlists);
+
+          // Facebook Pixel - Track login and update with user data
+          this.trackFacebookPixelLogin(response.data.user);
         }
       }).catch((error) => {
         this.loading = false;
@@ -174,6 +177,9 @@ export default {
             this.$store.dispatch('user', response.data.user);
             this.$store.dispatch('compareList', response.data.compare_list);
             this.$store.dispatch('wishlists', response.data.wishlists);
+
+            // Facebook Pixel - Track social login and update with user data
+            this.trackFacebookPixelLogin(response.data.user);
           }
         } else {
           toastr.error(response.data.error, this.lang.Error + ' !!');
@@ -307,6 +313,35 @@ export default {
           }
         }
       })
+    },
+    // Facebook Pixel - Track login (DO NOT re-initialize pixel)
+    trackFacebookPixelLogin(user) {
+      if (!user || typeof window.fbq === 'undefined') {
+        return;
+      }
+
+      // Track CompleteRegistration event for login
+      // Do NOT call fbq('init') again - it causes duplicate PageView events
+      window.fbq('track', 'CompleteRegistration', {
+        content_name: 'Login',
+        status: 'logged_in',
+        value: 0,
+        currency: 'BDT'
+      });
+
+      // Update global store for future events
+      if (window.fbPixelData) {
+        window.fbPixelData.user = {
+          em: user.email || '',
+          fn: user.first_name || '',
+          ln: user.last_name || '',
+          ph: user.phone || '',
+          external_id: user.id || ''
+        };
+        window.fbPixelData.isLoggedIn = true;
+      }
+
+      console.log('[Facebook Pixel] Login tracked for user:', user.email);
     },
   },
 }

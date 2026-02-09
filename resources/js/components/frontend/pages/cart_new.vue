@@ -301,6 +301,184 @@
 <script>
 import {EXPRESS_DELIVERY, STANDARD, STORE_PICK} from "../../../constants/deliveryMethod";
 
+// Analytics Tracking Helper for Cart Page
+const Analytics = {
+    isGTMReady() {
+        return typeof window.dataLayer !== 'undefined';
+    },
+    isFacebookReady() {
+        return typeof window.fbq !== 'undefined';
+    },
+    getCurrencyCode(activeCurrency) {
+        // Default to BDT for Dolbear Bangladesh site
+        return (activeCurrency && activeCurrency.code) ? activeCurrency.code : 'BDT';
+    },
+    trackViewCart(carts, activeCurrency) {
+        if (!this.isGTMReady() || !carts || !Array.isArray(carts) || carts.length === 0) {
+            return;
+        }
+        try {
+            const currency = this.getCurrencyCode(activeCurrency);
+            const totalValue = carts.reduce((sum, item) => {
+                return sum + (parseFloat(item.price - (item.discount || 0)) * parseInt(item.quantity));
+            }, 0);
+
+            const items = carts.map(cart => ({
+                item_id: cart.sku || String(cart.product_id),
+                item_name: cart.product_name || '',
+                item_variant: cart.variant || '',
+                item_category: cart.category_name || '',
+                price: parseFloat(cart.price - (cart.discount || 0)),
+                quantity: parseInt(cart.quantity)
+            }));
+
+            // GA4 - View Cart
+            window.dataLayer.push({
+                event: 'view_cart',
+                ecommerce: {
+                    currency: currency,
+                    value: totalValue,
+                    items: items
+                }
+            });
+
+            // Facebook Pixel - View Cart
+            if (this.isFacebookReady()) {
+                window.fbq('track', 'ViewContent', {
+                    content_ids: carts.map(c => c.sku || String(c.product_id)),
+                    content_type: 'product',
+                    content_name: 'Shopping Cart',
+                    value: totalValue,
+                    currency: currency,
+                    num_items: carts.reduce((sum, item) => sum + parseInt(item.quantity), 0)
+                });
+            }
+
+            console.log('[Analytics] View cart tracked. Total:', totalValue, 'Currency:', currency, 'Items:', carts.length);
+        } catch (error) {
+            console.error('[Analytics] Error tracking view cart:', error);
+        }
+    },
+    trackAddToCart(product, quantity, activeCurrency) {
+        if (!this.isGTMReady() || !product) {
+            return;
+        }
+        try {
+            const currency = this.getCurrencyCode(activeCurrency);
+            const price = parseFloat(product.price - (product.discount || 0));
+            const value = price * parseInt(quantity);
+
+            // GA4 - Add to Cart
+            window.dataLayer.push({
+                event: 'add_to_cart',
+                ecommerce: {
+                    currency: currency,
+                    value: value,
+                    items: [{
+                        item_id: product.sku || String(product.product_id),
+                        item_name: product.product_name || '',
+                        item_variant: product.variant || '',
+                        item_category: product.category_name || '',
+                        price: price,
+                        quantity: parseInt(quantity)
+                    }]
+                }
+            });
+
+            // Facebook Pixel - Add to Cart
+            if (this.isFacebookReady()) {
+                window.fbq('track', 'AddToCart', {
+                    content_ids: [product.sku || String(product.product_id)],
+                    content_type: 'product',
+                    content_name: product.product_name || '',
+                    value: value,
+                    currency: currency
+                });
+            }
+
+            console.log('[Analytics] Add to cart tracked:', product.product_name, 'Qty:', quantity, 'Value:', value, 'Currency:', currency);
+        } catch (error) {
+            console.error('[Analytics] Error tracking add to cart:', error);
+        }
+    },
+    trackRemoveFromCart(product, quantity, activeCurrency) {
+        if (!this.isGTMReady() || !product) {
+            return;
+        }
+        try {
+            const currency = this.getCurrencyCode(activeCurrency);
+            const price = parseFloat(product.price - (product.discount || 0));
+            const value = price * parseInt(quantity);
+
+            // GA4 - Remove from Cart
+            window.dataLayer.push({
+                event: 'remove_from_cart',
+                ecommerce: {
+                    currency: currency,
+                    value: value,
+                    items: [{
+                        item_id: product.sku || String(product.product_id),
+                        item_name: product.product_name || '',
+                        item_variant: product.variant || '',
+                        item_category: product.category_name || '',
+                        price: price,
+                        quantity: parseInt(quantity)
+                    }]
+                }
+            });
+
+            console.log('[Analytics] Remove from cart tracked:', product.product_name, 'Qty:', quantity, 'Value:', value, 'Currency:', currency);
+        } catch (error) {
+            console.error('[Analytics] Error tracking remove from cart:', error);
+        }
+    },
+    trackBeginCheckout(carts, activeCurrency) {
+        if (!this.isGTMReady() || !carts || !Array.isArray(carts) || carts.length === 0) {
+            return;
+        }
+        try {
+            const currency = this.getCurrencyCode(activeCurrency);
+            const totalValue = carts.reduce((sum, item) => {
+                return sum + (parseFloat(item.price - (item.discount || 0)) * parseInt(item.quantity));
+            }, 0);
+
+            const items = carts.map(cart => ({
+                item_id: cart.sku || String(cart.product_id),
+                item_name: cart.product_name || '',
+                item_variant: cart.variant || '',
+                item_category: cart.category_name || '',
+                price: parseFloat(cart.price - (cart.discount || 0)),
+                quantity: parseInt(cart.quantity)
+            }));
+
+            // GA4 - Begin Checkout
+            window.dataLayer.push({
+                event: 'begin_checkout',
+                ecommerce: {
+                    currency: currency,
+                    value: totalValue,
+                    items: items
+                }
+            });
+
+            // Facebook Pixel - InitiateCheckout
+            if (this.isFacebookReady()) {
+                window.fbq('track', 'InitiateCheckout', {
+                    content_ids: carts.map(c => c.sku || String(c.product_id)),
+                    content_type: 'product',
+                    value: totalValue,
+                    currency: currency,
+                    num_items: carts.reduce((sum, item) => sum + parseInt(item.quantity), 0)
+                });
+            }
+
+            console.log('[Analytics] Begin checkout tracked. Total:', totalValue, 'Currency:', currency, 'Items:', carts.length);
+        } catch (error) {
+            console.error('[Analytics] Error tracking begin checkout:', error);
+        }
+    }
+};
+
 export default {
   async mounted() {
 
@@ -324,6 +502,11 @@ export default {
     this.getCheckout()
     this.getStore()
     await this.getUserAddress()
+
+    // Analytics: Track cart view on page load
+    this.$nextTick(() => {
+      this.trackCartView();
+    });
   },
   watch: {
     cartList(newValue, oldValue) {
@@ -333,6 +516,12 @@ export default {
       if (!newValue || newValue.length === 0) {
         this.removeAllCoupons();
       }
+
+      // Analytics: Re-track cart view when cart changes
+      this.$nextTick(() => {
+        this.cartViewTracked = false; // Reset flag to allow tracking on cart changes
+        this.trackCartView();
+      });
     },
   },
   computed: {
@@ -369,6 +558,8 @@ export default {
   },
   data() {
       return {
+        STANDARD,
+        EXPRESS_DELIVERY,
         STORE_PICK,
         actionIcon: "/images/img/icon/deletecart.png",
         deliveryOptions: [STANDARD, EXPRESS_DELIVERY, STORE_PICK],
@@ -428,7 +619,8 @@ export default {
         divisions: [],
         states: [],
         cities: [],
-        address_submit_loading: false
+        address_submit_loading: false,
+        cartViewTracked: false,
       };
   },
   methods: {
@@ -692,11 +884,19 @@ export default {
     },
     deleteCart(id) {
       if (confirm("Are you sure?")) {
+        // Find the cart item before deleting for tracking
+        const cartItem = this.carts.find(c => c.id === id);
+
         let url = this.getUrl('cart/delete/' + id);
         axios.get(url).then((response) => {
           if (response.data.error) {
             toastr.error(response.data.error, this.lang.Error + ' !!');
           } else {
+            // Analytics: Track remove from cart (entire item removed)
+            if (cartItem) {
+              Analytics.trackRemoveFromCart(cartItem, cartItem.quantity || 1, this.active_currency);
+            }
+
             this.$store.dispatch('carts', response.data.carts);
 
             // Automatically remove all coupons if cart becomes empty
@@ -785,6 +985,9 @@ export default {
           if (response.data.error) {
             toastr.error(response.data.error, this.lang.Error + ' !!');
           } else {
+            // Analytics: Track add to cart (1 quantity added)
+            Analytics.trackAddToCart(this.carts[index], 1, this.active_currency);
+
             this.$store.dispatch('carts', response.data.carts);
             let coupons = response.data.coupons;
             this.parseData(this.cartList, response.data.checkouts, coupons);
@@ -819,6 +1022,9 @@ export default {
           if (response.data.error) {
             toastr.error(response.data.error, this.lang.Error + ' !!');
           } else {
+            // Analytics: Track remove from cart (1 quantity removed)
+            Analytics.trackRemoveFromCart(this.carts[index], 1, this.active_currency);
+
             this.$store.dispatch('carts', response.data.carts);
             let coupons = response.data.coupons;
             let checkouts = response.data.checkouts;
@@ -1055,6 +1261,9 @@ export default {
           form: this.form,
         };
 
+        // Analytics: Track begin checkout before API call
+        Analytics.trackBeginCheckout(this.cartList, this.active_currency);
+
         // API call
         const url = this.getUrl('user/confirm-order');
         const response = await axios.post(url, requestData);
@@ -1260,6 +1469,14 @@ export default {
 
       // Update the v-model value
       this.form.phone_no = input;
+    },
+
+    trackCartView() {
+      // Track cart view only once per page load, and only if cart has items
+      if (this.carts && this.carts.length > 0 && !this.cartViewTracked) {
+        Analytics.trackViewCart(this.carts, this.active_currency);
+        this.cartViewTracked = true;
+      }
     },
 
 

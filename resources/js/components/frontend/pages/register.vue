@@ -162,6 +162,10 @@ export default {
         if (response.data.success) {
           if (response.data.type == 1) {
             this.$store.dispatch('user', response.data.auth_user);
+
+            // Facebook Pixel - Track registration
+            this.trackFacebookPixelRegistration(response.data.auth_user);
+
             this.$router.push({name: 'dashboard'});
           } else {
             this.$router.push({name: 'login'});
@@ -209,6 +213,35 @@ export default {
     },
     getNumber(number) {
       this.form.phone = number;
+    },
+    // Facebook Pixel - Track registration and update pixel with user data
+    trackFacebookPixelRegistration(user) {
+      if (!user || typeof window.fbq === 'undefined') {
+        return;
+      }
+
+      // Track CompleteRegistration event for registration
+      // Do NOT call fbq('init') again - it causes duplicate PageView events
+      window.fbq('track', 'CompleteRegistration', {
+        content_name: 'Registration',
+        status: 'registered',
+        value: 0,
+        currency: 'BDT'
+      });
+
+      // Update global store for future events
+      if (window.fbPixelData) {
+        window.fbPixelData.user = {
+          em: user.email || '',
+          fn: user.first_name || '',
+          ln: user.last_name || '',
+          ph: user.phone || '',
+          external_id: user.id || ''
+        };
+        window.fbPixelData.isLoggedIn = true;
+      }
+
+      console.log('[Facebook Pixel] Registration tracked for user:', user.email);
     }
   },
 }

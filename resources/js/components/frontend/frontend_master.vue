@@ -121,6 +121,9 @@ export default {
     if (this.settings.demo_mode) {
       this.colorChanger();
     }
+
+    // Facebook Pixel Advanced Matching - Update with user data from Vue
+    this.updateFacebookPixelWithUserData();
   },
   created() {
     if (this.settings.pushar_activated) {
@@ -287,6 +290,18 @@ export default {
           }
         });
       }
+    },
+    // Facebook Pixel - Store user data (DO NOT re-initialize pixel)
+    updateFacebookPixelWithUserData() {
+      // Store user data for future events - does NOT cause duplicate PageView
+      this.$nextTick(() => {
+        setTimeout(() => {
+          if (this.user && this.user.id && typeof window.storeFacebookPixelUser === 'function') {
+            console.log('[Facebook Pixel] Storing user data from Vue:', this.user.email);
+            window.storeFacebookPixelUser(this.user);
+          }
+        }, 1000);
+      });
     },
   }
 }
