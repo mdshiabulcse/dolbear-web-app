@@ -577,6 +577,80 @@
 <script>
 import shimmer from "../../partials/shimmer";
 
+// Analytics Tracking Helper for Purchase
+const Analytics = {
+    isGTMReady() {
+        return typeof window.dataLayer !== 'undefined';
+    },
+    isFacebookReady() {
+        return typeof window.fbq !== 'undefined';
+    },
+    getCurrencyCode(activeCurrency) {
+        // Default to BDT for Dolbear Bangladesh site
+        return (activeCurrency && activeCurrency.code) ? activeCurrency.code : 'BDT';
+    },
+    trackPurchase(orders, activeCurrency) {
+        if (!this.isGTMReady() || !orders || !Array.isArray(orders) || orders.length === 0) {
+            console.warn('[Analytics] GTM not ready or no order data');
+            return;
+        }
+
+        try {
+            const currency = this.getCurrencyCode(activeCurrency);
+
+            // Process each order
+            orders.forEach(order => {
+                if (!order.order_details || !Array.isArray(order.order_details)) {
+                    return;
+                }
+
+                const items = order.order_details.map(detail => ({
+                    item_id: detail.sku || String(detail.product_id || ''),
+                    item_name: detail.product_name || '',
+                    item_category: detail.category_name || '',
+                    item_variant: detail.variation || '',
+                    price: parseFloat(detail.price),
+                    quantity: parseInt(detail.quantity)
+                }));
+
+                // Calculate totals
+                const totalTax = parseFloat(order.total_tax) || 0;
+                const totalShipping = parseFloat(order.shipping_cost) || 0;
+
+                // GA4 - Purchase
+                window.dataLayer.push({
+                    event: 'purchase',
+                    ecommerce: {
+                        transaction_id: String(order.code),
+                        affiliation: 'Dolbear Store',
+                        value: parseFloat(order.total_payable),
+                        tax: totalTax,
+                        shipping: totalShipping,
+                        currency: currency,
+                        coupon: String(order.coupon_discount > 0 ? 'applied' : ''),
+                        items: items
+                    }
+                });
+
+                // Facebook Pixel - Purchase
+                if (this.isFacebookReady()) {
+                    window.fbq('track', 'Purchase', {
+                        content_ids: order.order_details.map(d => d.sku || String(d.product_id || '')),
+                        content_type: 'product',
+                        value: parseFloat(order.total_payable),
+                        currency: currency,
+                        num_items: order.order_details.length
+                    });
+                }
+
+                console.log('[Analytics] Purchase tracked for order:', order.code, 'Total:', order.total_payable, 'Currency:', currency);
+            });
+        } catch (error) {
+            console.error('[Analytics] Error tracking purchase:', error);
+        }
+    }
+};
+
 export default {
 	name: "get-invoice.vue",
 	data() {
@@ -584,6 +658,7 @@ export default {
 			orders: [],
 			is_shimmer: false,
 			loading: false,
+			purchaseTracked: false,
 		};
 	},
 	mounted() {
@@ -648,6 +723,14 @@ export default {
 								this.payment_form.tax +
 								this.payment_form.shipping_tax -
 								(this.payment_form.discount_offer + this.payment_form.coupon_discount);
+
+							// Analytics: Track purchase once when order data is loaded
+							if (!this.purchaseTracked) {
+								this.$nextTick(() => {
+									Analytics.trackPurchase(orders, this.active_currency);
+									this.purchaseTracked = true;
+								});
+							}
 						}
 					}
 				})

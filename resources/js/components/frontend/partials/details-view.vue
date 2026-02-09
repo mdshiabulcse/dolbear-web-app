@@ -1215,6 +1215,135 @@ import productVideo from "./product-video";
 import single_seller from "./single_seller";
 import 'vue-toastr-2/dist/vue-toastr-2.min.css'
 
+// Analytics Tracking Helper
+const Analytics = {
+    isGTMReady() {
+        return typeof window.dataLayer !== 'undefined';
+    },
+    isFacebookReady() {
+        return typeof window.fbq !== 'undefined';
+    },
+    getCurrencyCode(activeCurrency) {
+        // Default to BDT for Dolbear Bangladesh site
+        return (activeCurrency && activeCurrency.code) ? activeCurrency.code : 'BDT';
+    },
+    trackProductView(productDetails, activeCurrency) {
+        if (!this.isGTMReady() || !productDetails) return;
+        try {
+            const price = productDetails.sale_price || productDetails.product_stock?.price || productDetails.price || 0;
+            const sku = productDetails.product_stock?.sku || productDetails.sku || String(productDetails.id);
+            const category = productDetails.category_name || productDetails.category?.name || '';
+            const currency = this.getCurrencyCode(activeCurrency);
+
+            window.dataLayer.push({
+                event: 'view_item',
+                ecommerce: {
+                    currency: currency,
+                    value: parseFloat(price),
+                    items: [{
+                        item_id: sku,
+                        item_name: productDetails.product_name || '',
+                        item_category: category,
+                        price: parseFloat(price),
+                        quantity: 1
+                    }]
+                }
+            });
+
+            if (this.isFacebookReady()) {
+                window.fbq('track', 'ViewContent', {
+                    content_name: productDetails.product_name || '',
+                    content_category: category,
+                    content_ids: [sku],
+                    content_type: 'product',
+                    value: parseFloat(price),
+                    currency: currency
+                });
+            }
+            console.log('[Analytics] Product view tracked:', productDetails.product_name, 'Currency:', currency);
+        } catch (error) {
+            console.error('[Analytics] Error tracking product view:', error);
+        }
+    },
+    trackAddToCart(productDetails, quantity, activeCurrency) {
+        if (!this.isGTMReady() || !productDetails) return;
+        try {
+            const price = productDetails.sale_price || productDetails.product_stock?.price || productDetails.price || 0;
+            const sku = productDetails.product_stock?.sku || productDetails.sku || String(productDetails.id);
+            const category = productDetails.category_name || productDetails.category?.name || '';
+            const currency = this.getCurrencyCode(activeCurrency);
+            const totalValue = parseFloat(price) * parseInt(quantity);
+
+            window.dataLayer.push({
+                event: 'add_to_cart',
+                ecommerce: {
+                    currency: currency,
+                    value: totalValue,
+                    items: [{
+                        item_id: sku,
+                        item_name: productDetails.product_name || '',
+                        item_category: category,
+                        price: parseFloat(price),
+                        quantity: parseInt(quantity)
+                    }]
+                }
+            });
+
+            if (this.isFacebookReady()) {
+                window.fbq('track', 'AddToCart', {
+                    content_name: productDetails.product_name || '',
+                    content_category: category,
+                    content_ids: [sku],
+                    content_type: 'product',
+                    value: totalValue,
+                    currency: currency
+                });
+            }
+            console.log('[Analytics] Add to cart tracked:', productDetails.product_name, 'Qty:', quantity, 'Value:', totalValue, 'Currency:', currency);
+        } catch (error) {
+            console.error('[Analytics] Error tracking add to cart:', error);
+        }
+    },
+    trackAddToWishlist(productDetails, activeCurrency) {
+        if (!this.isGTMReady() || !productDetails) return;
+        try {
+            const price = productDetails.sale_price || productDetails.product_stock?.price || productDetails.price || 0;
+            const sku = productDetails.product_stock?.sku || productDetails.sku || String(productDetails.id);
+            const category = productDetails.category_name || productDetails.category?.name || '';
+            const currency = this.getCurrencyCode(activeCurrency);
+
+            window.dataLayer.push({
+                event: 'add_to_wishlist',
+                ecommerce: {
+                    currency: currency,
+                    value: parseFloat(price),
+                    items: [{
+                        item_id: sku,
+                        item_name: productDetails.product_name || '',
+                        item_category: category,
+                        price: parseFloat(price),
+                        quantity: 1
+                    }]
+                }
+            });
+
+            if (this.isFacebookReady()) {
+                window.fbq('track', 'AddToWishlist', {
+                    content_name: productDetails.product_name || '',
+                    content_category: category,
+                    content_ids: [sku],
+                    content_type: 'product',
+                    value: parseFloat(price),
+                    currency: currency
+                });
+            }
+            console.log('[Analytics] Add to wishlist tracked:', productDetails.product_name, 'Currency:', currency);
+        } catch (error) {
+            console.error('[Analytics] Error tracking add to wishlist:', error);
+        }
+    }
+};
+
 export default {
   name: "details-view",
   props: ["productDetails"],
@@ -1223,6 +1352,7 @@ export default {
       clickedSlide: 0,
       currentCarousel: "0",
       added_to_cart: false,
+      productViewTracked: false,
       firstStock: {
         stock: 0,
         sku: "",
@@ -1337,6 +1467,14 @@ export default {
       if (this.productDetails.attribute_selector == 1) {
         this.getAttributes();
       }
+
+      // Analytics: Track product view
+      this.$nextTick(() => {
+        if (!this.productViewTracked) {
+          Analytics.trackProductView(this.productDetails, this.active_currency);
+          this.productViewTracked = true;
+        }
+      });
     }
   },
 
@@ -1356,6 +1494,14 @@ export default {
         if (this.productDetails.attribute_selector == 1) {
           this.getAttributes();
         }
+
+        // Analytics: Track product view when productDetails changes
+        this.$nextTick(() => {
+          if (!this.productViewTracked) {
+            Analytics.trackProductView(this.productDetails, this.active_currency);
+            this.productViewTracked = true;
+          }
+        });
       }
     },
     index() {
@@ -1492,6 +1638,9 @@ export default {
         } else {
           this.$store.dispatch("wishlists", response.data.wishlists);
           this.productDetails.user_wishlist = response.data.wishlist;
+
+          // Analytics: Track add to wishlist
+          Analytics.trackAddToWishlist(this.productDetails, this.active_currency);
         }
       });
     },
@@ -1696,6 +1845,9 @@ export default {
               this.added_to_cart = false;
             }, 2000);
           }
+
+          // Analytics: Track add to cart
+          Analytics.trackAddToCart(this.productDetails, min_qty, this.active_currency);
         }
       });
     },

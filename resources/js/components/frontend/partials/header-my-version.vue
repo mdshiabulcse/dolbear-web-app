@@ -1044,6 +1044,25 @@ export default {
       this.search_bar = true;
       let url = this.getUrl("search/product");
       let form = { key: this.searchKey };
+
+      // Analytics: Track search
+      if (this.searchKey && this.searchKey.trim().length > 2) {
+        if (typeof window.dataLayer !== 'undefined') {
+          window.dataLayer.push({
+            event: 'search',
+            search_term: this.searchKey.trim()
+          });
+        }
+        // Facebook Pixel Search
+        if (typeof window.fbq !== 'undefined') {
+          window.fbq('track', 'Search', {
+            search_string: this.searchKey.trim(),
+            content_category: 'Products'
+          });
+        }
+        console.log('[Analytics] Search tracked:', this.searchKey);
+      }
+
       axios
         .post(url, form)
         .then((response) => {

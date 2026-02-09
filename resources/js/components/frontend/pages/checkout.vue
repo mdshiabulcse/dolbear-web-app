@@ -190,6 +190,66 @@ import payment_details from "../partials/payment_details";
 import addressForm from "../partials/addressForm";
 import gdpr_page from "../partials/gdpr_page";
 
+// Analytics Tracking Helper for Checkout
+const Analytics = {
+    isGTMReady() {
+        return typeof window.dataLayer !== 'undefined';
+    },
+    isFacebookReady() {
+        return typeof window.fbq !== 'undefined';
+    },
+    getCurrencyCode(activeCurrency) {
+        // Default to BDT for Dolbear Bangladesh site
+        return (activeCurrency && activeCurrency.code) ? activeCurrency.code : 'BDT';
+    },
+    trackBeginCheckout(carts, couponCode, activeCurrency) {
+        if (!this.isGTMReady() || !carts || !Array.isArray(carts) || carts.length === 0) {
+            console.warn('[Analytics] GTM not ready or no cart data');
+            return;
+        }
+        try {
+            const currency = this.getCurrencyCode(activeCurrency);
+            const totalValue = carts.reduce((sum, item) => {
+                return sum + (parseFloat(item.price) * parseInt(item.quantity));
+            }, 0);
+
+            const items = carts.map(cart => ({
+                item_id: cart.sku || String(cart.product_id),
+                item_name: cart.product_name || '',
+                item_category: cart.category_name || '',
+                price: parseFloat(cart.price),
+                quantity: parseInt(cart.quantity)
+            }));
+
+            // GA4 - Begin Checkout
+            window.dataLayer.push({
+                event: 'begin_checkout',
+                ecommerce: {
+                    currency: currency,
+                    value: totalValue,
+                    coupon: couponCode || '',
+                    items: items
+                }
+            });
+
+            // Facebook Pixel - InitiateCheckout
+            if (this.isFacebookReady()) {
+                window.fbq('track', 'InitiateCheckout', {
+                    content_ids: carts.map(c => c.sku || String(c.product_id)),
+                    content_type: 'product',
+                    value: totalValue,
+                    currency: currency,
+                    num_items: carts.reduce((sum, item) => sum + parseInt(item.quantity), 0)
+                });
+            }
+
+            console.log('[Analytics] Begin checkout tracked. Total:', totalValue, 'Currency:', currency, 'Items:', carts.length);
+        } catch (error) {
+            console.error('[Analytics] Error tracking begin checkout:', error);
+        }
+    }
+};
+
 export default {
   name: "checkout",
   components: {telePhone, shimmer, coupon, payment_details, addressForm, gdpr_page, purchasePoint},
@@ -223,16 +283,27 @@ export default {
       save_loading: false,
       address_area_title: 'Add a new address',
       address_submit_button: "Add",
+      checkoutTracked: false,
     }
   },
   mounted() {
     this.getAddress();
     this.address_submit_button = this.lang.add;
     this.getPoint();
+
+    // Analytics: Track checkout initiation
+    this.$nextTick(() => {
+      this.trackCheckout();
+    });
   },
   watch: {
     carts(newValue, oldValue) {
       this.getAddress();
+
+      // Analytics: Re-track when carts change
+      this.$nextTick(() => {
+        this.trackCheckout();
+      });
     },
     lang(newValue, oldValue) {
       this.address_submit_button = this.lang.add;
@@ -421,7 +492,7 @@ export default {
     },
     getPoint() {
       let url = this.getUrl('user/purchase-points');
-     
+
       axios.get(url).then((response) => {
 
         if (response.data.error) {
@@ -430,6 +501,13 @@ export default {
           this.purchase_point = response.data.points;
         }
       });
+    },
+    trackCheckout() {
+      if (this.carts && this.carts.length > 0 && !this.checkoutTracked) {
+        const couponCode = this.coupon_list.length > 0 ? 'applied' : '';
+        Analytics.trackBeginCheckout(this.carts, couponCode, this.active_currency);
+        this.checkoutTracked = true;
+      }
     },
   }
 }
