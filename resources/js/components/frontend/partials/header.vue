@@ -349,6 +349,7 @@ export default {
   components: { About, detailsView, shimmer, sidebar_categories, topBarTextSliderVue, newNavBar },
   data() {
     return {
+      activeEvents: [],
       isSticky: false,
       navbarTop: 0,
 
@@ -381,6 +382,7 @@ export default {
       expanded_items: [],
 
       is_search_box_active: false,
+      is_campaign_expanded: false,
     };
   },
   mounted() {
@@ -1117,16 +1119,19 @@ input.input-text {
   pointer-events: none;
 }
 
-.navbar .menu .menu-item-has-children.expanded .submenu-arrow {
+.navbar .menu .menu-item-has-children.expanded .submenu-arrow,
+.navbar .menu li.expanded .submenu-arrow {
   transform: rotate(90deg);
 }
 
-.navbar .menu .menu-item-has-children.expanded .submenu-arrow svg {
+.navbar .menu .menu-item-has-children.expanded .submenu-arrow svg,
+.navbar .menu li.expanded .submenu-arrow svg {
   transform: rotate(90deg);
 }
 
 /* Submenu collapse/expand state */
-.navbar .menu .menu-item-has-children.expanded > .sub-menu {
+.navbar .menu .menu-item-has-children.expanded > .sub-menu,
+.navbar .menu li.expanded > .sub-menu {
   display: block !important;
   max-height: 1000px !important;
   overflow-y: auto !important;

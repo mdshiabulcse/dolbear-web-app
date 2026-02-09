@@ -48,29 +48,45 @@
     <!-- CSS -->
 
     <link rel="stylesheet" href="{{ mix('frontend/css/app.css') }}">
-    <link rel="stylesheet" href="{{ static_asset('frontend/css/materialdesignicons.min.css') }}?version={{  settingHelper('current_version')  }}">
-    <link rel="stylesheet" href="{{ static_asset('frontend/css/vue-toastr-2.min.css') }}?version={{ settingHelper('current_version') }}">
+    <link rel="stylesheet"
+          href="{{ static_asset('frontend/css/materialdesignicons.min.css') }}?version={{  settingHelper('current_version')  }}">
+    <link rel="stylesheet"
+          href="{{ static_asset('frontend/css/vue-toastr-2.min.css') }}?version={{ settingHelper('current_version') }}">
 
 
-    <link rel="stylesheet" href="{{ static_asset('frontend/css/vue-slick-carousel.css') }}?version={{ settingHelper('current_version') }}">
-    <link rel="stylesheet" href="{{ static_asset('frontend/css/vue-slick-carousel-theme.css') }}?version={{ settingHelper('current_version') }}">
-    <link rel="stylesheet" href="{{ static_asset('frontend/css/vue-select.css') }}?version={{ settingHelper('current_version') }}">
+    <link rel="stylesheet"
+          href="{{ static_asset('frontend/css/vue-slick-carousel.css') }}?version={{ settingHelper('current_version') }}">
+    <link rel="stylesheet"
+          href="{{ static_asset('frontend/css/vue-slick-carousel-theme.css') }}?version={{ settingHelper('current_version') }}">
+    <link rel="stylesheet"
+          href="{{ static_asset('frontend/css/vue-select.css') }}?version={{ settingHelper('current_version') }}">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <!-- owl carousel css -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" integrity="sha512-tS3S5qG0BlhnQROyJXvNjeEM4UpMXHrQfTGmbQ1gKmelCxlSEBUaxhRBj/EFTzpbP4RVSrpEikbmdJobCvhE3g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" integrity="sha512-sMXtMNL1zRzolHYKEujM2AqCLUR9F2C4/05cdbxjjLSRvMQIciEPCQZo++nk7go3BtSuK9kfa/s+a4f4i5pLkw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"
+          integrity="sha512-tS3S5qG0BlhnQROyJXvNjeEM4UpMXHrQfTGmbQ1gKmelCxlSEBUaxhRBj/EFTzpbP4RVSrpEikbmdJobCvhE3g=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css"
+          integrity="sha512-sMXtMNL1zRzolHYKEujM2AqCLUR9F2C4/05cdbxjjLSRvMQIciEPCQZo++nk7go3BtSuK9kfa/s+a4f4i5pLkw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <!-- custom css -->
     <link rel="stylesheet" href="{{ static_asset('frontend/css/style.css') }}">
 
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/7.4.47/css/materialdesignicons.min.css" integrity="sha512-/k658G6UsCvbkGRB3vPXpsPHgWeduJwiWGPCGS14IQw3xpr63AEMdA8nMYG2gmYkXitQxDTn6iiK/2fD4T87qA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/7.4.47/css/materialdesignicons.min.css"
+          integrity="sha512-/k658G6UsCvbkGRB3vPXpsPHgWeduJwiWGPCGS14IQw3xpr63AEMdA8nMYG2gmYkXitQxDTn6iiK/2fD4T87qA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
     @if(config('app.demo_mode'))
-        <link rel="stylesheet" href="{{ static_asset('frontend/css/color-switcher.css') }}?version={{ settingHelper('current_version') }}">
+        <link rel="stylesheet"
+              href="{{ static_asset('frontend/css/color-switcher.css') }}?version={{ settingHelper('current_version') }}">
     @endif
 
     @if($settings['text_direction'] == 'rtl')
-        <link rel="stylesheet" href="{{ static_asset('frontend/css/rtl.css') }}?version={{ settingHelper('current_version') }}">
+        <link rel="stylesheet"
+              href="{{ static_asset('frontend/css/rtl.css') }}?version={{ settingHelper('current_version') }}">
     @endif
     <style>
         :root {
@@ -133,6 +149,7 @@
             --vs-disabled-color: var(--vs-state-disabled-color);
             --vs-disabled-cursor: var(--vs-state-disabled-cursor)
         }
+
         /*.footer-section {
             background-color: #11003F;
         }*/
@@ -174,20 +191,75 @@
     @endif
 
     <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-54BWTWX9');</script>
+    <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-54BWTWX9');</script>
     <!-- End Google Tag Manager -->
+
+
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+            var f = d.getElementsByTagName(s)[0], j = d.createElement(s);
+            j.async = true;
+            j.src = "https://server.dolbear.com.bd/duqfolossoymk.js?" + i;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', '5r4u4dn=AglEKCc%2BQllfLy47JCtWSh1QS0FCVQsCVgkWAxEWDh5FDhYCXREL');</script>
+    <!-- End Google Tag Manager -->
+
+
+    <!-- Meta Pixel -->
+    <script>
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return;
+            n = f.fbq = function () {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n;
+            n.push = n;
+            n.loaded = !0;
+            n.version = '2.0';
+            n.queue = [];
+            t = b.createElement(e);
+            t.async = !0;
+            t.src = v;
+            s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '756455577290976');
+        fbq('track', 'PageView');
+    </script>
 
 
 </head>
 
 <body class="sg-active">
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-54BWTWX9"
-                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-54BWTWX9"
+            height="0" width="0" style="display:none;visibility:hidden"></iframe>
+</noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<!-- Google Tag Manager (noscript) -->
+<noscript>
+    <iframe src="https://server.dolbear.com.bd/ns.html?id=GTM-54BWTWX9" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe>
+</noscript>
 <!-- End Google Tag Manager (noscript) -->
 
 <!-- Hotjar Tag Manager (noscript) -->
@@ -197,10 +269,15 @@
 
 <!-- clarity Tag Manager (noscript) -->
 <script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    (function (c, l, a, r, i, t, y) {
+        c[a] = c[a] || function () {
+            (c[a].q = c[a].q || []).push(arguments)
+        };
+        t = l.createElement(r);
+        t.async = 1;
+        t.src = "https://www.clarity.ms/tag/" + i;
+        y = l.getElementsByTagName(r)[0];
+        y.parentNode.insertBefore(t, y);
     })(window, document, "clarity", "script", "vb27b2096q");
 </script>
 
@@ -208,20 +285,22 @@
 
 <div id="37142846" class="sg-37142846"></div>
 <div id="app">
-    <frontend_master :languages="{{ json_encode($languages) }}" :pages="{{ json_encode($pages) }}" :currencies="{{ json_encode($currencies) }}"
-                    :active_language="{{ json_encode($active_language) }}"
-                    :active_currency="{{ json_encode($active_currency) }}"
-                    :categories="{{ json_encode($categories) }}" :sliders="{{ json_encode($sliders) }}"
-                    :shop_follower="{{ json_encode($shop_follower) }}" :services="{{ json_encode($services) }}"
-                    :settings_data="{{ json_encode($settings) }}"
-                    :banners="{{ json_encode($banners) }}"
-                    :viewed_products="{{ json_encode($viewed_products) }}"
-                    :compare_list="{{ json_encode($compare_list) }}" :wishlists="{{ $wishlists }}"
-                    :user_wishlists="{{ json_encode($user_wishlists) }}"
-                    @if($user) :user="{{ $user }}" @endif  @if(count($carts) > 0) :carts="{{ json_encode($carts) }}"
-                    @endif :add_ons="{{ json_encode($addons) }}"
-                    :default_currency="{{ json_encode($default_currency) }}" :home_components="{{ json_encode($home_components) }}"
-                    :default_assets="{{ json_encode($default_assets) }}">
+    <frontend_master :languages="{{ json_encode($languages) }}" :pages="{{ json_encode($pages) }}"
+                     :currencies="{{ json_encode($currencies) }}"
+                     :active_language="{{ json_encode($active_language) }}"
+                     :active_currency="{{ json_encode($active_currency) }}"
+                     :categories="{{ json_encode($categories) }}" :sliders="{{ json_encode($sliders) }}"
+                     :shop_follower="{{ json_encode($shop_follower) }}" :services="{{ json_encode($services) }}"
+                     :settings_data="{{ json_encode($settings) }}"
+                     :banners="{{ json_encode($banners) }}"
+                     :viewed_products="{{ json_encode($viewed_products) }}"
+                     :compare_list="{{ json_encode($compare_list) }}" :wishlists="{{ $wishlists }}"
+                     :user_wishlists="{{ json_encode($user_wishlists) }}"
+                     @if($user) :user="{{ $user }}" @endif  @if(count($carts) > 0) :carts="{{ json_encode($carts) }}"
+                     @endif :add_ons="{{ json_encode($addons) }}"
+                     :default_currency="{{ json_encode($default_currency) }}"
+                     :home_components="{{ json_encode($home_components) }}"
+                     :default_assets="{{ json_encode($default_assets) }}">
     </frontend_master>
 </div>
 
@@ -240,15 +319,22 @@
 <script src="{{ mix('frontend/js/app.js') }}" async></script>
 <script src="{{ static_asset('frontend/js/vue-toastr-2.js') }}?version={{ settingHelper('current_version') }}"></script>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <!-- bootstrap js -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    <!-- bootstrap proper -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <!-- owl carousel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js" integrity="sha512-bPs7Ae6pVvhOSiIcyUClR7/q2OAsRiovw4vAkX+zJbw3ShAeeqezq50RIIcIURq7Oa20rW2n2q+fyXBNcU9lrw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <!-- main js -->
-    <script src="{{ static_asset('frontend/js/main.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<!-- bootstrap js -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+<!-- bootstrap proper -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+<!-- owl carousel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"
+        integrity="sha512-bPs7Ae6pVvhOSiIcyUClR7/q2OAsRiovw4vAkX+zJbw3ShAeeqezq50RIIcIURq7Oa20rW2n2q+fyXBNcU9lrw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- main js -->
+<script src="{{ static_asset('frontend/js/main.js') }}"></script>
 
 
 @if(settingHelper('is_pusher_notification_active') == 1 && Sentinel::check())
@@ -256,157 +342,157 @@
     <input type="hidden" value="{{ settingHelper('pusher_app_cluster') }}" id="f_pusher_app_cluster">
 @endif
 <script>
-    let conversation_active = '{{ settingHelper('conversation') }}';
-    let fb_object = {
-        status: '{{ settingHelper('is_facebook_messenger_activated') }}',
-        color: '{{ settingHelper('facebook_messenger_color') }}',
-        id: '{{ settingHelper('facebook_page_id') }}',
-    };
-    let tawk_object = {
-        status: '{{ settingHelper('is_tawk_messenger_activated') }}',
-        widget_id: '{{ settingHelper('tawk_widget_id') }}',
-        property_id: '{{ settingHelper('tawk_property_id') }}',
-    };
+    {{--let conversation_active = '{{ settingHelper('conversation') }}';--}}
+    {{--let fb_object = {--}}
+    {{--    status: '{{ settingHelper('is_facebook_messenger_activated') }}',--}}
+    {{--    color: '{{ settingHelper('facebook_messenger_color') }}',--}}
+    {{--    id: '{{ settingHelper('facebook_page_id') }}',--}}
+    {{--};--}}
+    {{--let tawk_object = {--}}
+    {{--    status: '{{ settingHelper('is_tawk_messenger_activated') }}',--}}
+    {{--    widget_id: '{{ settingHelper('tawk_widget_id') }}',--}}
+    {{--    property_id: '{{ settingHelper('tawk_property_id') }}',--}}
+    {{--};--}}
 
-    //facebook chat
-    @if(settingHelper('is_tawk_messenger_activated') == 1)
-    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-    (function () {
-        var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
-        s1.async = true;
-        s1.src = 'https://embed.tawk.to/{{ settingHelper('tawk_property_id') }}/{{ settingHelper('tawk_widget_id') }}';
-        s1.charset = 'UTF-8';
-        s1.setAttribute('crossorigin', '*');
-        s0.parentNode.insertBefore(s1, s0);
-        window.Tawk_API = window.Tawk_API || {};
-        Tawk_API.customStyle = {
-            visibility : {
-                desktop : {
-                    position : '{{ $settings["text_direction"] ==  "rtl" ?  "bl" : "br"}}',
-                    xOffset : '25px',
-                    yOffset : '{{ $settings["text_direction"] ==  "rtl" ?  "৪0px" : "20px"}}'
-                },
-                mobile : {
-                    position : '{{ $settings["text_direction"] ==  "rtl" ?  "bl" : "br"}}',
-                    xOffset : '25px',
-                    yOffset : '{{ $settings["text_direction"] ==  "rtl" ?  "70px" : "70px"}}'
-                }
-            }
-        };       
-    })();
-    @endif
-    // "vue-fb-customer-chat": "^0.2.1"
-    //fb chat
+    {{--//facebook chat--}}
+    {{--@if(settingHelper('is_tawk_messenger_activated') == 1)--}}
+    {{--var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();--}}
+    {{--(function () {--}}
+    {{--    var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];--}}
+    {{--    s1.async = true;--}}
+    {{--    s1.src = 'https://embed.tawk.to/{{ settingHelper('tawk_property_id') }}/{{ settingHelper('tawk_widget_id') }}';--}}
+    {{--    s1.charset = 'UTF-8';--}}
+    {{--    s1.setAttribute('crossorigin', '*');--}}
+    {{--    s0.parentNode.insertBefore(s1, s0);--}}
+    {{--    window.Tawk_API = window.Tawk_API || {};--}}
+    {{--    Tawk_API.customStyle = {--}}
+    {{--        visibility : {--}}
+    {{--            desktop : {--}}
+    {{--                position : '{{ $settings["text_direction"] ==  "rtl" ?  "bl" : "br"}}',--}}
+    {{--                xOffset : '25px',--}}
+    {{--                yOffset : '{{ $settings["text_direction"] ==  "rtl" ?  "৪0px" : "20px"}}'--}}
+    {{--            },--}}
+    {{--            mobile : {--}}
+    {{--                position : '{{ $settings["text_direction"] ==  "rtl" ?  "bl" : "br"}}',--}}
+    {{--                xOffset : '25px',--}}
+    {{--                yOffset : '{{ $settings["text_direction"] ==  "rtl" ?  "70px" : "70px"}}'--}}
+    {{--            }--}}
+    {{--        }--}}
+    {{--    };       --}}
+    {{--})();--}}
+    {{--@endif--}}
+    {{--// "vue-fb-customer-chat": "^0.2.1"--}}
+    {{--//fb chat--}}
 
-    @if(settingHelper('is_facebook_messenger_activated') == 1)
-        window.fbAsyncInit = function () {
-        FB.init({
-            appId: 'facebook-developer-app-id',
+    {{--@if(settingHelper('is_facebook_messenger_activated') == 1)--}}
+    {{--    window.fbAsyncInit = function () {--}}
+    {{--    FB.init({--}}
+    {{--        appId: 'facebook-developer-app-id',--}}
 
-            autoLogAppEvents: true,
-            xfbml: true,
-            version: 'v3.3'
-        });
-    };
-    (function (d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) {
-            return;
-        }
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "https://connect.facebook.net/en_US/sdk/xfbml.customerchat.js";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
-    @endif
+    {{--        autoLogAppEvents: true,--}}
+    {{--        xfbml: true,--}}
+    {{--        version: 'v3.3'--}}
+    {{--    });--}}
+    {{--};--}}
+    {{--(function (d, s, id) {--}}
+    {{--    var js, fjs = d.getElementsByTagName(s)[0];--}}
+    {{--    if (d.getElementById(id)) {--}}
+    {{--        return;--}}
+    {{--    }--}}
+    {{--    js = d.createElement(s);--}}
+    {{--    js.id = id;--}}
+    {{--    js.src = "https://connect.facebook.net/en_US/sdk/xfbml.customerchat.js";--}}
+    {{--    fjs.parentNode.insertBefore(js, fjs);--}}
+    {{--}(document, 'script', 'facebook-jssdk'));--}}
+    {{--@endif--}}
 
 
-        //toastr setting
-    window.toastr.options.progressBar       = true;
-    window.toastr.options.positionClass     = "toast-bottom-right";
-    window.toastr.options.closeButton       = true;
+    {{--    //toastr setting--}}
+    {{--window.toastr.options.progressBar       = true;--}}
+    {{--window.toastr.options.positionClass     = "toast-bottom-right";--}}
+    {{--window.toastr.options.closeButton       = true;--}}
 
-    window.captcha = '';
-    window.myCallback = function (val) {
-        window.captcha = val;
-    };
+    {{--window.captcha = '';--}}
+    {{--window.myCallback = function (val) {--}}
+    {{--    window.captcha = val;--}}
+    {{--};--}}
 
     @if(Session::has('info'))
     toastr.info('{{Session::get('info')}}', 'Info !!')
     @elseif(Session::has('success'))
-    toastr.success('{{Session::get('success')}}', 'Success !!' )
+    toastr.success('{{Session::get('success')}}', 'Success !!')
     @elseif(Session::has('warning'))
-    toastr.warning('{{Session::get('warning')}}', 'Warning !!' )
+    toastr.warning('{{Session::get('warning')}}', 'Warning !!')
     @elseif(Session::has('error'))
-    toastr.error('{{Session::get('error')}}', 'Error !!' )
+    toastr.error('{{Session::get('error')}}', 'Error !!')
     @endif
 </script>
-<div class="fb-customerchat"
-     attribution=setup_tool
-     page_id="{{ (int)settingHelper('facebook_page_id') }}"
-     theme_color="{{ settingHelper('facebook_messenger_color') }}">
-</div>
+{{--<div class="fb-customerchat"--}}
+{{--     attribution=setup_tool--}}
+{{--     page_id="{{ (int)settingHelper('facebook_page_id') }}"--}}
+{{--     theme_color="{{ settingHelper('facebook_messenger_color') }}">--}}
+{{--</div>--}}
 
 @if(settingHelper('custom_footer_script'))
     {!! base64_decode(settingHelper('custom_footer_script')) !!}
 @endif
 
 
-@if(config('app.demo_mode'))
-    <div class="sg-yoori-switcher {{ settingHelper('header_theme') == 'header_theme2' ? 'theme-color-switcher' : ''}}">
-        <div class="sg-yoori-switcher-close"><i class="mdi mdi-cog"></i></div>
-        <div class="color-switcher">
-            <div class="color-switcher-title">
-                <h4>Theme Options</h4>
-            </div>
-            <div class="color-switcher-inner">
-                <div class="color-switch">
-                    <div class="picker-title">
-                        <h6 class="cs-title">Accent Color</h6>
-                    </div>
-                    <input type="color" value="#C9151B" id="colorPicker-accent">
-                </div>
-                <div class="color-switch {{ settingHelper('header_theme') == 'header_theme2' ? 'd-none' : '' }}">
-                    <div class="picker-title">
-                        <h6 class="cs-title">Menu BG Color</h6>
-                    </div>
-                    <input type="color" value="#000" id="colorPicker-bg">
-                </div>
-                <div class="color-switch {{ settingHelper('header_theme') == 'header_theme2' ? 'd-none' : '' }}">
-                    <div class="picker-title">
-                        <h6 class="cs-title">Menu Text Color</h6>
-                    </div>
-                    <input type="color" value="#fff" id="colorPicker-m-text">
-                </div>
-                <div class="color-switch">
-                    <div class="picker-title">
-                        <h6 class="cs-title">Direction</h6>
-                    </div>
-                    <div class="rtl-btn switcher_dir">
-                        <a href="{{ route('set.text-direction','ltr') }}"
-                           class="btn-ltr {{ @$active_language->text_direction == 'ltr' ? 'active' : '' }}">
-                            <span></span>LTR</a>
-                        <a href="{{ route('set.text-direction','rtl') }}"
-                           class="btn-rtl {{ @$active_language->text_direction == 'rtl' ? 'active' : '' }}">RTL
-                            <span></span></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="sg-yoori-purchase-btn">
-        <a href="https://1.envato.market/yoori" target="_blank" class="sg-yoori-purchase">
-            <div class="sg-yoori-purchase-price"><span>$</span>
-                49
-            </div>
-            <div class="em-logo">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 16 16" xml:space="preserve">
-                <path d="M12.869.088c-.572-.281-3.474.04-5.566 2.047-3.296 3.291-3.217 7.627-3.217 7.627s-.109.446-.573-.201c-1.016-1.295-.484-4.274-.424-4.689.084-.585-.289-.602-.444-.409-3.672 5.098-.356 9.272 1.815 10.597 2.542 1.551 7.556 1.55 9.553-2.85C16.501 6.731 13.586.439 12.869.088z" fill="#ffffff"></path>
-             </svg>
-            </div>
-        </a>
-    </div>
-@endif
+{{--@if(config('app.demo_mode'))--}}
+{{--    <div class="sg-yoori-switcher {{ settingHelper('header_theme') == 'header_theme2' ? 'theme-color-switcher' : ''}}">--}}
+{{--        <div class="sg-yoori-switcher-close"><i class="mdi mdi-cog"></i></div>--}}
+{{--        <div class="color-switcher">--}}
+{{--            <div class="color-switcher-title">--}}
+{{--                <h4>Theme Options</h4>--}}
+{{--            </div>--}}
+{{--            <div class="color-switcher-inner">--}}
+{{--                <div class="color-switch">--}}
+{{--                    <div class="picker-title">--}}
+{{--                        <h6 class="cs-title">Accent Color</h6>--}}
+{{--                    </div>--}}
+{{--                    <input type="color" value="#C9151B" id="colorPicker-accent">--}}
+{{--                </div>--}}
+{{--                <div class="color-switch {{ settingHelper('header_theme') == 'header_theme2' ? 'd-none' : '' }}">--}}
+{{--                    <div class="picker-title">--}}
+{{--                        <h6 class="cs-title">Menu BG Color</h6>--}}
+{{--                    </div>--}}
+{{--                    <input type="color" value="#000" id="colorPicker-bg">--}}
+{{--                </div>--}}
+{{--                <div class="color-switch {{ settingHelper('header_theme') == 'header_theme2' ? 'd-none' : '' }}">--}}
+{{--                    <div class="picker-title">--}}
+{{--                        <h6 class="cs-title">Menu Text Color</h6>--}}
+{{--                    </div>--}}
+{{--                    <input type="color" value="#fff" id="colorPicker-m-text">--}}
+{{--                </div>--}}
+{{--                <div class="color-switch">--}}
+{{--                    <div class="picker-title">--}}
+{{--                        <h6 class="cs-title">Direction</h6>--}}
+{{--                    </div>--}}
+{{--                    <div class="rtl-btn switcher_dir">--}}
+{{--                        <a href="{{ route('set.text-direction','ltr') }}"--}}
+{{--                           class="btn-ltr {{ @$active_language->text_direction == 'ltr' ? 'active' : '' }}">--}}
+{{--                            <span></span>LTR</a>--}}
+{{--                        <a href="{{ route('set.text-direction','rtl') }}"--}}
+{{--                           class="btn-rtl {{ @$active_language->text_direction == 'rtl' ? 'active' : '' }}">RTL--}}
+{{--                            <span></span></a>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--    </div>--}}
+{{--    <div class="sg-yoori-purchase-btn">--}}
+{{--        <a href="https://1.envato.market/yoori" target="_blank" class="sg-yoori-purchase">--}}
+{{--            <div class="sg-yoori-purchase-price"><span>$</span>--}}
+{{--                49--}}
+{{--            </div>--}}
+{{--            <div class="em-logo">--}}
+{{--                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 16 16" xml:space="preserve">--}}
+{{--                <path d="M12.869.088c-.572-.281-3.474.04-5.566 2.047-3.296 3.291-3.217 7.627-3.217 7.627s-.109.446-.573-.201c-1.016-1.295-.484-4.274-.424-4.689.084-.585-.289-.602-.444-.409-3.672 5.098-.356 9.272 1.815 10.597 2.542 1.551 7.556 1.55 9.553-2.85C16.501 6.731 13.586.439 12.869.088z" fill="#ffffff"></path>--}}
+{{--             </svg>--}}
+{{--            </div>--}}
+{{--        </a>--}}
+{{--    </div>--}}
+{{--@endif--}}
 </body>
 
 </html>

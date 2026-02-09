@@ -130,9 +130,9 @@
                                         <td>
                                             @if ($eventProduct->product && $eventProduct->product->category)
                                                 @php
-                                                    $catLang = $eventProduct->product->category->categoryLanguage()->where('lang', app()->getLocale())->first();
+                                                    $catLang = $eventProduct->product->category->categoryLanguages()->where('lang', app()->getLocale())->first();
                                                     if (!$catLang) {
-                                                        $catLang = $eventProduct->product->category->categoryLanguage()->where('lang', 'en')->first();
+                                                        $catLang = $eventProduct->product->category->categoryLanguages()->where('lang', 'en')->first();
                                                     }
                                                 @endphp
                                                 <span class="badge badge-secondary">{{ $catLang ? $catLang->name : 'N/A' }}</span>
@@ -191,7 +191,13 @@
                                                     data-product-priority="{{ $eventProduct->product_priority }}"
                                                     data-is-active="{{ $eventProduct->is_active }}"
                                                     data-badge-text="{{ $eventProduct->badge_text }}"
-                                                    data-badge-color="{{ $eventProduct->badge_color }}">
+                                                    data-badge-color="{{ $eventProduct->badge_color }}"
+                                                    data-product-name="{{ $eventProduct->product->product_name ?? 'N/A' }}"
+                                                    data-product-image="{{ $eventProduct->product->image_40x40 ?? '' }}"
+                                                    data-product-category="{{ $catLang ? $catLang->name : 'N/A' }}"
+                                                    data-product-brand="{{ $eventProduct->product->brand->brandLanguages()->where('lang', app()->getLocale())->first()->name ?? $eventProduct->product->brand->brandLanguages()->where('lang', 'en')->first()->name ?? 'N/A' }}"
+                                                    data-product-original-price="{{ $eventProduct->product->price ?? 0 }}"
+                                                    data-product-stock="{{ $eventProduct->product->current_stock ?? 0 }}">
                                                 <i class="bx bx-edit"></i>
                                             </button>
                                             <button type="button" class="btn btn-sm btn-danger remove-event-product"
@@ -232,12 +238,23 @@
                                     @php
                                         $categoryName = 'N/A';
                                         if ($prod->category) {
-                                            $categoryLang = $prod->category->categoryLanguage()->where('lang', app()->getLocale())->first();
+                                            $categoryLang = $prod->category->categoryLanguages()->where('lang', app()->getLocale())->first();
                                             if (!$categoryLang) {
-                                                $categoryLang = $prod->category->categoryLanguage()->where('lang', 'en')->first();
+                                                $categoryLang = $prod->category->categoryLanguages()->where('lang', 'en')->first();
                                             }
                                             if ($categoryLang) {
                                                 $categoryName = $categoryLang->name;
+                                            }
+                                        }
+
+                                        $brandName = 'N/A';
+                                        if ($prod->brand) {
+                                            $brandLang = $prod->brand->brandLanguages()->where('lang', app()->getLocale())->first();
+                                            if (!$brandLang) {
+                                                $brandLang = $prod->brand->brandLanguages()->where('lang', 'en')->first();
+                                            }
+                                            if ($brandLang) {
+                                                $brandName = $brandLang->name;
                                             }
                                         }
                                     @endphp
@@ -246,6 +263,7 @@
                                             data-name="{{ $prod->product_name }}"
                                             data-image="{{ $prod->image_40x40 }}"
                                             data-category="{{ $categoryName }}"
+                                            data-brand="{{ $brandName }}"
                                             data-stock="{{ $prod->current_stock }}">
                                         {{ $prod->product_name }}
                                     </option>
@@ -264,6 +282,7 @@
                                         <h6 class="mb-1" id="previewName"></h6>
                                         <p class="mb-0">
                                             <span class="badge badge-info" id="previewCategory"></span>
+                                            <span class="badge badge-warning ml-1" id="previewBrand"></span>
                                             <span class="ml-2 text-muted">{{ __('Stock') }}: <span id="previewStock"></span></span>
                                         </p>
                                     </div>
@@ -368,6 +387,37 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="product_id" id="edit_product_id">
+
+                        <!-- Edit Product Details Preview -->
+                        <div id="editProductPreview" class="card bg-light mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <img id="editPreviewImage" src="" alt="" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                                    </div>
+                                    <div class="col">
+                                        <h6 class="mb-1" id="editPreviewName"></h6>
+                                        <p class="mb-0">
+                                            <span class="badge badge-info" id="editPreviewCategory"></span>
+                                            <span class="badge badge-warning ml-1" id="editPreviewBrand"></span>
+                                            <span class="ml-2 text-muted">{{ __('Stock') }}: <span id="editPreviewStock"></span></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <hr class="my-2">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <small class="text-muted d-block">{{ __('Original Price') }}</small>
+                                        <h6 class="text-primary mb-0" id="editPreviewOriginalPrice"></h6>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <small class="text-muted d-block">{{ __('Current Event Price') }}</small>
+                                        <h6 class="text-success mb-0" id="editPreviewCurrentEventPrice"></h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label>{{ __('Event Price') }}</label>
                             <input type="number" name="event_price" id="edit_event_price" class="form-control" step="0.01"
@@ -454,9 +504,10 @@
                 var name = $selectedOption.data('name');
                 var image = $selectedOption.data('image');
                 var category = $selectedOption.data('category');
+                var brand = $selectedOption.data('brand');
                 var stock = $selectedOption.data('stock');
 
-                console.log('Product data:', { price: price, name: name, image: image, category: category, stock: stock });
+                console.log('Product data:', { price: price, name: name, image: image, category: category, brand: brand, stock: stock });
 
                 currentProduct = {
                     id: productId,
@@ -464,6 +515,7 @@
                     name: name || '',
                     image: image || '',
                     category: category || 'N/A',
+                    brand: brand || 'N/A',
                     stock: stock || 0
                 };
 
@@ -473,6 +525,7 @@
                 $('#previewImage').attr('src', currentProduct.image);
                 $('#previewName').text(currentProduct.name);
                 $('#previewCategory').text(currentProduct.category);
+                $('#previewBrand').text(currentProduct.brand);
                 $('#previewStock').text(currentProduct.stock);
                 $('#previewOriginalPrice').text(formatCurrency(currentProduct.price));
 
@@ -633,6 +686,15 @@
                 $('#edit_badge_text').val($btn.data('badge-text'));
                 $('#edit_badge_color').val($btn.data('badge-color'));
                 $('#edit_is_active').prop('checked', $btn.data('is-active'));
+
+                // Update edit preview details
+                $('#editPreviewImage').attr('src', $btn.data('product-image'));
+                $('#editPreviewName').text($btn.data('product-name'));
+                $('#editPreviewCategory').text($btn.data('product-category'));
+                $('#editPreviewBrand').text($btn.data('product-brand'));
+                $('#editPreviewStock').text($btn.data('product-stock'));
+                $('#editPreviewOriginalPrice').text(formatCurrency($btn.data('product-original-price')));
+                $('#editPreviewCurrentEventPrice').text($btn.data('event-price') ? formatCurrency($btn.data('event-price')) : formatCurrency($btn.data('product-original-price')));
 
                 $('#editProductModal').modal('show');
             });

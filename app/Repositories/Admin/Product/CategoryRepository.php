@@ -61,8 +61,8 @@ class CategoryRepository implements CategoryInterface
                 'category_languages.meta_title', 'category_languages.meta_description');
     }
     public function ajaxCategoryFilter($term){
-        return Category::with('childCategories','categoryLanguage')
-            ->whereHas('categoryLanguage', function ($query) use ($term) {
+        return Category::with('childCategories','categoryLanguages')
+            ->whereHas('categoryLanguages', function ($query) use ($term) {
                 $query->where('title', 'like', '%'.$term.'%');
             })
             ->where('status',1)
@@ -84,11 +84,11 @@ class CategoryRepository implements CategoryInterface
     {
         return $this->all()->with('childCategories')->latest()->where('lang', 'en')
             ->when($request->q != null, function($query) use ($request){
-                $query->whereHas('categoryLanguage', function ($q) use ($request){
+                $query->whereHas('categoryLanguages', function ($q) use ($request){
                     $q->where('title', 'like', '%'.$request->q.'%');
                 });
 //                $query->orWhereHas('childCategories', function ($q) use ($request){
-//                    $q->whereHas('categoryLanguage', function ($qu) use ($request){
+//                    $q->whereHas('categoryLanguages', function ($qu) use ($request){
 //                        $qu->orwhere('title', 'like', '%'.$request->q.'%');
 //                    });
 //                });
@@ -287,7 +287,7 @@ class CategoryRepository implements CategoryInterface
 
     public function categoryProducts($id)
     {
-        $category = Category::find($id);
+        $category = Category::with('categoryLanguages')->find($id);
         if ($category)
         {
 

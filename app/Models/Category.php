@@ -31,7 +31,7 @@ class Category extends Model
         return $this->hasMany(Category::class, 'parent_id');
     }
 
-    public function categoryLanguage(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function categoryLanguages(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CategoryLanguage::class);
     }
@@ -54,10 +54,10 @@ class Category extends Model
 
     public function getTranslation($field, $lang = 'en')
     {
-        $cat_translation = $this->categoryLanguage()->where('lang', $lang)->first();
+        $cat_translation = $this->categoryLanguages()->where('lang', $lang)->first();
 
         if (blank($cat_translation)):
-            $cat_translation = $this->categoryLanguage()->where('lang', 'en')->first();
+            $cat_translation = $this->categoryLanguages()->where('lang', 'en')->first();
         endif;
 
         return $cat_translation->$field;
@@ -99,7 +99,7 @@ class Category extends Model
             $lang = 'en';
         }
 
-        return $query->whereHas('categoryLanguage',function($q) use($lang){
+        return $query->whereHas('categoryLanguages',function($q) use($lang){
             $q->where('lang',$lang);
         });
     }

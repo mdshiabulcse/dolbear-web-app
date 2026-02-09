@@ -19,6 +19,7 @@ class Event extends Model
         'event_start_date',
         'event_end_date',
         'is_active_now',
+        'is_expired',
         'event_duration'
     ];
 
@@ -238,6 +239,18 @@ class Event extends Model
             return $now >= $this->event_schedule_start && $now <= $this->event_schedule_end;
         }
 
+        return false;
+    }
+
+    /**
+     * Attribute: Check if event is expired
+     */
+    public function getIsExpiredAttribute(): bool
+    {
+        $now = Carbon::now();
+        if ($this->event_type == 'date_range') {
+            return $now > $this->event_schedule_end;
+        }
         return false;
     }
 

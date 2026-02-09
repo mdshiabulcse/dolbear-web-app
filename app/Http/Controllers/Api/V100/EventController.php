@@ -38,10 +38,13 @@ class EventController extends Controller
                     'banner_406x235' => $event->image_406x235,
                     'banner_374x374' => $event->image_374x374,
                     'event_type' => $event->event_type,
-                    'start_date' => $event->event_start_date,
-                    'end_date' => $event->event_end_date,
+                    'start_date' => $event->event_schedule_start,
+                    'end_date' => $event->event_schedule_end,
+                    'formatted_start_date' => $event->event_start_date,
+                    'formatted_end_date' => $event->event_end_date,
                     'duration' => $event->event_duration,
                     'is_active_now' => $event->is_active_now,
+                    'is_expired' => $event->is_expired,
                     'background_color' => $event->background_color,
                     'text_color' => $event->text_color,
                     'total_products' => $event->total_products,
@@ -86,9 +89,13 @@ class EventController extends Controller
                     'banner_406x235' => $event->image_406x235,
                     'banner_374x374' => $event->image_374x374,
                     'event_type' => $event->event_type,
-                    'start_date' => $event->event_start_date,
-                    'end_date' => $event->event_end_date,
+                    'start_date' => $event->event_schedule_start,
+                    'end_date' => $event->event_schedule_end,
+                    'formatted_start_date' => $event->event_start_date,
+                    'formatted_end_date' => $event->event_end_date,
                     'duration' => $event->event_duration,
+                    'is_active_now' => $event->is_active_now,
+                    'is_expired' => $event->is_expired,
                     'background_color' => $event->background_color,
                     'text_color' => $event->text_color,
                     'total_products' => $event->total_products,
@@ -149,10 +156,10 @@ class EventController extends Controller
     /**
      * Get event products
      */
-    public function eventProducts(Request $request): \Illuminate\Http\JsonResponse
+    public function eventProducts(Request $request, $id = null): \Illuminate\Http\JsonResponse
     {
         try {
-            $eventId = $request->id ?? null;
+            $eventId = $id ?? $request->id ?? null;
 
             if (!$eventId) {
                 return $this->responseWithError(__('Event ID is required'), [], null);
