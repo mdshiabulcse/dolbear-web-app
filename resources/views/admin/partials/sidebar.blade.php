@@ -201,11 +201,9 @@
                                     href="{{ route('categories') }}">{{ __('Categories') }}</a>
                             </li>
                         @endif
-                        {{-- @if (hasPermission('product_create'))
-                            <li class="@yield('product_import')"><a class="nav-link"
-                                    href="{{ route('admin.product.import') }}">{{ __('Import Products') }}</a>
-                            </li>
-                        @endif --}}
+                        <li class="@yield('product_import')"><a class="nav-link"
+                                href="{{ route('admin.product.import') }}"><i class="bx bx-upload"></i> {{ __('Import Products') }}</a>
+                        </li>
                     </ul>
                 </li>
             @endif
