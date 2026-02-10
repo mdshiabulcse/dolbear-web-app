@@ -515,9 +515,6 @@
                                     href="{{ route('campaign') }}">{{ __('Campaigns') }}</a>
                             </li>
                         @endif
-                        <li class="@yield('events')"><a class="nav-link"
-                                href="{{ route('events') }}">{{ __('Events') }}</a>
-                        </li>
                         @if (settingHelper('seller_system') == 1)
                             @if (hasPermission('campaign_product_read'))
                                 <li class="@yield('campaign_request')"><a class="nav-link"
