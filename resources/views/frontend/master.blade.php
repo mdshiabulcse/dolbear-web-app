@@ -286,6 +286,40 @@
         })(window, document, 'script', 'dataLayer', 'GTM-54BWTWX9');</script>
     <!-- End Google Tag Manager -->
 
+    {{-- ============================================= --}}
+    {{-- SPA PAGE VIEW TRACKING FOR GTM & GA4          --}}
+    {{-- ============================================= --}}
+    <script>
+        // Initialize virtual page view tracking for SPA
+        window.trackVirtualPageView = function(path, title) {
+            if (!window.dataLayer) {
+                console.warn('[Analytics] dataLayer not ready');
+                return;
+            }
+
+            // Push page_view event to dataLayer
+            window.dataLayer.push({
+                event: 'page_view',
+                page_path: path || window.location.pathname,
+                page_title: title || document.title,
+                page_location: window.location.href,
+                virtual_page_view: true // Marker to identify SPA navigation
+            });
+
+            console.log('[Analytics] Virtual Page View:', path || window.location.pathname);
+        };
+
+        // Expose to window for Vue router usage
+        window.GTM_TRACKING = {
+            trackPageView: window.trackVirtualPageView,
+            isReady: function() {
+                return typeof window.dataLayer !== 'undefined';
+            }
+        };
+
+        console.log('[Analytics] GTM SPA tracking initialized');
+    </script>
+
 
 
     {{-- ============================================= --}}

@@ -1235,6 +1235,7 @@ const Analytics = {
             const category = productDetails.category_name || productDetails.category?.name || '';
             const currency = this.getCurrencyCode(activeCurrency);
 
+            // GA4 Enhanced Ecommerce - View Item
             window.dataLayer.push({
                 event: 'view_item',
                 ecommerce: {
@@ -1250,16 +1251,9 @@ const Analytics = {
                 }
             });
 
-            if (this.isFacebookReady()) {
-                window.fbq('track', 'ViewContent', {
-                    content_name: productDetails.product_name || '',
-                    content_category: category,
-                    content_ids: [sku],
-                    content_type: 'product',
-                    value: parseFloat(price),
-                    currency: currency
-                });
-            }
+            // NOTE: Facebook Pixel tracking handled by GTM container (GTM-54BWTWX9)
+            // DO NOT call fbq('track', 'ViewContent') directly - GTM will handle it
+
             console.log('[Analytics] Product view tracked:', productDetails.product_name, 'Currency:', currency);
         } catch (error) {
             console.error('[Analytics] Error tracking product view:', error);
@@ -1274,6 +1268,7 @@ const Analytics = {
             const currency = this.getCurrencyCode(activeCurrency);
             const totalValue = parseFloat(price) * parseInt(quantity);
 
+            // GA4 - Add to Cart
             window.dataLayer.push({
                 event: 'add_to_cart',
                 ecommerce: {
@@ -1289,16 +1284,9 @@ const Analytics = {
                 }
             });
 
-            if (this.isFacebookReady()) {
-                window.fbq('track', 'AddToCart', {
-                    content_name: productDetails.product_name || '',
-                    content_category: category,
-                    content_ids: [sku],
-                    content_type: 'product',
-                    value: totalValue,
-                    currency: currency
-                });
-            }
+            // NOTE: Facebook Pixel tracking handled by GTM container (GTM-54BWTWX9)
+            // DO NOT call fbq('track', 'AddToCart') directly - GTM will handle it
+
             console.log('[Analytics] Add to cart tracked:', productDetails.product_name, 'Qty:', quantity, 'Value:', totalValue, 'Currency:', currency);
         } catch (error) {
             console.error('[Analytics] Error tracking add to cart:', error);
@@ -1312,6 +1300,7 @@ const Analytics = {
             const category = productDetails.category_name || productDetails.category?.name || '';
             const currency = this.getCurrencyCode(activeCurrency);
 
+            // GA4 - Add to Wishlist
             window.dataLayer.push({
                 event: 'add_to_wishlist',
                 ecommerce: {
@@ -1327,16 +1316,9 @@ const Analytics = {
                 }
             });
 
-            if (this.isFacebookReady()) {
-                window.fbq('track', 'AddToWishlist', {
-                    content_name: productDetails.product_name || '',
-                    content_category: category,
-                    content_ids: [sku],
-                    content_type: 'product',
-                    value: parseFloat(price),
-                    currency: currency
-                });
-            }
+            // NOTE: Facebook Pixel tracking handled by GTM container (GTM-54BWTWX9)
+            // DO NOT call fbq('track', 'AddToWishlist') directly - GTM will handle it
+
             console.log('[Analytics] Add to wishlist tracked:', productDetails.product_name, 'Currency:', currency);
         } catch (error) {
             console.error('[Analytics] Error tracking add to wishlist:', error);

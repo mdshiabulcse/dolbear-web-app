@@ -150,11 +150,20 @@ new Vue({
     store,
 });
 
-router.afterEach(( to, from ) => {
-    if (window._gaq && window._gaq._getTracker) {
-        ga('set', 'page', to.path);
-        ga('send', 'pageview');
-    } else if (window.urchinTracker) {
+router.afterEach((to, from) => {
+    // GA4 Page View Tracking for SPA Navigation
+    if (window.dataLayer) {
+        window.dataLayer.push({
+            event: 'page_view',
+            page_path: to.path,
+            page_title: to.meta.title || document.title,
+            page_location: window.location.href
+        });
+        console.log('[Analytics] SPA Page View tracked:', to.path);
+    }
+
+    // Legacy GA (Universal Analytics) - deprecated but kept for compatibility
+    if (window.ga && ga.create) {
         ga('set', 'page', to.path);
         ga('send', 'pageview');
     }

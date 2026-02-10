@@ -314,20 +314,21 @@ export default {
         }
       })
     },
-    // Facebook Pixel - Track login (DO NOT re-initialize pixel)
+    // Analytics - Track login via GTM dataLayer
     trackFacebookPixelLogin(user) {
-      if (!user || typeof window.fbq === 'undefined') {
+      if (!user || typeof window.dataLayer === 'undefined') {
         return;
       }
 
-      // Track CompleteRegistration event for login
-      // Do NOT call fbq('init') again - it causes duplicate PageView events
-      window.fbq('track', 'CompleteRegistration', {
-        content_name: 'Login',
-        status: 'logged_in',
-        value: 0,
-        currency: 'BDT'
+      // GA4 - Login event
+      window.dataLayer.push({
+        event: 'login',
+        method: 'standard',
+        user_id: String(user.id || '')
       });
+
+      // NOTE: Facebook Pixel CompleteRegistration tracking handled by GTM container (GTM-54BWTWX9)
+      // GTM will trigger fbq('track', 'CompleteRegistration') based on the 'login' event
 
       // Update global store for future events
       if (window.fbPixelData) {
@@ -341,7 +342,7 @@ export default {
         window.fbPixelData.isLoggedIn = true;
       }
 
-      console.log('[Facebook Pixel] Login tracked for user:', user.email);
+      console.log('[Analytics] Login tracked for user:', user.email);
     },
   },
 }

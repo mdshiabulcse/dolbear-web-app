@@ -632,16 +632,8 @@ const Analytics = {
                     }
                 });
 
-                // Facebook Pixel - Purchase
-                if (this.isFacebookReady()) {
-                    window.fbq('track', 'Purchase', {
-                        content_ids: order.order_details.map(d => d.sku || String(d.product_id || '')),
-                        content_type: 'product',
-                        value: parseFloat(order.total_payable),
-                        currency: currency,
-                        num_items: order.order_details.length
-                    });
-                }
+                // NOTE: Facebook Pixel tracking handled by GTM container (GTM-54BWTWX9)
+                // DO NOT call fbq('track', 'Purchase') directly - GTM will handle it
 
                 console.log('[Analytics] Purchase tracked for order:', order.code, 'Total:', order.total_payable, 'Currency:', currency);
             });

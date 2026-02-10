@@ -214,20 +214,21 @@ export default {
     getNumber(number) {
       this.form.phone = number;
     },
-    // Facebook Pixel - Track registration and update pixel with user data
+    // Analytics - Track registration via GTM dataLayer
     trackFacebookPixelRegistration(user) {
-      if (!user || typeof window.fbq === 'undefined') {
+      if (!user || typeof window.dataLayer === 'undefined') {
         return;
       }
 
-      // Track CompleteRegistration event for registration
-      // Do NOT call fbq('init') again - it causes duplicate PageView events
-      window.fbq('track', 'CompleteRegistration', {
-        content_name: 'Registration',
-        status: 'registered',
-        value: 0,
-        currency: 'BDT'
+      // GA4 - Sign Up event
+      window.dataLayer.push({
+        event: 'sign_up',
+        method: 'standard',
+        user_id: String(user.id || '')
       });
+
+      // NOTE: Facebook Pixel CompleteRegistration tracking handled by GTM container (GTM-54BWTWX9)
+      // GTM will trigger fbq('track', 'CompleteRegistration') based on the 'sign_up' event
 
       // Update global store for future events
       if (window.fbPixelData) {
@@ -241,7 +242,7 @@ export default {
         window.fbPixelData.isLoggedIn = true;
       }
 
-      console.log('[Facebook Pixel] Registration tracked for user:', user.email);
+      console.log('[Analytics] Registration tracked for user:', user.email);
     }
   },
 }

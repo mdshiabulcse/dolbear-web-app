@@ -512,7 +512,7 @@
                     <ul class="dropdown-menu">
                         @if (hasPermission('campaign_read'))
                             <li class="@yield('campaign')"><a class="nav-link"
-                                    href="{{ route('campaign') }}">{{ __('Campaigns') }}</a>
+                                    href="{{ route('campaign') }}">{{ __('Campaigns') }}</a>f
                             </li>
                         @endif
                         @if (settingHelper('seller_system') == 1)

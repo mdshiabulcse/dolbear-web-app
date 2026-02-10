@@ -1047,19 +1047,15 @@ export default {
 
       // Analytics: Track search
       if (this.searchKey && this.searchKey.trim().length > 2) {
+        // GA4 - Search event
         if (typeof window.dataLayer !== 'undefined') {
           window.dataLayer.push({
             event: 'search',
             search_term: this.searchKey.trim()
           });
         }
-        // Facebook Pixel Search
-        if (typeof window.fbq !== 'undefined') {
-          window.fbq('track', 'Search', {
-            search_string: this.searchKey.trim(),
-            content_category: 'Products'
-          });
-        }
+        // NOTE: Facebook Pixel Search tracking handled by GTM container (GTM-54BWTWX9)
+        // GTM will trigger fbq('track', 'Search') based on the dataLayer 'search' event
         console.log('[Analytics] Search tracked:', this.searchKey);
       }
 
