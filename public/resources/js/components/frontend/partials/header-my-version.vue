@@ -408,8 +408,8 @@
       </div>
     </div> -->
 
-    <div class="sg-categorie-menu home-menu-sm">
-      <div class="sg-toggle" @click="$store.commit('setSmCategory', false)">
+    <div class="sg-categorie-menu home-menu-sm" @click.stop>
+      <div class="sg-toggle" @click="closeHomeMenu">
         <span class="mdi mdi-name mdi-close"></span>
       </div>
       <div class="categorie-menu-content">
@@ -864,7 +864,7 @@
       </div>
     </div>
 
-    
+
   </header>
   <!-- /.sg-header -->
 </template>
@@ -901,6 +901,17 @@ export default {
   mounted() {
     if (!this.lang) {
       this.$store.dispatch("languageKeywords");
+    }
+  },
+  watch: {
+    '$route'(to, from) {
+      // Close mobile menu when route changes
+      this.show_sm_home = false;
+      this.home_child_id = 0;
+      // Remove active class from body if exists
+      document.body.classList.remove('mobile-menu-active');
+      // Remove event listener when route changes
+      document.removeEventListener("click", this.handleOutsideClick);
     }
   },
   computed: {
@@ -1069,10 +1080,16 @@ export default {
     homeMenu() {
       // this.$store.commit('setSmCategory',false)
       this.show_sm_home = !this.show_sm_home;
-      this.show_sm_home &&
+      // Toggle body class for mobile menu
+      if (this.show_sm_home) {
+        document.body.classList.add('mobile-menu-active');
         this.$nextTick(() => {
-          document.addEventListener("click", this.hideHomeMenu);
+          // Add click listener to document for outside clicks
+          document.addEventListener("click", this.handleOutsideClick);
         });
+      } else {
+        document.body.classList.remove('mobile-menu-active');
+      }
     },
     hideCategoryMenu: function () {
       this.$store.commit("setSmCategory", false);
@@ -1081,7 +1098,29 @@ export default {
     },
     hideHomeMenu: function () {
       this.show_sm_home = false;
-      document.removeEventListener("click", this.hideHomeMenu);
+      document.body.classList.remove('mobile-menu-active');
+      document.removeEventListener("click", this.handleOutsideClick);
+    },
+    handleOutsideClick: function (event) {
+      // Check if click is outside the mobile menu area
+      const homeMenu = document.querySelector('.home-menu-sm');
+      const menuButton = event.target.closest('#sm_menu .sg-toggle');
+
+      // Close menu if:
+      // 1. Menu is open (this.show_sm_home is true)
+      // 2. Click is outside home-menu-sm
+      // 3. Click is not on menu toggle button
+      if (this.show_sm_home && homeMenu && !homeMenu.contains(event.target) && !menuButton) {
+        this.hideHomeMenu();
+      }
+    },
+    closeHomeMenu: function () {
+      // Close mobile menu and reset submenu state
+      this.show_sm_home = false;
+      this.home_child_id = 0;
+      document.body.classList.remove('mobile-menu-active');
+      // Remove event listener when menu is closed
+      document.removeEventListener("click", this.handleOutsideClick);
     },
     toggleMobileMenu(id) {
       if (this.mobile_child_id == id) {

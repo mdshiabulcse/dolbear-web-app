@@ -284,7 +284,7 @@
                   <path d="M0 0.5H15" stroke="white"/>
                   <path d="M0 8.5H15" stroke="white"/>
                   </svg>
-                  
+
               </div>
             </div>
           </div>

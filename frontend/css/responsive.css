@@ -1188,6 +1188,16 @@
 	.social ul {
     margin-bottom: 15px;
 	}
+
+	/* Mobile Menu Fixes - Prevent menu from covering navbar */
+	.home-menu-sm {
+		z-index: 998 !important;
+	}
+
+	/* When mobile menu is active, hide sticky menu */
+	.sg-header.mobile-menu-active #sm_menu {
+		display: none !important;
+	}
 } /* (max-width: 991px) End */
 
 /* sm */
@@ -2413,6 +2423,16 @@
 	.sg-category-content .grid-4 > li {
     flex: 0 0 100%;
     max-width: 100%;
+	}
+
+	/* Mobile Menu Fixes for xs Portrait */
+	.home-menu-sm {
+		z-index: 998 !important;
+	}
+
+	/* When mobile menu is active, hide sticky menu */
+	.sg-header.mobile-menu-active #sm_menu {
+		display: none !important;
 	}
 } /* (max-width: 475px) End */
 
