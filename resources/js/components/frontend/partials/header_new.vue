@@ -146,7 +146,7 @@
         <div class="row v-center ms-auto ms-md-0 w-100">
           <!-- menu start here -->
           <div class="header-item item-center">
-            <div class="menu-overlay" :class="{ 'active': is_menu_active }"></div>
+            <div class="menu-overlay" :class="{ 'active': is_menu_active }" @click.stop="closeMenu"></div>
             <nav class="menu" :class="{ 'active': is_menu_active }">
               <div class="mobile-menu-head" :class="{ 'active': is_sub_menu_active }">
                 <div class="go-back" @click="is_sub_menu_active = false; menu_key = null">
@@ -157,11 +157,11 @@
                   </svg>
                 </div>
                 <div class="current-menu-title"></div>
-                <div class="mobile-menu-close text-light" @click="activeToggleMenuMobile">&times;</div>
+                <div class="mobile-menu-close text-light" @click="closeMenu">&times;</div>
               </div>
               <ul class="menu-main p-0 mb-0 d-lg-flex flex-lg-row justify-content-lg-between d-md-flex flex-md-column">
                 <li class="nav-item menu-item-has-children" v-for="(menu, i) in headerMenu" :key=i>
-                  <router-link @click.native="subMenuActive(i, menu)"
+                  <router-link @click.native="handleMenuClick(i, menu)"
                     :to="menu.url" class="nav-items">
                     {{ menu.label }}
                   </router-link>
@@ -173,7 +173,7 @@
                       <div class="list-item col-md-3">
                         <ul>
                           <li v-for="(value, key, j) in menu" v-if="key !== 'label' && key !== 'url'" :key="j">
-                            <router-link @click.native="activeToggleMenuMobile" :to="value.url"> {{ value.label
+                            <router-link @click.native="closeMenu" :to="value.url"> {{ value.label
                               }}</router-link>
                           </li>
                         </ul>
@@ -370,9 +370,12 @@ export default {
         this.phone_search_products = [];
       }
     },
-
+    $route() {
+      if (this.is_menu_active) {
+        this.closeMenu();
+      }
+    }
   },
-
   computed: {
     navbarStyles() {
       return {
@@ -526,6 +529,22 @@ export default {
       this.is_menu_active = !this.is_menu_active;
     },
 
+    closeMenu() {
+      this.is_menu_active = false;
+      this.is_sub_menu_active = false;
+      this.menu_key = null;
+    },
+
+    handleMenuClick(i, menu) {
+      const hasChildren = Object.keys(menu).length > 2;
+      if (hasChildren) {
+        this.subMenuActive(i, menu);
+      } else {
+        setTimeout(() => {
+          this.closeMenu();
+        }, 100);
+      }
+    },
 
     subMenuActive(i, menu) {
       this.menu_key = i;
