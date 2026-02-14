@@ -7,7 +7,7 @@
             <table class="cart-table" >
               <thead >
               <tr>
-                <th>Sl.</th>
+                <th class="hide-mobile">Sl.</th>
                 <th>Product</th>
                 <th>Price</th>
                 <th>Qty</th>
@@ -17,7 +17,7 @@
               </thead>
               <tbody>
               <tr v-for="(cart, index) in carts" :key="cart.id" >
-                <td>{{ index + 1 }}</td>
+                <td class="hide-mobile">{{ index + 1 }}</td>
                 <td class="d-flex flex-column align-items-start">
                   <span>{{ cart.product_name }} <span v-if="cart.variant">({{ cart.variant }})</span> </span>
                 </td>
@@ -1500,6 +1500,140 @@ export default {
     margin-bottom: 0;
 }
 
+/* Mobile Table Responsive Styles */
+@media screen and (max-width: 767px) {
+  /* Hide only serial number column on mobile - keep Total and Action visible */
+  .cart-table th:first-child,
+  .cart-table td:first-child {
+    display: none;
+  }
+
+  .cart-table th,
+  .cart-table td {
+    padding: 8px 3px !important;
+    font-size: 11px !important;
+  }
+
+  /* Adjust column widths for mobile - 5 columns now (Product, Price, Qty, Total, Action) */
+  .cart-table th:nth-child(2),
+  .cart-table td:nth-child(2) {
+    width: 35%;
+    min-width: 100px;
+  }
+
+  .cart-table th:nth-child(3),
+  .cart-table td:nth-child(3) {
+    width: 20%;
+  }
+
+  .cart-table th:nth-child(4),
+  .cart-table td:nth-child(4) {
+    width: 20%;
+  }
+
+  .cart-table th:nth-child(5),
+  .cart-table td:nth-child(5) {
+    width: 15%;
+  }
+
+  .cart-table th:nth-child(6),
+  .cart-table td:nth-child(6) {
+    width: 10%;
+  }
+
+  /* Adjust quantity spinner for mobile */
+  .product-quantity .quantity {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .product-quantity .quantity .input-text {
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 0;
+    font-size: 11px;
+    padding: 0;
+  }
+
+  .product-quantity .quantity .btn {
+    width: 24px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    background: #f8f9fa;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .product-quantity .quantity .btn:hover {
+    background: #168FC3;
+    color: white;
+  }
+
+  .product-quantity .quantity .btn span {
+    font-size: 12px;
+  }
+
+  /* Adjust delete button size */
+  .cart-table td:last-child img {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media screen and (max-width: 575px) {
+  .cart-table th,
+  .cart-table td {
+    padding: 6px 2px !important;
+    font-size: 10px !important;
+  }
+
+  .cart-table th:nth-child(2),
+  .cart-table td:nth-child(2) {
+    min-width: 80px;
+    font-size: 10px !important;
+  }
+
+  .product-quantity .quantity .input-text {
+    width: 28px;
+    height: 26px;
+    font-size: 10px;
+  }
+
+  .product-quantity .quantity .btn {
+    width: 22px;
+    height: 26px;
+  }
+
+  .product-quantity .quantity .btn span {
+    font-size: 11px;
+  }
+
+  .cart-table td:last-child img {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .cart-table th,
+  .cart-table td {
+    padding: 5px 1px !important;
+    font-size: 9px !important;
+  }
+
+  .cart-table th:nth-child(2),
+  .cart-table td:nth-child(2) {
+    min-width: 70px;
+    font-size: 9px !important;
+  }
+}
+
 .checkout-card {
     background: white;
     border: none;
@@ -1663,13 +1797,7 @@ export default {
     text-decoration: none !important;
   }
 
-@media screen and (max-width: 430px) {
-  .cart-new table>tbody>tr>td, table>tbody>tr>th, table>tfoot>tr>td, table>tfoot>tr>th, table>thead>tr>td, table>thead>tr>th{
-    padding: 15px 3px !important;
-    font-size: 12px !important;
-  }
-
-}
+/* Remove old 430px media query as it's replaced by card view */
 
 /* v-select styling fixes */
 .cart-new .v-select {
@@ -1744,5 +1872,121 @@ export default {
 .store-details-info p strong {
   font-weight: 600;
   margin-right: 5px;
+}
+
+/* Checkout card responsive adjustments */
+@media screen and (max-width: 991px) {
+  .checkout-card {
+    padding: 15px 20px;
+    margin-top: 20px;
+  }
+
+  .checkout-card h4 {
+    font-size: 14px;
+  }
+
+  .checkout-card p {
+    font-size: 13px;
+  }
+
+  /* Form responsive for address section */
+  .cart-new .col-lg-6,
+  .cart-new .col-md-6 {
+    width: 100%;
+    max-width: 100%;
+    flex: 0 0 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .cart-new .form-control {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .checkout-card {
+    padding: 15px;
+  }
+
+  .checkout-card h4 {
+    font-size: 13px;
+    margin-bottom: 15px;
+  }
+
+  .checkout-card p {
+    font-size: 12px;
+  }
+
+  /* Delivery method section responsive */
+  .cart-new .row .col-lg-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .cart-new .row .col-lg-9 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  /* Store selection items */
+  .store-selection-item {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+
+  /* Applied coupons responsive */
+  .applied-coupons .badge {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  .applied-coupons small {
+    font-size: 10px;
+  }
+}
+
+@media screen and (max-width: 575px) {
+  /* Form responsive for address section */
+  .cart-new .col-lg-6,
+  .cart-new .col-md-6,
+  .cart-new .col-md-12 {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .cart-new .form-control {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .cart-new p {
+    font-size: 13px;
+  }
+
+  .checkout-btn {
+    font-size: 13px;
+    padding: 10px 6px;
+    height: 42px;
+  }
+
+  .link_section {
+    font-size: 12px;
+  }
+
+  /* Delivery section - display horizontally on mobile like payment methods */
+  .cart-new .row .col-lg-3 {
+    flex: 0 0 auto;
+    max-width: none;
+    margin-bottom: 0;
+    margin-right: 10px;
+  }
+
+  .cart-new .row .col-lg-9 {
+    flex: 1;
+    max-width: none;
+  }
 }
 </style>

@@ -65,6 +65,9 @@
                         <th
                             style="border: 1px solid #ddd; padding: 10px; background-color: #f1f1f1; text-align: right;">
                             Price</th>
+                        <th
+                            style="border: 1px solid #ddd; padding: 10px; background-color: #f1f1f1; text-align: right;">
+                            Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -79,6 +82,9 @@
                             <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">
                                 ৳ {{ number_format($orderDetail->price, 2) }}
                             </td>
+                            <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">
+                                ৳ {{ number_format($orderDetail->price * $orderDetail->quantity, 2) }}
+                            </td>
                         </tr>
                     @endforeach
 
@@ -90,18 +96,34 @@
                     <tr>
                         <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">Subtotal:</th>
                         <td style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">৳
-                            {{$content->sub_total}}
+                            {{ number_format($content->sub_total, 2) }}
                         </td>
                     </tr>
+                    @if($content->discount > 0)
+                    <tr>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">Discount:</th>
+                        <td style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">৳
+                            {{ number_format($content->discount, 2) }}
+                        </td>
+                    </tr>
+                    @endif
+                    @if($content->coupon_discount > 0)
+                    <tr>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">Promo Discount:</th>
+                        <td style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">৳
+                            {{ number_format($content->coupon_discount, 2) }}
+                        </td>
+                    </tr>
+                    @endif
                     <tr>
                         <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">Shipping:</th>
                         <td style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">
-                            <!-- {{ isset($content->shipping_method) && !empty($content->shipping_method) ? $content->shipping_method : 'N/A' }} -->
+                            ৳ {{ number_format($content->shipping_cost, 2) }}
                             <?php
 if (isset($content->billing_address['district']) && !empty($content->billing_address['district']) && strcasecmp($content->billing_address['district'], 'Dhaka') == 0) {
-    echo "Inside Dhaka City (Delivery - Up to 3 business days)";
+    echo " <br><small>(Inside Dhaka City - Delivery up to 3 business days)</small>";
 } else {
-    echo "Outside Dhaka City (Delivery - Up to 3 business days)";
+    echo " <br><small>(Outside Dhaka City - Delivery up to 3 business days)</small>";
 }
                             ?>
                         </td>
@@ -117,7 +139,7 @@ if (isset($content->billing_address['district']) && !empty($content->billing_add
                         <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 50%;">Total:</th>
                         <td
                             style="padding: 10px; text-align: left; font-weight: bold; border: 1px solid #ddd; width: 50%;">
-                            ৳ {{$content->total_amount}}</td>
+                            ৳ {{ number_format($content->total_amount, 2) }}</td>
                     </tr>
                 </tbody>
             </table>

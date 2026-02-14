@@ -315,7 +315,7 @@
 					</div> -->
 
 					<div class="thankyou_container">
-						<div class="fs-1">Thanks for using dolbear.tech!</div>
+						<div class="fs-1">Thanks for using dolbear.com.bd!</div>
 						<div class="fs-1 opacity-25">Think Tech, Think Dolbear</div>
 					</div>
 				</div>
