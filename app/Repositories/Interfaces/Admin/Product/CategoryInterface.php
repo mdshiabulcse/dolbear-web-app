@@ -33,6 +33,8 @@ interface CategoryInterface
 
     public function categoryPage();
 
+    public function allActiveCategories();
+
     public function mobileCategory($limit);
 
     public function categoryByIds($top_category,$take = null);

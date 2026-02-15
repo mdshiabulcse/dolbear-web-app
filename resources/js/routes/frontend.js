@@ -40,6 +40,9 @@ const allCampaign = () =>
 const allCategory = () =>
   import(/* webpackPrefetch: true */ "../components/frontend/homepage/New/categories.vue");
 
+const allCategoriesPage = () =>
+  import(/* webpackPrefetch: true */ "../components/frontend/homepage/New/all-categories.vue");
+
 const contact = () =>
   import(/* webpackPrefetch: true */ "../components/frontend/pages/contact");
 const offers = () =>
@@ -311,6 +314,14 @@ export const routes = [
         component: allCategory,
         meta: {
           title: "All Category",
+        },
+      },
+      {
+        path: "/all-categories",
+        name: "all.categories",
+        component: allCategoriesPage,
+        meta: {
+          title: "All Categories",
         },
       },
 

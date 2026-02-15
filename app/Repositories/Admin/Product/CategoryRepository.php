@@ -305,6 +305,13 @@ class CategoryRepository implements CategoryInterface
         return $category;
     }
 
+    public function allActiveCategories()
+    {
+        return Category::with(['categories' => function ($query){
+            $query->where('status',1);
+        }])->where('status',1)->select('id','parent_id','logo','slug','banner')->where('parent_id',null)->latest()->get();
+    }
+
     public function categoryByIds($top_category,$take= null)
     {
         if ($take)

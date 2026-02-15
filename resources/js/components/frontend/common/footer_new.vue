@@ -253,10 +253,24 @@ export default {
   },
   computed: {
     usefulLinks() {
-      return this.settings.useful_links;
+      const links = this.settings.useful_links || [];
+      // Override categories link to point to new all-categories page
+      return links.map(link => {
+        if (link.url === '/categories' || link.url === '/categories') {
+          return { ...link, url: '/all-categories' };
+        }
+        return link;
+      });
     },
     footerMenu() {
-      return this.settings.footer_menu;
+      const menu = this.settings.footer_menu || [];
+      // Override categories link to point to new all-categories page
+      return menu.map(item => {
+        if (item.url === '/categories' || item.url === '/categories') {
+          return { ...item, url: '/all-categories' };
+        }
+        return item;
+      });
     },
     cleanContactPhone() {
       // Extract first valid phone number from settings.header_contact_phone

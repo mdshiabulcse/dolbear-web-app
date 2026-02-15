@@ -129,6 +129,21 @@ class FrontendController extends Controller
         }
     }
 
+    public function allActiveCategories(CategoryInterface $category): \Illuminate\Http\JsonResponse
+    {
+
+        try {
+            $data = [
+                'categories' => CategoryResource::collection($category->allActiveCategories())
+            ];
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
     public function dailyDeals(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
