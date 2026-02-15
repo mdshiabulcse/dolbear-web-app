@@ -142,11 +142,12 @@
               </div> -->
 
     <div ref="navbar" class="navbar mobile-navbar" :style="navbarStyles">
+      <!-- Menu Overlay - moved outside nested containers for proper full-screen coverage -->
+      <div class="menu-overlay" :class="{ 'active': is_menu_active }" @click.stop="closeMenu"></div>
       <div class="container">
         <div class="row v-center ms-auto ms-md-0 w-100">
           <!-- menu start here -->
           <div class="header-item item-center">
-            <div class="menu-overlay" :class="{ 'active': is_menu_active }" @click.stop="closeMenu"></div>
             <nav class="menu" :class="{ 'active': is_menu_active }">
               <div class="mobile-menu-head" :class="{ 'active': is_sub_menu_active }">
                 <div class="go-back" @click="is_sub_menu_active = false; menu_key = null">

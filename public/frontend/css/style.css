@@ -936,6 +936,20 @@ button, input, optgroup, select, textarea {
     display: none;
   }
 
+  .menu-overlay.active {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 97;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   /* Live Offer Icon Animation */
   .navbar .menu .live-offer-badge {
     display: inline-flex;
