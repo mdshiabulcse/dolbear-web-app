@@ -387,6 +387,9 @@ export default {
     window.addEventListener('scroll', this.handleScroll);
     this.navbarTop = this.$refs.navbar.offsetTop;
 
+    // Add click outside listener for mobile menu
+    document.addEventListener('click', this.handleClickOutside);
+
     if (!this.lang) {
       this.$store.dispatch("languageKeywords");
     }
@@ -401,6 +404,7 @@ export default {
 
   beforeDestroy() {
     window.removeEventListener('scroll', this.handleScroll);
+    document.removeEventListener('click', this.handleClickOutside);
   },
 
   watch: {
@@ -481,6 +485,20 @@ export default {
     },
   },
   methods: {
+    handleClickOutside(event) {
+      // Close mobile menu when clicking outside menu area
+      const navbar = this.$refs.navbar;
+      const menu = navbar?.querySelector('.menu');
+
+      // If menu is active and click is outside menu
+      if (this.is_menu_active && menu && !menu.contains(event.target)) {
+        this.is_menu_active = false;
+        this.is_sub_menu_active = false;
+        this.menu_key = null;
+        this.expanded_items = [];
+      }
+    },
+
     activeToggleMenuMobile() {
       this.is_menu_active = !this.is_menu_active;
       // Reset submenu states when closing menu

@@ -2551,3 +2551,34 @@
 		width: calc(100%/2 - 5px);
 	}
 }
+
+/* Fix sticky menu icons and text to white color */
+.sticky-sm-menu ul li span {
+	color: #FFFFFF !important;
+}
+.sticky-sm-menu ul li span.mdi {
+	color: #FFFFFF !important;
+}
+.sticky-sm-menu ul li a {
+	color: #FFFFFF !important;
+}
+.sticky-sm-menu ul li p {
+	color: #FFFFFF !important;
+}
+.sticky-sm-menu ul li img {
+	color: #FFFFFF !important;
+}
+
+/* Fix footer_fixd_section white color */
+.footer_fixd_section p {
+	color: #FFFFFF !important;
+}
+.footer_fixd_section a {
+	color: #FFFFFF !important;
+}
+.footer_fixd_section svg {
+	fill: #FFFFFF !important;
+}
+.footer_fixd_section svg path {
+	fill: #FFFFFF !important;
+}
