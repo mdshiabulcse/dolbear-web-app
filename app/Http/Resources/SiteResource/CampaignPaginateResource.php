@@ -10,11 +10,19 @@ class CampaignPaginateResource extends ResourceCollection
     {
         return [
             'data' => $this->collection->map(function ($data) {
+                // Get title from currentLanguage relationship or fallback
+                $title = null;
+                $description = null;
+                if ($data->currentLanguage && $data->currentLanguage->first()) {
+                    $title = $data->currentLanguage->first()->title;
+                    $description = $data->currentLanguage->first()->description;
+                }
+
                 return [
                     'id'                    => $data->id,
                     'slug'                  => $data->slug,
-                    'title'                 => $data->title,
-                    'short_description'     => nullCheck($data->short_description),
+                    'title'                 => $title ?: $data->title,
+                    'short_description'     => $description ?: nullCheck($data->short_description),
                     'campaign_start_date'   => nullCheck($data->campaign_start_date),
                     'campaign_end_date'     => nullCheck($data->campaign_end_date),
                     'image_374x374'         => $data->image_374x374,

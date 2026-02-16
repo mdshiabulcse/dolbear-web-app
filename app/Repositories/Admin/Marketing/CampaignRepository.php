@@ -378,7 +378,12 @@ class CampaignRepository implements CampaignInterface
 
     public function campaigns($limit)
     {
-        return $this->all()->with('currentLanguage')->where('start_date','<=',now())->where('end_date','>=',now())->paginate($limit);
+        // Show all active campaigns, prioritizing currently active ones
+        return $this->all()->with('currentLanguage')
+            ->where('status',1)
+            ->orderByRaw("CASE WHEN end_date >= NOW() THEN 0 ELSE 1 END")
+            ->latest('start_date')
+            ->paginate($limit);
     }
 
     public function campaignProducts($id,$user)
