@@ -33,6 +33,17 @@ class CouponStoreRequest extends FormRequest
             'product_id'              =>'required_if:type,product_base',
             'minimum_shopping'        =>'required_if:type,invoice_base',
             'maximum_discount'        =>'required_if:type,invoice_base',
+            'applicable_on_discount'  =>'required|integer|in:0,1',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        // Ensure checkbox sends 0 or 1 as integer
+        if ($this->has('applicable_on_discount')) {
+            $this->merge([
+                'applicable_on_discount' => (int)$this->input('applicable_on_discount', 0),
+            ]);
+        }
     }
 }

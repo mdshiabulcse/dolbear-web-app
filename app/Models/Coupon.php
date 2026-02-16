@@ -9,6 +9,23 @@ class Coupon extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'user_id',
+        'type',
+        'code',
+        'banner_id',
+        'banner',
+        'minimum_shopping',
+        'maximum_discount',
+        'product_id',
+        'discount_type',
+        'discount',
+        'status',
+        'start_date',
+        'end_date',
+        'applicable_on_discount',
+    ];
+
     protected $casts = [
         'product_id' => 'array',
         'banner' => 'array',

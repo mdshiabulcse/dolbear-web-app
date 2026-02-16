@@ -70,6 +70,7 @@ class CouponRepository implements CouponInterface
         $coupon->product_id         = $request->product_id;
         $coupon->minimum_shopping   = $request->minimum_shopping == '' ? 0 : priceFormatUpdate($request->minimum_shopping,settingHelper('default_currency'));
         $coupon->maximum_discount   = $request->maximum_discount == '' ? null : priceFormatUpdate( $request->maximum_discount,settingHelper('default_currency'));
+        $coupon->applicable_on_discount = (int)($request->applicable_on_discount ?? 0);
 
         if ($request->banner != ''):
             $coupon->banner        = $this->getImageWithRecommendedSize($request->banner,145,110);
@@ -102,6 +103,7 @@ class CouponRepository implements CouponInterface
         $coupon->product_id         = $request->product_id;
         $coupon->minimum_shopping   = $request->minimum_shopping == '' ? 1 : priceFormatUpdate($request->minimum_shopping,settingHelper('default_currency'));
         $coupon->maximum_discount   = $request->maximum_discount == '' ? null : priceFormatUpdate( $request->maximum_discount,settingHelper('default_currency'));
+        $coupon->applicable_on_discount = (int)($request->applicable_on_discount ?? 0);
 
         if ($request->banner != ''):
             $this->deleteSingleFile($coupon->banner, 'image_145x110');

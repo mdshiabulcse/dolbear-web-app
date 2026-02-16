@@ -231,6 +231,25 @@
                                         </td>
                                     </tr>
                                 </table>
+                                <div class="form-group">
+                                    <label for="applicable_on_discount">{{ __('Applicable on Discount Products') }} *</label>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox"
+                                               class="custom-control-input"
+                                               id="applicable_on_discount_check"
+                                               {{ old('applicable_on_discount') == '1' ? 'checked' : '' }}>
+                                        <label class="custom-control-label" for="applicable_on_discount_check">
+                                            {{ __('Yes, apply this coupon on products that already have a discount') }}
+                                        </label>
+                                    </div>
+                                    <input type="hidden" id="applicable_on_discount" name="applicable_on_discount" value="0">
+                                    <small class="form-text text-muted">{{ __('Default is 0 (No). Check to enable (1).') }}</small>
+                                    @if ($errors->has('applicable_on_discount'))
+                                        <div class="invalid-feedback">
+                                            <p>{{ $errors->first('applicable_on_discount') }}</p>
+                                        </div>
+                                    @endif
+                                </div>
                                 <div
                                     class="{{ old('type') ? (old('type') == "invoice_base" ? "" : "d-none") : "d-none" }}"
                                     id="div_invoice_base">
@@ -327,6 +346,11 @@
                     cache: true
                 }
             });
+        });
+
+        // Handle applicable_on_discount checkbox
+        $('#applicable_on_discount_check').on('change', function() {
+            $('#applicable_on_discount').val($(this).is(':checked') ? '1' : '0');
         });
     </script>
 @endpush
