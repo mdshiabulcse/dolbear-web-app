@@ -105,6 +105,13 @@ class PathaoCourierController extends Controller
     {
         Log::info('Pathao status update:', $request->all());
         $this->pathao->updateStatus($request);
+
+        // Return proper response to acknowledge webhook
+        return response()->json([
+            'message' => 'Webhook received successfully',
+            'type' => 'success',
+            'code' => 200
+        ], 200);
     }
 
 }

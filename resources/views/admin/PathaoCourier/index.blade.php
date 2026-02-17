@@ -4,6 +4,24 @@
     Create Delivery
 @endsection
 
+@php
+// Prepare product data for JavaScript
+$orderProducts = [];
+foreach ($orderData->orderDetails as $detail) {
+    $colorNames = '-';
+    if (!empty($detail->product->colors) && is_array($detail->product->colors)) {
+        $colorNames = implode(', ', array_column($detail->product->colors, 'name'));
+    }
+    $orderProducts[] = [
+        'name' => $detail->product->product_name ?? 'N/A',
+        'variation' => $detail->variation ?? '-',
+        'color' => $colorNames,
+        'qty' => $detail->quantity,
+        'price' => $detail->price
+    ];
+}
+@endphp
+
 @section('main-content')
     <section class="section">
         <div class="section-body">
@@ -53,6 +71,43 @@
                                     @else
 
                                         <div class="card-body">
+
+                                            <!-- Product Information Section -->
+                                            <div class="row mb-3">
+                                                <div class="col-12">
+                                                    <div class="alert alert-info">
+                                                        <h6><i class="bx bx-box"></i> Order Products</h6>
+                                                        <table class="table table-sm mb-0">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Product Name</th>
+                                                                    <th>Variation</th>
+                                                                    <th>Color</th>
+                                                                    <th>Qty</th>
+                                                                    <th>Price</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach($orderData->orderDetails as $detail)
+                                                                <tr>
+                                                                    <td>{{ $detail->product->product_name ?? 'N/A' }}</td>
+                                                                    <td>{{ $detail->variation ?? '-' }}</td>
+                                                                    <td>
+                                                                        @if(!empty($detail->product->colors) && is_array($detail->product->colors))
+                                                                            {{ implode(', ', array_column($detail->product->colors, 'name')) }}
+                                                                        @else
+                                                                            -
+                                                                        @endif
+                                                                    </td>
+                                                                    <td>{{ $detail->quantity }}</td>
+                                                                    <td>{{ $detail->price }}</td>
+                                                                </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div class="row">
 
                                                 <div class="col-md-12">
@@ -211,6 +266,23 @@
                                                     </div>
                                                 </div>
 
+                                                <!-- Hidden field for product info -->
+                                                <input type="hidden" name="product_info" id="product_info" value="">
+
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="special_instruction">Special Instruction</label>
+                                                        <textarea class="form-control ai_content_name" name="special_instruction"
+                                                            id="special_instruction"
+                                                            placeholder="Any special instructions for delivery (e.g., fragile item, call before delivery, etc.)" rows="2"></textarea>
+                                                        @if ($errors->has('special_instruction'))
+                                                            <div class="invalid-feedback">
+                                                                <p>{{ $errors->first('special_instruction') }}</p>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+
                                             </div>
 
                                             <div class="form-group">
@@ -255,9 +327,11 @@
     <script>
         $(document).ready(function () {
 
-            const baseUrl = "<?php echo env('APP_URL'); ?>";
+            const baseUrl = "{{ env('APP_URL') }}";
             const orderDistrict = "{{ $orderData->shipping_address['district'] ?? '' }}".trim().toLowerCase();
             const orderThana = "{{ $orderData->shipping_address['thana'] ?? '' }}".trim().toLowerCase();
+
+            console.log('Pathao: Starting city load, district:', orderDistrict, 'thana:', orderThana);
 
             $.ajax({
                 url: baseUrl + '/admin/pathao/city',
@@ -268,8 +342,9 @@
                     'Accept': 'application/json',
                 },
                 success: function (data) {
+                    console.log('Pathao: City response received:', data);
                     let selectedCityId = null;
-                    const cityData = data?.data?.data
+                    const cityData = data?.data?.data || data?.data || [];
                     const $city = $('#city');
 
                     // Clear existing options
@@ -292,6 +367,7 @@
                         if (city.city_name.toLowerCase() === orderDistrict) {
                             selectedCityId = city.city_id;
                             option.attr('selected', true);
+                            console.log('Pathao: Auto-selected city:', city.city_name, 'ID:', city.city_id);
                         }
 
                         $city.append(option);
@@ -300,17 +376,17 @@
                     if (selectedCityId) {
                         $city.val(selectedCityId).trigger('change');
                     }
-
                 },
                 error: function (error) {
                     // Handle error response
-                    console.error(error)
+                    console.error('Pathao: City load error:', error);
                 }
             })
 
             // --- Load Zone List when City Changes ---
             $('#city').change(function () {
                 const cityId = $(this).val();
+                console.log('Pathao: City changed to:', cityId);
                 if (cityId) {
                     loadZones(cityId);
                 }
@@ -318,6 +394,7 @@
 
             // --- Function to Load Zones and Auto-select Thana ---
             function loadZones(cityId) {
+                console.log('Pathao: Loading zones for city:', cityId, 'looking for thana:', orderThana);
                 $.ajax({
                     url: baseUrl + '/admin/pathao/zone',
                     type: 'GET',
@@ -328,7 +405,8 @@
                         'Accept': 'application/json',
                     },
                     success: function (data) {
-                        const zoneData = data?.data?.data || [];
+                        console.log('Pathao: Zone response received:', data);
+                        const zoneData = data?.data?.data || data?.data || [];
                         const $zone = $('#zone');
 
                         $zone.empty().append($('<option>', { value: '', text: 'Select Zone' }));
@@ -343,13 +421,16 @@
                             // Auto-select if zone name matches Thana
                             if (zoneName === orderThana || zoneName.includes(orderThana)) {
                                 option.attr('selected', true);
+                                console.log('Pathao: Auto-selected zone:', zone.zone_name, 'ID:', zone.zone_id);
                             }
 
                             $zone.append(option);
                         });
+
+                        console.log('Pathao: Total zones loaded:', zoneData.length);
                     },
                     error: function (error) {
-                        console.error('Zone fetch error:', error);
+                        console.error('Pathao: Zone fetch error:', error);
                     }
                 });
             }
@@ -357,6 +438,31 @@
             $('#orderForm').submit(function (e) {
                 // Prevent the default form submission
                 e.preventDefault();
+
+                // Build product info string from order products (data prepared in PHP)
+                var products = {{ json_encode($orderProducts) }};
+
+                // Format product info for special instruction
+                let productInfoText = '';
+                if (products && products.length > 0) {
+                    productInfoText = 'Order Items:\n';
+                    products.forEach(function(product, index) {
+                        productInfoText += (index + 1) + '. ' + product.name;
+                        if (product.variation && product.variation !== '-') {
+                            productInfoText += ' (' + product.variation + ')';
+                        }
+                        if (product.color && product.color !== '-') {
+                            productInfoText += ' - Color: ' + product.color;
+                        }
+                        productInfoText += ' - Qty: ' + product.qty + '\n';
+                    });
+                }
+
+                // Set the product info hidden field
+                $('#product_info').val(productInfoText);
+
+                // Log to console for debugging
+                console.log('Product Info being sent to Pathao:', productInfoText);
 
                 // Serialize form data
                 var formData = $(this).serialize();

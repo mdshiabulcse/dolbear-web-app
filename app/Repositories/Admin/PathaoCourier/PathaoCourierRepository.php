@@ -24,18 +24,19 @@ class PathaoCourierRepository implements PathaoCourierInterface
     {
         Log::info('Pathao Webhook Status Update Received', [
             'consignment_id' => $data->consignment_id,
-            'status' => $data->status,
+            'order_status' => $data->order_status,
             'message' => $data->message ?? null,
             'updated_at' => $data->updated_at ?? null,
             'raw_data' => $data->all(),
         ]);
+
         $order = Order::where('pathao_delivery_id', $data->consignment_id)->first();
 
         if ($order) {
             $oldStatus = $order->delivery_status;
 
-            // Update order status
-            $order->delivery_status = $data->status;
+            // Update order status - use order_status from webhook
+            $order->delivery_status = $data->order_status;
             $order->save();
 
             // Log status change
@@ -43,14 +44,14 @@ class PathaoCourierRepository implements PathaoCourierInterface
                 'order_id' => $order->id,
                 'consignment_id' => $order->pathao_delivery_id,
                 'old_status' => $oldStatus,
-                'new_status' => $data->status,
+                'new_status' => $data->order_status,
                 'updated_at' => $order->updated_at->toDateTimeString(),
             ]);
         } else {
             // Log: Order not found
             Log::warning('Pathao Webhook: Order not found', [
                 'consignment_id' => $data->consignment_id,
-                'status' => $data->status,
+                'order_status' => $data->order_status,
             ]);
         }
     }

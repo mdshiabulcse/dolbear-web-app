@@ -24,8 +24,8 @@ class PathaoWebhookRequest extends FormRequest
     public function rules()
     {
         return [
-            'consignment_id' =>'required',
-            'order_status' =>'required'
+            'consignment_id' => 'required|string',
+            'order_status' => 'required|string'
         ];
     }
 

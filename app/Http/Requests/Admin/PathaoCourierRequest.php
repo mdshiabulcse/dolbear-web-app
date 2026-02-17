@@ -34,7 +34,10 @@ class PathaoCourierRequest extends FormRequest
             'item_type' =>'required|numeric',
             'quantity' =>'required|numeric',
             'weight' =>'required|numeric',
-            'amount_to_collect' =>'required|numeric|min:0'
+            'amount_to_collect' =>'required|numeric|min:0',
+            'special_instruction' => 'nullable|string|max:500',
+            'product_info' => 'nullable|string',
+            'item_description' => 'nullable|string|max:500'
         ];
     }
 
