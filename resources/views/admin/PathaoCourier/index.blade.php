@@ -246,16 +246,31 @@
                 </div>
 
                 @php
+                    // Build products data safely with multiple fallback options
                     $productsData = [];
-                    foreach($orderData->orderDetails as $detail) {
-                        $productsData[] = [
-                            'product_name' => $detail->product->product_name ?? 'Product',
-                            'quantity' => $detail->quantity
-                        ];
+                    if (isset($orderData->orderDetails) && is_iterable($orderData->orderDetails)) {
+                        foreach($orderData->orderDetails as $detail) {
+                            $productName = 'Product';
+
+                            // Try multiple ways to get product name
+                            if (isset($detail->product) && $detail->product && isset($detail->product->product_name)) {
+                                $productName = $detail->product->product_name;
+                            } elseif (isset($detail->product_name)) {
+                                $productName = $detail->product_name;
+                            } elseif (isset($detail->product_id)) {
+                                $productName = 'Product #' . $detail->product_id;
+                            }
+
+                            $productsData[] = [
+                                'product_name' => $productName,
+                                'quantity' => $detail->quantity ?? 1
+                            ];
+                        }
                     }
-                    $productsJson = json_encode($productsData);
+                    $productsJson = json_encode($productsData, JSON_HEX_APOS | JSON_HEX_QUOT);
                 @endphp
-                <input type="hidden" name="products" value='{{ $productsJson }}'>
+                <input type="hidden" name="products" value="{{ $productsJson }}">
+
 
             </form>
 

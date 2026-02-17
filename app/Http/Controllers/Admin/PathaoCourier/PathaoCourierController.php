@@ -38,7 +38,13 @@ class PathaoCourierController extends Controller
             return redirect()->route('orders');
         }
 
+        // Fetch order with orderDetails and product relationships eager loaded
         $order = $this->order->get($request['orderId']);
+
+        // Eager load orderDetails with products to avoid N+1 queries
+        if ($order) {
+            $order->load(['orderDetails.product']);
+        }
 
         // Check if order exists (by either id or erp_code)
         if (!$order) {
