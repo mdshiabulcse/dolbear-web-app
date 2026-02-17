@@ -1081,6 +1081,11 @@ export default {
           }
 
           if (orders) {
+            // Set coupon list once from the API response
+            if (this.settings.coupon_system == 1 && coupons) {
+              this.coupon_list = coupons;
+            }
+
             for (let i = 0; i < orders.length; i++) {
               this.payment_form.sub_total += parseFloat(orders[i].sub_total);
               this.payment_form.discount_offer += parseFloat(
@@ -1090,15 +1095,9 @@ export default {
                 orders[i].shipping_cost
               );
               this.payment_form.tax += parseFloat(orders[i].total_tax);
+              // Use the coupon_discount that was already calculated and stored in the order
               if (this.settings.coupon_system == 1) {
-                this.coupon_list = coupons;
-                for (let i = 0; i < coupons.length; i++) {
-                  this.payment_form.coupon_discount += parseFloat(
-                    coupons[i].discount
-                  );
-                }
-                // this.payment_form.coupon_discount += parseFloat(orders[i].coupon_discount);
-                // alert(this.payment_form.coupon_discount);
+                this.payment_form.coupon_discount += parseFloat(orders[i].coupon_discount || 0);
               }
 
               this.trx_id = orders[i].trx_id;
