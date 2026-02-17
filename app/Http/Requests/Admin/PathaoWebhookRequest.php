@@ -24,8 +24,22 @@ class PathaoWebhookRequest extends FormRequest
     public function rules()
     {
         return [
-            'consignment_id' =>'required',
-            'order_status' =>'required'
+            'consignment_id' =>'required|string',
+            'order_status' =>'required|string',
+            'order_status_slug' =>'sometimes|string',
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'consignment_id.required' => 'The consignment ID is required.',
+            'order_status.required' => 'The order status is required.',
         ];
     }
 

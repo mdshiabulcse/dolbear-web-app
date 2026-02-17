@@ -24,18 +24,24 @@ class PathaoCourierRepository implements PathaoCourierInterface
     {
         Log::info('Pathao Webhook Status Update Received', [
             'consignment_id' => $data->consignment_id,
-            'status' => $data->status,
+            'order_status' => $data->order_status,
+            'order_status_slug' => $data->order_status_slug ?? null,
             'message' => $data->message ?? null,
             'updated_at' => $data->updated_at ?? null,
             'raw_data' => $data->all(),
         ]);
+
         $order = Order::where('pathao_delivery_id', $data->consignment_id)->first();
 
         if ($order) {
             $oldStatus = $order->delivery_status;
 
+            // Map Pathao status to your delivery status
+            // Pathao statuses: Pending, Pick Up In Progress, Picked Up, In Transit, Delivered, Cancelled, Returned
+            $newStatus = $this->mapPathaoStatus($data->order_status);
+
             // Update order status
-            $order->delivery_status = $data->status;
+            $order->delivery_status = $newStatus;
             $order->save();
 
             // Log status change
@@ -43,16 +49,35 @@ class PathaoCourierRepository implements PathaoCourierInterface
                 'order_id' => $order->id,
                 'consignment_id' => $order->pathao_delivery_id,
                 'old_status' => $oldStatus,
-                'new_status' => $data->status,
+                'new_status' => $newStatus,
+                'pathao_status' => $data->order_status,
                 'updated_at' => $order->updated_at->toDateTimeString(),
             ]);
         } else {
             // Log: Order not found
             Log::warning('Pathao Webhook: Order not found', [
                 'consignment_id' => $data->consignment_id,
-                'status' => $data->status,
+                'order_status' => $data->order_status,
             ]);
         }
+    }
+
+    /**
+     * Map Pathao status to internal delivery status
+     */
+    private function mapPathaoStatus($pathaoStatus)
+    {
+        $statusMap = [
+            'Pending' => 'pending',
+            'Pick Up In Progress' => 'picked_up',
+            'Picked Up' => 'picked_up',
+            'In Transit' => 'in_transit',
+            'Delivered' => 'delivered',
+            'Cancelled' => 'cancelled',
+            'Returned' => 'returned',
+        ];
+
+        return $statusMap[$pathaoStatus] ?? strtolower(str_replace(' ', '_', $pathaoStatus));
     }
 
     public function processOrder($orderData, $deliverydata)

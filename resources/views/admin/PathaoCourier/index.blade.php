@@ -24,6 +24,8 @@
                 @csrf
 
                 <input type="hidden" name="orderId" value="{{ $orderData->id }}">
+                <input type="hidden" name="district" value="{{ $orderData->shipping_address['district'] ?? '' }}">
+                <input type="hidden" name="thana" value="{{ $orderData->shipping_address['thana'] ?? '' }}">
 
                 <div class="row">
                     <div class="col-12 col-sm-12 col-md-8 col-lg-9 middle">
@@ -242,6 +244,18 @@
                         </div>
                     </div>
                 </div>
+
+                @php
+                    $productsData = [];
+                    foreach($orderData->orderDetails as $detail) {
+                        $productsData[] = [
+                            'product_name' => $detail->product->product_name ?? 'Product',
+                            'quantity' => $detail->quantity
+                        ];
+                    }
+                    $productsJson = json_encode($productsData);
+                @endphp
+                <input type="hidden" name="products" value='{{ $productsJson }}'>
 
             </form>
 

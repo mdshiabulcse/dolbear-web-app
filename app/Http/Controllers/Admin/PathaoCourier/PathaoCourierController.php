@@ -104,7 +104,14 @@ class PathaoCourierController extends Controller
     public function updateStatus(PathaoWebhookRequest $request)
     {
         Log::info('Pathao status update:', $request->all());
+
         $this->pathao->updateStatus($request);
+
+        return response()->json([
+            'message' => 'Status updated successfully',
+            'type' => 'success',
+            'code' => 200,
+        ], 200);
     }
 
 }
