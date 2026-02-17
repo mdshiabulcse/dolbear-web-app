@@ -235,6 +235,9 @@
                               <small class="ms-2 text-success">
                                   (Discount: ৳ {{ formatCouponDiscount(coupon) }})
                               </small>
+                              <div v-if="coupon.applicable_on_discount == 0" class="ms-2 mt-1">
+                                  <small class="text-info">* Applicable only to non-discounted products</small>
+                              </div>
                           </div>
                       </div>
                   </div>
@@ -904,7 +907,6 @@ export default {
           this.carts.push(carts[i]);
           this.payment_form.sub_total += parseFloat(carts[i].price * carts[i].quantity);
           this.payment_form.discount_offer += (parseFloat(carts[i].discount) * carts[i].quantity);
-
           this.payment_form.tax += parseFloat(carts[i].tax * carts[i].quantity);
         }
       }
@@ -925,8 +927,6 @@ export default {
             this.payment_form.shipping_tax += parseFloat(checkouts[key].shipping_cost);
           }
           this.payment_form.tax += parseFloat(checkouts[key].tax);
-          // Don't add coupon_discount from checkouts - we'll recalculate it below
-          // The backend value may be stale, so we calculate fresh based on current subtotal
         }
       }
 
@@ -935,9 +935,28 @@ export default {
         // Store coupon info for recalculation
       }
 
-      // Recalculate coupon discounts based on current subtotal
-      // This ensures coupon discount is always up-to-date when cart changes
-      this.recalculateCouponDiscounts();
+      // Calculate total coupon discount from cart items (backend-calculated values)
+      // The backend sets coupon_discount per cart item based on applicable_on_discount setting
+      this.payment_form.coupon_discount = 0;
+      if (this.carts && this.carts.length > 0) {
+        for (let i = 0; i < this.carts.length; i++) {
+          this.payment_form.coupon_discount += parseFloat(this.carts[i].coupon_discount || 0);
+        }
+      }
+
+      // Recalculate total
+      if (this.settings.tax_type == 'after_tax' && this.settings.vat_and_tax_type == 'order_base') {
+        this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.shipping_tax)) - (parseFloat(this.payment_form.discount_offer) + parseFloat(this.payment_form.coupon_discount)));
+        this.payment_form.total += this.payment_form.tax;
+        if(this.payment_form.total < 0){
+          this.payment_form.total = 0;
+        }
+      } else {
+        this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.tax) + parseFloat(this.payment_form.shipping_tax)) - (parseFloat(this.payment_form.discount_offer) + parseFloat(this.payment_form.coupon_discount)));
+        if(this.payment_form.total < 0){
+          this.payment_form.total = 0;
+        }
+      }
     },
     cartPlus(index) {
       if (this.disable) {
@@ -1336,37 +1355,9 @@ export default {
     },
 
     formatCouponDiscount(coupon) {
-      // Calculate discount dynamically based on current subtotal
-      let discount = 0;
-
-      // Get raw value from coupon table
-      const rawDiscountValue = parseFloat(coupon.coupon_discount || 0);
-
-      if (coupon.discount_type === 'flat') {
-        // Flat discount - use the calculated amount or raw value
-        discount = parseFloat(coupon.discount || rawDiscountValue || 0);
-      } else if (coupon.discount_type === 'percent') {
-        // Percent discount - calculate based on current subtotal
-        const percent = rawDiscountValue;
-        const subtotal = parseFloat(this.payment_form.sub_total || 0);
-        discount = subtotal * (percent / 100);
-
-        // Apply maximum discount cap if exists
-        if (coupon.maximum_discount && discount > parseFloat(coupon.maximum_discount)) {
-          discount = parseFloat(coupon.maximum_discount);
-        }
-      } else {
-        // Fallback - use the calculated discount from backend
-        discount = parseFloat(coupon.discount || 0);
-      }
-
-      // Ensure discount doesn't exceed subtotal
-      if (discount > parseFloat(this.payment_form.sub_total || 0)) {
-        discount = parseFloat(this.payment_form.sub_total || 0);
-      }
-
-      // Format to 2 decimal places
-      return discount.toFixed(2);
+      // Use the backend-calculated discount amount directly
+      // The backend has already calculated this based on applicable_on_discount setting
+      return parseFloat(coupon.discount || 0).toFixed(2);
     },
 
     recalculateCouponDiscounts() {

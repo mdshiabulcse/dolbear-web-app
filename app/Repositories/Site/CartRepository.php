@@ -13,6 +13,7 @@ use App\Models\Checkout;
 use App\Models\ClassCity;
 use App\Models\ProductCity;
 use App\Models\ShippedCity;
+use App\Models\CampaignProduct;
 use Illuminate\Support\Str;
 use App\Models\PointSetting;
 use App\Traits\RandomStringTrait;
@@ -437,6 +438,15 @@ class CartRepository implements CartInterface
             return;
         }
 
+        // Get campaign product IDs for all carts (single query for efficiency)
+        $now = now()->format('Y-m-d H:i:s');
+        $campaignProductIds = CampaignProduct::whereHas('campaign', function($q) {
+                $q->where('start_date', '<=', now())
+                  ->where('end_date', '>=', now());
+            })
+            ->pluck('product_id')
+            ->toArray();
+
         // Get all active checkouts for this transaction
         $checkouts = Checkout::where('trx_id', $trx_id)->where('status', 1)->with('coupon')->get();
 
@@ -448,7 +458,7 @@ class CartRepository implements CartInterface
             }
 
             // Get carts for this checkout (filtered by seller_id if coupon is seller-specific)
-            $carts = Cart::where('trx_id', $trx_id)
+            $carts = Cart::with('product:id,special_discount,special_discount_type,special_discount_start,special_discount_end')->where('trx_id', $trx_id)
                 ->when($coupon->user_id > 1, function ($query) use ($coupon) {
                     $query->where('seller_id', $coupon->user_id);
                 })
@@ -459,14 +469,111 @@ class CartRepository implements CartInterface
                 $duplicates = array_intersect($coupon->product_id, $carts->pluck('product_id')->toArray());
                 $checkout_carts = $carts->whereIn('product_id', $duplicates);
 
-                $total_coupon_discount = 0;
+                // First pass: calculate total discount for all eligible products
+                $calculated_discount = 0;
                 foreach ($checkout_carts as $cart) {
-                    $amount = $this->calculateDiscount($coupon, ($cart->price * $cart->quantity));
-                    $total_coupon_discount += $amount;
+                    $isDiscountedProduct = false;
 
-                    // Update cart's coupon_discount field
-                    $cart->coupon_discount = $amount;
+                    // Check if product is discounted
+                    if ($cart->product) {
+                        // Check for special discount
+                        if ($cart->product->special_discount > 0 &&
+                            $cart->product->special_discount_start <= $now &&
+                            $cart->product->special_discount_end >= $now) {
+                            $isDiscountedProduct = true;
+                        }
+                        // Check for campaign product
+                        if (in_array($cart->product_id, $campaignProductIds)) {
+                            $isDiscountedProduct = true;
+                        }
+                    }
+
+                    // Calculate discount amount based on applicable_on_discount setting
+                    if ($coupon->applicable_on_discount == 0) {
+                        // Only apply to non-discounted products
+                        if (!$isDiscountedProduct) {
+                            $calculated_discount += $this->calculateDiscount($coupon, ($cart->price * $cart->quantity));
+                        }
+                    } else {
+                        // Apply to all products - use selling price for discounted products
+                        if ($isDiscountedProduct) {
+                            $calculated_discount += $this->calculateDiscount($coupon, (($cart->price - $cart->discount) * $cart->quantity));
+                        } else {
+                            $calculated_discount += $this->calculateDiscount($coupon, ($cart->price * $cart->quantity));
+                        }
+                    }
+                }
+
+                // Apply maximum discount cap
+                $total_coupon_discount = min($calculated_discount, $coupon->maximum_discount);
+
+                // Second pass: distribute the capped discount proportionally among eligible products
+                $eligible_total = 0;
+                $eligible_carts = [];
+
+                foreach ($checkout_carts as $cart) {
+                    $isDiscountedProduct = false;
+
+                    // Check if product is discounted
+                    if ($cart->product) {
+                        // Check for special discount
+                        if ($cart->product->special_discount > 0 &&
+                            $cart->product->special_discount_start <= $now &&
+                            $cart->product->special_discount_end >= $now) {
+                            $isDiscountedProduct = true;
+                        }
+                        // Check for campaign product
+                        if (in_array($cart->product_id, $campaignProductIds)) {
+                            $isDiscountedProduct = true;
+                        }
+                    }
+
+                    // Collect eligible carts based on applicable_on_discount
+                    if ($coupon->applicable_on_discount == 0) {
+                        // Only include non-discounted products
+                        if (!$isDiscountedProduct) {
+                            $eligible_total += $cart->price * $cart->quantity;
+                            $eligible_carts[] = $cart;
+                        }
+                    } else {
+                        // Include all products - use selling price for discounted products
+                        if ($isDiscountedProduct) {
+                            $eligible_total += ($cart->price - $cart->discount) * $cart->quantity;
+                        } else {
+                            $eligible_total += $cart->price * $cart->quantity;
+                        }
+                        $eligible_carts[] = $cart;
+                    }
+
                     $cart->coupon_applied = 1;
+                    $cart->coupon_discount = 0;
+                }
+
+                // Distribute discount proportionally among eligible products
+                foreach ($eligible_carts as $cart) {
+                    $isDiscountedProduct = false;
+
+                    // Re-check if product is discounted
+                    if ($cart->product) {
+                        if ($cart->product->special_discount > 0 &&
+                            $cart->product->special_discount_start <= $now &&
+                            $cart->product->special_discount_end >= $now) {
+                            $isDiscountedProduct = true;
+                        }
+                        if (in_array($cart->product_id, $campaignProductIds)) {
+                            $isDiscountedProduct = true;
+                        }
+                    }
+
+                    // Calculate cart total for proportion
+                    if ($coupon->applicable_on_discount == 1 && $isDiscountedProduct) {
+                        $cart_total = ($cart->price - $cart->discount) * $cart->quantity;
+                    } else {
+                        $cart_total = $cart->price * $cart->quantity;
+                    }
+
+                    $proportion = $eligible_total > 0 ? $cart_total / $eligible_total : 0;
+                    $cart->coupon_discount = $total_coupon_discount * $proportion;
                     $cart->save();
                 }
 
@@ -475,21 +582,117 @@ class CartRepository implements CartInterface
                 $checkout->save();
 
             } else {
-                // Cart-wide coupon: calculate discount based on total subtotal
-                $sub_total = 0;
-                foreach ($carts as $cart) {
-                    $sub_total += $cart->price * $cart->quantity;
+                // Cart-wide coupon: calculate discount based on eligible products only
+                $coupon_base_amount = 0;
 
-                    // Reset cart coupon_discount flags
+                foreach ($carts as $cart) {
+                    $isDiscountedProduct = false;
+
+                    // Check if product is discounted
+                    if ($cart->product) {
+                        // Check for special discount
+                        if ($cart->product->special_discount > 0 &&
+                            $cart->product->special_discount_start <= $now &&
+                            $cart->product->special_discount_end >= $now) {
+                            $isDiscountedProduct = true;
+                        }
+                        // Check for campaign product
+                        if (in_array($cart->product_id, $campaignProductIds)) {
+                            $isDiscountedProduct = true;
+                        }
+                    }
+
                     $cart->coupon_applied = 1;
                     $cart->coupon_discount = 0;
+
+                    // Calculate eligible amount based on applicable_on_discount
+                    if ($coupon->applicable_on_discount == 0) {
+                        // Only include non-discounted products
+                        if (!$isDiscountedProduct) {
+                            $coupon_base_amount += $cart->price * $cart->quantity;
+                        }
+                    } else {
+                        // Include all products - use selling price for discounted products
+                        if ($isDiscountedProduct) {
+                            $coupon_base_amount += ($cart->price - $cart->discount) * $cart->quantity;
+                        } else {
+                            $coupon_base_amount += $cart->price * $cart->quantity;
+                        }
+                    }
                     $cart->save();
                 }
 
-                // Calculate discount amount
-                $discount_amount = $this->calculateDiscount($coupon, $sub_total);
+                // Calculate discount amount based on eligible amount
+                $discount_amount = $this->calculateDiscount($coupon, $coupon_base_amount);
                 $max_discount = $coupon->maximum_discount;
                 $coupon_discount = min($discount_amount, $max_discount);
+
+                // Distribute coupon discount proportionally among eligible products
+                $eligible_total = 0;
+                $eligible_carts = [];
+
+                foreach ($carts as $cart) {
+                    $isDiscountedProduct = false;
+
+                    // Check if product is discounted
+                    if ($cart->product) {
+                        // Check for special discount
+                        if ($cart->product->special_discount > 0 &&
+                            $cart->product->special_discount_start <= $now &&
+                            $cart->product->special_discount_end >= $now) {
+                            $isDiscountedProduct = true;
+                        }
+                        // Check for campaign product
+                        if (in_array($cart->product_id, $campaignProductIds)) {
+                            $isDiscountedProduct = true;
+                        }
+                    }
+
+                    // Collect eligible carts based on applicable_on_discount
+                    if ($coupon->applicable_on_discount == 0) {
+                        // Only include non-discounted products
+                        if (!$isDiscountedProduct) {
+                            $eligible_total += $cart->price * $cart->quantity;
+                            $eligible_carts[] = $cart;
+                        }
+                    } else {
+                        // Include all products - use selling price for discounted products
+                        if ($isDiscountedProduct) {
+                            $eligible_total += ($cart->price - $cart->discount) * $cart->quantity;
+                        } else {
+                            $eligible_total += $cart->price * $cart->quantity;
+                        }
+                        $eligible_carts[] = $cart;
+                    }
+                }
+
+                // Distribute discount proportionally among eligible products
+                foreach ($eligible_carts as $cart) {
+                    $isDiscountedProduct = false;
+
+                    // Re-check if product is discounted
+                    if ($cart->product) {
+                        if ($cart->product->special_discount > 0 &&
+                            $cart->product->special_discount_start <= $now &&
+                            $cart->product->special_discount_end >= $now) {
+                            $isDiscountedProduct = true;
+                        }
+                        if (in_array($cart->product_id, $campaignProductIds)) {
+                            $isDiscountedProduct = true;
+                        }
+                    }
+
+                    // Calculate cart total for proportion
+                    if ($coupon->applicable_on_discount == 1 && $isDiscountedProduct) {
+                        $cart_total = ($cart->price - $cart->discount) * $cart->quantity;
+                    } else {
+                        $cart_total = $cart->price * $cart->quantity;
+                    }
+
+                    $proportion = $eligible_total > 0 ? $cart_total / $eligible_total : 0;
+                    $cart->coupon_discount = $coupon_discount * $proportion;
+                    $cart->save();
+                }
 
                 // Update checkout coupon_discount
                 $checkout->coupon_discount = round($coupon_discount, 2);
@@ -553,7 +756,7 @@ class CartRepository implements CartInterface
                         return __('seller_coupon_is_disabled');
                     }
                 }
-                $carts  = Cart::where('user_id', $user->id)->when($coupon->user_id > 1,function ($q) use($coupon){
+                $carts  = Cart::with('product:id,special_discount,special_discount_type,special_discount_start,special_discount_end')->where('user_id', $user->id)->when($coupon->user_id > 1,function ($q) use($coupon){
                     $q->where('seller_id', $coupon->user_id);
                 })->where('trx_id',$data['trx_id'])->get();
 
@@ -569,26 +772,218 @@ class CartRepository implements CartInterface
                     return __('This Coupon is Already Used');
                 }
 
-                $sub_total = 0;
+                // Get campaign product IDs for all carts (single query for efficiency)
+                $now = now()->format('Y-m-d H:i:s');
+                $campaignProductIds = CampaignProduct::whereIn('product_id', $carts->pluck('product_id'))
+                    ->whereHas('campaign', function($q) {
+                        $q->where('start_date', '<=', now())
+                          ->where('end_date', '>=', now());
+                    })
+                    ->pluck('product_id')
+                    ->toArray();
 
-                foreach ($carts as $cart)
-                {
-                    $sub_total += $cart->price * $cart->quantity;
+                // Calculate full cart subtotal for minimum shopping check
+                $full_cart_subtotal = 0;
+                foreach ($carts as $cart) {
+                    $full_cart_subtotal += $cart->price * $cart->quantity;
                 }
 
-                $data['sub_total'] = $sub_total;
+                // Calculate coupon base amount based on applicable_on_discount setting
+                $coupon_base_amount = 0;
+                foreach ($carts as $cart) {
+                    $isDiscountedProduct = false;
+
+                    // Skip if product doesn't exist
+                    if (!$cart->product) {
+                        continue;
+                    }
+
+                    // Check for special discount (active only)
+                    if ($cart->product->special_discount > 0 &&
+                        $cart->product->special_discount_start <= $now &&
+                        $cart->product->special_discount_end >= $now) {
+                        $isDiscountedProduct = true;
+                    }
+                    // Check for campaign product (active campaigns only)
+                    if (in_array($cart->product_id, $campaignProductIds)) {
+                        $isDiscountedProduct = true;
+                    }
+
+                    // Calculate amount for coupon base
+                    if ($coupon->applicable_on_discount == 0) {
+                        // Only include non-discounted products
+                        if (!$isDiscountedProduct) {
+                            $coupon_base_amount += $cart->price * $cart->quantity;
+                        }
+                    } else {
+                        // Include all products - use selling price (price - discount) for discounted products
+                        if ($isDiscountedProduct) {
+                            $coupon_base_amount += ($cart->price - $cart->discount) * $cart->quantity;
+                        } else {
+                            $coupon_base_amount += $cart->price * $cart->quantity;
+                        }
+                    }
+                }
+
+                // Special validation for applicable_on_discount = 0
+                // Check if there are any eligible products (non-discounted) for the coupon
+                if ($coupon->applicable_on_discount == 0 && $coupon_base_amount == 0) {
+                    return __('This coupon is not applicable as all products in your cart already have discounts.');
+                }
+
+                $data['sub_total'] = $full_cart_subtotal;
 
                 if ($coupon->type == 'product_base' && $coupon->product_id) {
                     $duplicates = array_intersect($coupon->product_id, $carts->pluck('product_id')->toArray());
                     if (count($duplicates) > 0) {
-                        $total_coupon_discount = 0;
                         $checkout_carts = $carts->whereIn('product_id',$duplicates);
+
+                        // Calculate eligible amount for minimum shopping check
+                        $eligible_product_amount = 0;
                         foreach ($checkout_carts as $cart) {
-                            $cart->coupon_applied   = 1;
-                            $amount                 = $this->calculateDiscount($coupon, ($cart->price * $cart->quantity));
-                            $cart->coupon_discount  = $amount;
+                            $isDiscountedProduct = false;
+
+                            // Check if product is discounted
+                            if ($cart->product) {
+                                // Check for special discount
+                                if ($cart->product->special_discount > 0 &&
+                                    $cart->product->special_discount_start <= $now &&
+                                    $cart->product->special_discount_end >= $now) {
+                                    $isDiscountedProduct = true;
+                                }
+                                // Check for campaign product
+                                if (in_array($cart->product_id, $campaignProductIds)) {
+                                    $isDiscountedProduct = true;
+                                }
+                            }
+
+                            // Calculate eligible amount based on applicable_on_discount
+                            if ($coupon->applicable_on_discount == 0) {
+                                // Only include non-discounted products
+                                if (!$isDiscountedProduct) {
+                                    $eligible_product_amount += $cart->price * $cart->quantity;
+                                }
+                            } else {
+                                // Include all products
+                                if ($isDiscountedProduct) {
+                                    $eligible_product_amount += ($cart->price - $cart->discount) * $cart->quantity;
+                                } else {
+                                    $eligible_product_amount += $cart->price * $cart->quantity;
+                                }
+                            }
+                        }
+
+                        // Check minimum shopping against eligible product amount
+                        if ($coupon->minimum_shopping > $eligible_product_amount) {
+                            return __("You've to Purchase Minimum of " . format_price($coupon->minimum_shopping));
+                        }
+
+                        // Calculate total discount first before applying max cap
+                        $calculated_discount = 0;
+                        foreach ($checkout_carts as $cart) {
+                            $isDiscountedProduct = false;
+
+                            // Check if product is discounted
+                            if ($cart->product) {
+                                // Check for special discount
+                                if ($cart->product->special_discount > 0 &&
+                                    $cart->product->special_discount_start <= $now &&
+                                    $cart->product->special_discount_end >= $now) {
+                                    $isDiscountedProduct = true;
+                                }
+                                // Check for campaign product
+                                if (in_array($cart->product_id, $campaignProductIds)) {
+                                    $isDiscountedProduct = true;
+                                }
+                            }
+
+                            // Calculate discount amount based on applicable_on_discount setting
+                            if ($coupon->applicable_on_discount == 0) {
+                                // Only apply to non-discounted products
+                                if (!$isDiscountedProduct) {
+                                    $calculated_discount += $this->calculateDiscount($coupon, ($cart->price * $cart->quantity));
+                                }
+                            } else {
+                                // Apply to all products - use selling price for discounted products
+                                if ($isDiscountedProduct) {
+                                    $calculated_discount += $this->calculateDiscount($coupon, (($cart->price - $cart->discount) * $cart->quantity));
+                                } else {
+                                    $calculated_discount += $this->calculateDiscount($coupon, ($cart->price * $cart->quantity));
+                                }
+                            }
+                        }
+
+                        // Apply maximum discount cap
+                        $total_coupon_discount = min($calculated_discount, $coupon->maximum_discount);
+
+                        // Now distribute the capped discount proportionally among eligible products
+                        $eligible_total = 0;
+                        $eligible_carts = [];
+
+                        foreach ($checkout_carts as $cart) {
+                            $isDiscountedProduct = false;
+
+                            // Check if product is discounted
+                            if ($cart->product) {
+                                // Check for special discount
+                                if ($cart->product->special_discount > 0 &&
+                                    $cart->product->special_discount_start <= $now &&
+                                    $cart->product->special_discount_end >= $now) {
+                                    $isDiscountedProduct = true;
+                                }
+                                // Check for campaign product
+                                if (in_array($cart->product_id, $campaignProductIds)) {
+                                    $isDiscountedProduct = true;
+                                }
+                            }
+
+                            // Collect eligible carts based on applicable_on_discount
+                            if ($coupon->applicable_on_discount == 0) {
+                                // Only include non-discounted products
+                                if (!$isDiscountedProduct) {
+                                    $eligible_total += $cart->price * $cart->quantity;
+                                    $eligible_carts[] = $cart;
+                                }
+                            } else {
+                                // Include all products - use selling price for discounted products
+                                if ($isDiscountedProduct) {
+                                    $eligible_total += ($cart->price - $cart->discount) * $cart->quantity;
+                                } else {
+                                    $eligible_total += $cart->price * $cart->quantity;
+                                }
+                                $eligible_carts[] = $cart;
+                            }
+
+                            $cart->coupon_applied = 1;
+                            $cart->coupon_discount = 0;
+                        }
+
+                        // Distribute discount proportionally among eligible products
+                        foreach ($eligible_carts as $cart) {
+                            $isDiscountedProduct = false;
+
+                            // Re-check if product is discounted
+                            if ($cart->product) {
+                                if ($cart->product->special_discount > 0 &&
+                                    $cart->product->special_discount_start <= $now &&
+                                    $cart->product->special_discount_end >= $now) {
+                                    $isDiscountedProduct = true;
+                                }
+                                if (in_array($cart->product_id, $campaignProductIds)) {
+                                    $isDiscountedProduct = true;
+                                }
+                            }
+
+                            // Calculate cart total for proportion
+                            if ($coupon->applicable_on_discount == 1 && $isDiscountedProduct) {
+                                $cart_total = ($cart->price - $cart->discount) * $cart->quantity;
+                            } else {
+                                $cart_total = $cart->price * $cart->quantity;
+                            }
+
+                            $proportion = $eligible_total > 0 ? $cart_total / $eligible_total : 0;
+                            $cart->coupon_discount = $total_coupon_discount * $proportion;
                             $cart->save();
-                            $total_coupon_discount  += $amount;
                         }
 
                         return Checkout::create([
@@ -603,18 +998,84 @@ class CartRepository implements CartInterface
                         return __('Invalid Coupon');
                     }
                 } else {
+                    // Cart-based coupon
+                    if ($coupon->minimum_shopping <= $full_cart_subtotal) {
+                        // Calculate discount amount based on coupon base amount (eligible products only)
+                        $discount_amount            = $this->calculateDiscount($coupon, $coupon_base_amount);
+                        $max_discount               = $coupon->maximum_discount;
+                        $coupon_discount            = min($discount_amount, $max_discount);
 
-                    if ($coupon->minimum_shopping <= $data['sub_total']) {
+                        // Distribute coupon discount among eligible products
+                        $eligible_total = 0;
+                        $eligible_carts = [];
+
                         foreach ($carts as $cart) {
-                            $cart->coupon_applied   = 1;
-                            $cart->coupon_discount  = 0;
+                            $isDiscountedProduct = false;
+
+                            // Check if product is discounted
+                            if ($cart->product) {
+                                // Check for special discount
+                                if ($cart->product->special_discount > 0 &&
+                                    $cart->product->special_discount_start <= $now &&
+                                    $cart->product->special_discount_end >= $now) {
+                                    $isDiscountedProduct = true;
+                                }
+                                // Check for campaign product
+                                if (in_array($cart->product_id, $campaignProductIds)) {
+                                    $isDiscountedProduct = true;
+                                }
+                            }
+
+                            $cart->coupon_applied = 1;
+                            $cart->coupon_discount = 0;
+
+                            // Calculate eligible amount based on applicable_on_discount
+                            if ($coupon->applicable_on_discount == 0) {
+                                // Only include non-discounted products
+                                if (!$isDiscountedProduct) {
+                                    $eligible_total += $cart->price * $cart->quantity;
+                                    $eligible_carts[] = $cart;
+                                }
+                            } else {
+                                // Include all products - use selling price for discounted products
+                                if ($isDiscountedProduct) {
+                                    $eligible_total += ($cart->price - $cart->discount) * $cart->quantity;
+                                    $eligible_carts[] = $cart;
+                                } else {
+                                    $eligible_total += $cart->price * $cart->quantity;
+                                    $eligible_carts[] = $cart;
+                                }
+                            }
                             $cart->save();
                         }
 
-                        $discount_amount            = $this->calculateDiscount($coupon, $data['sub_total']); //250000
-                        $max_discount               = $coupon->maximum_discount;
+                        // Distribute discount proportionally among eligible products
+                        foreach ($eligible_carts as $cart) {
+                            $isDiscountedProduct = false;
 
-                        $coupon_discount            = min($discount_amount, $max_discount);
+                            // Re-check if product is discounted
+                            if ($cart->product) {
+                                if ($cart->product->special_discount > 0 &&
+                                    $cart->product->special_discount_start <= $now &&
+                                    $cart->product->special_discount_end >= $now) {
+                                    $isDiscountedProduct = true;
+                                }
+                                if (in_array($cart->product_id, $campaignProductIds)) {
+                                    $isDiscountedProduct = true;
+                                }
+                            }
+
+                            // Calculate cart total for proportion
+                            if ($coupon->applicable_on_discount == 1 && $isDiscountedProduct) {
+                                $cart_total = ($cart->price - $cart->discount) * $cart->quantity;
+                            } else {
+                                $cart_total = $cart->price * $cart->quantity;
+                            }
+
+                            $proportion = $eligible_total > 0 ? $cart_total / $eligible_total : 0;
+                            $cart->coupon_discount = $coupon_discount * $proportion;
+                            $cart->save();
+                        }
 
                         return Checkout::create([
                             'seller_id'         => $coupon->user_id > 1 ? $seller->id : 1,
@@ -1016,11 +1477,13 @@ class CartRepository implements CartInterface
                 $coupon = $checkout->coupon;
                 $coupons[] = [
                     'coupon_id'    => $coupon->id,
-                    'title' => $coupon->title,
-                    'status' => $coupon->status,
-                    'discount_type' => $coupon->discount_type,
-                    'discount'=> $checkout->coupon_discount,
+                    'code'         => $coupon->code,
+                    'title'        => $coupon->title,
+                    'status'       => $coupon->status,
+                    'discount_type'=> $coupon->discount_type,
+                    'discount'     => $checkout->coupon_discount,
                     'coupon_discount'=> $coupon->discount,
+                    'applicable_on_discount' => $coupon->applicable_on_discount ?? 1,
                 ];
             }
         endif;

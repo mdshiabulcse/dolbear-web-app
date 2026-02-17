@@ -456,6 +456,8 @@ trait HomePage
                     'is_digital_product'    => $cart->product->is_digital,
                     'variant'               => nullCheck($cart->variant),
                     'is_buy_now'            => (bool)$cart->is_buy_now,
+                    'coupon_discount'       => $cart->coupon_discount ?? 0,
+                    'coupon_applied'        => $cart->coupon_applied ?? 0,
                 ];
             }
         }
