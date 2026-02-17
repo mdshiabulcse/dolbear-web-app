@@ -32,7 +32,8 @@ class CartController extends Controller
             $carts = $this->cart->all()->where('is_buy_now',0);
         }
 
-        $hasFreeShipping = $carts->every(function ($cartItem) {
+        // Check if ANY product has free shipping (standard delivery is free if at least one product has free_shipping)
+        $hasFreeShipping = $carts->contains(function ($cartItem) {
             return isset($cartItem->product) && $cartItem->product->free_shipping == 1;
         });
 

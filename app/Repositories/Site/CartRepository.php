@@ -1411,17 +1411,17 @@ class CartRepository implements CartInterface
                     // Standard delivery
                     $cost = $city->cost ?? 0;
 
-                    // Check if all products have free shipping
-                    $allFreeShipping = true;
+                    // Check if ANY product has free shipping (standard delivery is free if at least one product has free_shipping)
+                    $hasFreeShipping = false;
                     foreach ($carts as $cart) {
-                        if (!$cart->product->free_shipping) {
-                            $allFreeShipping = false;
+                        if ($cart->product && $cart->product->free_shipping == 1) {
+                            $hasFreeShipping = true;
                             break;
                         }
                     }
 
-                    // If all products have free shipping, no delivery charge for standard
-                    if ($allFreeShipping) {
+                    // If any product has free shipping, no delivery charge for standard
+                    if ($hasFreeShipping) {
                         $cost = 0;
                     }
                     break;
