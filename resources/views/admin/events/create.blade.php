@@ -67,6 +67,18 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{ __('Campaign Type') }}</label>
+                                        <select name="campaign_type" class="form-control" id="campaign_type">
+                                            <option value="product">{{ __('Product-based') }}</option>
+                                            <option value="category">{{ __('Category-based') }}</option>
+                                            <option value="brand">{{ __('Brand-based') }}</option>
+                                            <option value="event">{{ __('Event-based (Ramadan, Black Friday, etc.)') }}</option>
+                                        </select>
+                                        <small class="text-muted">{{ __('Select how products are included in this campaign') }}</small>
+                                    </div>
+                                </div>
                                 <div class="col-md-6" id="start_date_field">
                                     <div class="form-group">
                                         <label>{{ __('Start Date & Time') }} <span class="text-danger">*</span></label>
@@ -153,7 +165,7 @@
                             </div>
 
                             <!-- Products Section -->
-                            <div class="row mt-4">
+                            <div class="row mt-4" id="products-section">
                                 <div class="col-12">
                                     <h5>{{ __('Event Products') }}</h5>
                                     <div class="form-group">
@@ -163,6 +175,90 @@
                                     </div>
                                     <div id="products-container">
                                         <!-- Products will be added here dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Category Section (for category-based campaigns) -->
+                            <div class="row mt-4" id="category-section" style="display: none;">
+                                <div class="col-12">
+                                    <h5>{{ __('Campaign Categories') }}</h5>
+                                    <p class="text-muted">{{ __('Select categories to include all products from those categories in this campaign.') }}</p>
+                                    <div class="form-group">
+                                        <label>{{ __('Categories') }}</label>
+                                        <select name="categories[]" multiple class="form-control select2" id="category-select">
+                                            @foreach(\App\Models\Category::where('parent_id', null)->get() as $category)
+                                                <option value="{{ $category->id }}">{{ $category->getTranslation('name', \App::getLocale()) }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>
+                                            <input type="checkbox" name="include_subcategories" value="1" checked>
+                                            {{ __('Include subcategories') }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Brand Section (for brand-based campaigns) -->
+                            <div class="row mt-4" id="brand-section" style="display: none;">
+                                <div class="col-12">
+                                    <h5>{{ __('Campaign Brands') }}</h5>
+                                    <p class="text-muted">{{ __('Select brands to include all products from those brands in this campaign.') }}</p>
+                                    <div class="form-group">
+                                        <label>{{ __('Brands') }}</label>
+                                        <select name="brands[]" multiple class="form-control select2" id="brand-select">
+                                            @foreach(\App\Models\Brand::where('status', 1)->get() as $brand)
+                                                <option value="{{ $brand->id }}">{{ $brand->getTranslation('name', \App::getLocale()) }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Default Discount Section (for category/brand-based campaigns) -->
+                            <div class="row mt-4" id="default-discount-section" style="display: none;">
+                                <div class="col-12">
+                                    <h5>{{ __('Default Discount') }}</h5>
+                                    <p class="text-muted">{{ __('Set a default discount for all products inherited from categories or brands.') }}</p>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>{{ __('Discount Amount') }}</label>
+                                                <input type="number" name="default_discount" class="form-control" placeholder="0" min="0" step="0.01" value="0">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>{{ __('Discount Type') }}</label>
+                                                <select name="default_discount_type" class="form-control">
+                                                    <option value="percentage">{{ __('Percentage (%)') }}</option>
+                                                    <option value="flat">{{ __('Flat Amount') }}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Badge Settings -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h5>{{ __('Campaign Badge Settings') }}</h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>{{ __('Badge Text') }}</label>
+                                                <input type="text" name="badge_text" class="form-control" placeholder="{{ __('Campaign Deal') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>{{ __('Badge Color') }}</label>
+                                                <input type="color" name="badge_color" class="form-control" value="#ff0000">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -193,6 +289,30 @@
                 } else {
                     $('#start_date_field, #end_date_field').hide();
                     $('#daily_start_field, #daily_end_field').hide();
+                }
+            });
+
+            // Handle campaign type change
+            $('#campaign_type').change(function () {
+                var type = $(this).val();
+                if (type === 'product' || type === 'event') {
+                    // Show products section, hide category/brand sections
+                    $('#products-section').show();
+                    $('#category-section').hide();
+                    $('#brand-section').hide();
+                    $('#default-discount-section').hide();
+                } else if (type === 'category') {
+                    // Show category section, hide product/brand sections
+                    $('#products-section').hide();
+                    $('#category-section').show();
+                    $('#brand-section').hide();
+                    $('#default-discount-section').show();
+                } else if (type === 'brand') {
+                    // Show brand section, hide product/category sections
+                    $('#products-section').hide();
+                    $('#category-section').hide();
+                    $('#brand-section').show();
+                    $('#default-discount-section').show();
                 }
             });
 

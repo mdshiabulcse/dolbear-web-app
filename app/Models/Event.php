@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class Event extends Model
 {
@@ -56,6 +58,14 @@ class Event extends Model
         'total_revenue',
         'created_by',
         'updated_by',
+        // Campaign fields
+        'campaign_type',
+        'activated_at',
+        'deactivated_at',
+        'default_discount',
+        'default_discount_type',
+        'badge_text',
+        'badge_color',
     ];
 
     /**
@@ -91,6 +101,38 @@ class Event extends Model
     public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
+     * Relationship: Event has many event categories (for category-based campaigns)
+     */
+    public function eventCategories()
+    {
+        return $this->hasMany(EventCategory::class);
+    }
+
+    /**
+     * Relationship: Event has many event brands (for brand-based campaigns)
+     */
+    public function eventBrands()
+    {
+        return $this->hasMany(EventBrand::class);
+    }
+
+    /**
+     * Relationship: Event belongs to many categories
+     */
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'event_categories');
+    }
+
+    /**
+     * Relationship: Event belongs to many brands
+     */
+    public function brands()
+    {
+        return $this->belongsToMany(Brand::class, 'event_brands');
     }
 
     /**
@@ -160,6 +202,30 @@ class Event extends Model
     public function scopeByPriority($query)
     {
         return $query->orderBy('event_priority', 'asc');
+    }
+
+    /**
+     * Scope: Get the single currently active campaign
+     * Returns only one campaign - the highest priority active campaign
+     */
+    public function scopeSingleActive($query)
+    {
+        $now = Carbon::now()->format('Y-m-d H:i:s');
+
+        return $query->where('status', 'active')
+            ->where('is_active', 1)
+            ->whereNotNull('activated_at')
+            ->whereNull('deactivated_at')
+            ->where(function ($q) use ($now) {
+                $q->where('event_type', 'daily')
+                    ->orWhere(function ($q) use ($now) {
+                        $q->where('event_type', 'date_range')
+                            ->where('event_schedule_start', '<=', $now)
+                            ->where('event_schedule_end', '>=', $now);
+                    });
+            })
+            ->orderBy('event_priority', 'asc')
+            ->limit(1);
     }
 
     /**
@@ -273,36 +339,70 @@ class Event extends Model
      */
     public function addProduct($productId, $eventPrice = null, $discountAmount = 0, $discountType = 'flat', $priority = 0, $eventStock = null)
     {
+        \Log::info('Event::addProduct - Adding product to event', [
+            'event_id' => $this->id,
+            'product_id' => $productId,
+            'event_price' => $eventPrice,
+            'discount_amount' => $discountAmount,
+            'discount_type' => $discountType,
+        ]);
+
         // Check if product already exists in event
         $existingProduct = $this->eventProducts()->where('product_id', $productId)->first();
 
         if ($existingProduct) {
+            \Log::info('Event::addProduct - Product already exists, updating', [
+                'event_product_id' => $existingProduct->id
+            ]);
+
             // Update existing product
-            $existingProduct->update([
+            $updateData = [
                 'event_price' => $eventPrice,
                 'discount_amount' => $discountAmount,
                 'discount_type' => $discountType,
                 'product_priority' => $priority,
-                'event_stock' => $eventStock,
                 'is_active' => 1,
                 'status' => 'active',
-            ]);
+            ];
+
+            // Only include event_stock if the column exists
+            if (Schema::hasColumn('event_products', 'event_stock')) {
+                $updateData['event_stock'] = $eventStock;
+            }
+
+            // Add final_price if column exists
+            if (Schema::hasColumn('event_products', 'final_price')) {
+                $updateData['final_price'] = $eventPrice;
+            }
+
+            $existingProduct->update($updateData);
             return $existingProduct;
         }
 
-        // Create new event product
-        return $this->eventProducts()->create([
+        \Log::info('Event::addProduct - Creating new event product');
+
+        // Prepare creation data
+        $createData = [
             'product_id' => $productId,
             'event_price' => $eventPrice,
             'discount_amount' => $discountAmount,
             'discount_type' => $discountType,
             'product_priority' => $priority,
-            'event_stock' => $eventStock,
             'event_stock_sold' => 0,
             'is_active' => 1,
             'status' => 'active',
             'created_by' => authId() ?? 1,
+        ];
+
+        // Create new event product
+        $eventProduct = $this->eventProducts()->create($createData);
+
+        \Log::info('Event::addProduct - Event product created', [
+            'event_product_id' => $eventProduct->id,
+            'created_at' => $eventProduct->created_at
         ]);
+
+        return $eventProduct;
     }
 
     /**
@@ -329,5 +429,129 @@ class Event extends Model
     public function incrementViews()
     {
         $this->increment('total_views');
+    }
+
+    /**
+     * Method: Activate this event (deactivates all other active campaigns)
+     * Ensures only ONE campaign is active at a time
+     */
+    public function activate()
+    {
+        DB::transaction(function () {
+            $now = Carbon::now();
+
+            // Deactivate all other active events
+            $deactivateQuery = self::where('id', '!=', $this->id)
+                ->where('status', 'active')
+                ->where('is_active', 1);
+
+            // Check if activated_at column exists before using it
+            if (Schema::hasColumn('events', 'activated_at')) {
+                $deactivateQuery->whereNotNull('activated_at');
+            }
+
+            $updateData = [
+                'is_active' => 0,
+                'status' => 'paused'
+            ];
+
+            if (Schema::hasColumn('events', 'deactivated_at')) {
+                $updateData['deactivated_at'] = $now;
+            }
+
+            $deactivateQuery->update($updateData);
+
+            // Activate this event
+            $activateData = [
+                'is_active' => 1,
+                'status' => 'active'
+            ];
+
+            if (Schema::hasColumn('events', 'activated_at')) {
+                $activateData['activated_at'] = $now;
+            }
+
+            if (Schema::hasColumn('events', 'deactivated_at')) {
+                $activateData['deactivated_at'] = null;
+            }
+
+            $this->update($activateData);
+        });
+    }
+
+    /**
+     * Method: Auto-expire when end date passes
+     * Returns true if event was expired, false otherwise
+     */
+    public function checkExpiration()
+    {
+        if ($this->event_type == 'date_range' && $this->event_schedule_end) {
+            if (Carbon::now()->gt($this->event_schedule_end)) {
+                $this->update([
+                    'status' => 'expired',
+                    'is_active' => 0,
+                ]);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Method: Get all products for this event (including category/brand inherited)
+     * Returns a query builder for further filtering
+     */
+    public function getAllProducts()
+    {
+        $productIds = collect();
+
+        // Direct products
+        $productIds = $productIds->merge(
+            $this->activeEventProducts()->pluck('product_id')
+        );
+
+        // Category-based products (only if table exists)
+        if (Schema::hasTable('event_categories') && Schema::hasColumn('events', 'campaign_type')) {
+            $campaignType = $this->campaign_type ?? 'product';
+            if ($campaignType == 'category') {
+                try {
+                    foreach ($this->eventCategories as $eventCategory) {
+                        $categoryIds = [$eventCategory->category_id];
+                        if ($eventCategory->include_subcategories) {
+                            // Get all descendant categories
+                            $descendants = Category::descendantsOf($eventCategory->category_id)->pluck('id')->toArray();
+                            $categoryIds = array_merge($categoryIds, $descendants);
+                        }
+                        $productIds = $productIds->merge(
+                            Product::whereIn('category_id', $categoryIds)
+                                ->ProductPublished()
+                                ->pluck('id')
+                        );
+                    }
+                } catch (\Exception $e) {
+                    // Log error but continue
+                }
+            }
+
+            // Brand-based products
+            if ($campaignType == 'brand') {
+                try {
+                    foreach ($this->eventBrands as $eventBrand) {
+                        $productIds = $productIds->merge(
+                            Product::whereIn('brand_id', $this->brands->pluck('id'))
+                                ->ProductPublished()
+                                ->pluck('id')
+                        );
+                    }
+                } catch (\Exception $e) {
+                    // Log error but continue
+                }
+            }
+        }
+
+        return Product::whereIn('id', $productIds->unique())
+            ->with(['eventProducts' => function ($q) {
+                $q->where('event_id', $this->id);
+            }]);
     }
 }

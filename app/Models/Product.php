@@ -289,6 +289,95 @@ class Product extends Model
         return round($value,2);
     }
 
+    /**
+     * Attribute: Get campaign price for this product
+     * Returns the lowest price among: campaign price, special discount, or regular price
+     */
+    public function getCampaignPriceAttribute()
+    {
+        try {
+            if (class_exists(\App\Services\CampaignPricingService::class)) {
+                $pricingService = app(\App\Services\CampaignPricingService::class);
+                $pricing = $pricingService->getFinalPrice($this);
+                if ($pricing['discount_source'] === 'campaign') {
+                    return [
+                        'price' => $pricing['price'],
+                        'original_price' => $pricing['original_price'],
+                        'discount_amount' => $pricing['discount_info']['discount_amount'] ?? 0,
+                        'discount_type' => $pricing['discount_info']['discount_type'] ?? 'flat',
+                        'formatted_discount' => $pricing['discount_info']['formatted_discount'] ?? '',
+                        'badge_text' => $pricing['discount_info']['badge_text'] ?? '',
+                        'badge_color' => $pricing['discount_info']['badge_color'] ?? '#ff0000',
+                        'is_campaign' => true,
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            // Ignore errors
+        }
+
+        // No campaign pricing
+        return null;
+    }
+
+    /**
+     * Attribute: Get the lowest price for this product
+     * Considers: campaign > special discount > regular price
+     */
+    public function getLowestPriceAttribute()
+    {
+        $campaignPrice = $this->campaign_price;
+        $specialPrice = null;
+
+        // Check special discount
+        $now = \Carbon\Carbon::now();
+        if ($this->special_discount > 0
+            && $this->special_discount_start
+            && $this->special_discount_end
+            && $now->between($this->special_discount_start, $this->special_discount_end)) {
+            if ($this->special_discount_type === 'percentage') {
+                $specialPrice = $this->price - ($this->price * $this->special_discount / 100);
+            } else {
+                $specialPrice = $this->price - $this->special_discount;
+            }
+            $specialPrice = max(0, $specialPrice);
+        }
+
+        // Return campaign price if available and lower
+        if ($campaignPrice && $campaignPrice['price'] < $this->price) {
+            return [
+                'price' => $campaignPrice['price'],
+                'original_price' => $campaignPrice['original_price'],
+                'discount_source' => 'campaign',
+                'info' => $campaignPrice,
+            ];
+        }
+
+        // Return special discount price if available and lower
+        if ($specialPrice !== null && $specialPrice < $this->price) {
+            return [
+                'price' => $specialPrice,
+                'original_price' => $this->price,
+                'discount_source' => 'special',
+                'info' => [
+                    'discount_amount' => $this->special_discount,
+                    'discount_type' => $this->special_discount_type,
+                    'formatted_discount' => $this->special_discount_type === 'percentage'
+                        ? number_format($this->special_discount, 0) . '%'
+                        : get_price($this->special_discount),
+                ],
+            ];
+        }
+
+        // Return regular price
+        return [
+            'price' => $this->price,
+            'original_price' => $this->price,
+            'discount_source' => 'none',
+            'info' => null,
+        ];
+    }
+
     public function getDiscountPercentageAttribute()
     {
         $amount = 0;

@@ -1,121 +1,115 @@
 <template>
   <div class="sg-page-content container">
-    <div v-if="lengthCounter(productList)>0" class="sg-breadcumb-section">
-      <img :src="campaign.image_1920x412" alt="Campaign">
-    
+    <!-- Expired Campaign Message -->
+    <div v-if="campaign && !campaign.is_active_now && campaign.status !== 'upcoming'" class="campaign-expired-notice mt-4 mb-4">
+      <div class="alert alert-warning">
+        <h4><i class="bx bx-time-five"></i> {{ lang.campaign_ended || 'This Campaign Has Ended' }}</h4>
+        <p>{{ lang.campaign_ended_message || 'This campaign is no longer active. Please check back for future deals!' }}</p>
+      </div>
     </div>
+
+    <!-- Active Campaign Header -->
+    <div v-if="campaign && lengthCounter(productList)>0" class="sg-breadcumb-section">
+      <img :src="campaign.banner || campaign.image_1920x412" :alt="campaign.title || campaign.event_title">
+    </div>
+
     <section class="shimmer-section" v-else-if="shimmer">
       <shimmer class="shimmer-rds" :height="412"></shimmer>
     </section>
+
     <section class="brand-section">
       <div class="container">
         <div class="title title-center" v-if="lengthCounter(productList)>0">
-          <h1>{{ campaign.title }}</h1>
-          <p>{{ campaign.short_description }}</p>
-          <div class="sg-countdown" v-if="campaign && campaign.campaign_end_date">
-            <flip-countdown class="countdown" :deadline="campaign.end_date"></flip-countdown>
+          <h1>{{ campaign.title || campaign.event_title }}</h1>
+          <p>{{ campaign.short_description || campaign.description }}</p>
+
+          <!-- Countdown Timer -->
+          <div class="sg-countdown" v-if="campaign && (campaign.event_schedule_end || campaign.campaign_end_date)">
+            <flip-countdown
+              class="countdown"
+              :deadline="campaign.event_schedule_end || campaign.end_date"
+              v-if="campaign.is_active_now">
+            </flip-countdown>
+            <div v-else class="expired-timer">
+              <span class="badge badge-warning">{{ lang.campaign_expired || 'Campaign Ended' }}</span>
+            </div>
           </div>
         </div>
+
         <div class="title title-center" v-else-if="shimmer">
           <shimmer :height="100"></shimmer>
         </div>
+
+        <!-- Campaign Type Badge -->
+        <div v-if="campaign && campaign.campaign_type" class="text-center mb-3">
+          <span class="badge badge-info">{{ getCampaignTypeLabel(campaign.campaign_type) }}</span>
+        </div>
+
+        <!-- Navigation Tabs -->
         <div class="sg-menu-2" v-if="lengthCounter(productList)>0 && productList[0] != 'id'">
           <ul class="global-list" role="tablist">
             <li role="presentation" class="nav-item" @click="campaignProducts"
-                :class="{'show active' : activeNav == 'products'}"><a class="nav-link"
-                                                                      href="javaScript:void(0)"
-                                                                      aria-controls="products" role="tab"
-                                                                      data-bs-toggle="tab">{{
-                lang.products
-              }}</a>
+                :class="{'show active' : activeNav == 'products'}">
+              <a class="nav-link" href="javaScript:void(0)" aria-controls="products" role="tab" data-bs-toggle="tab">
+                {{ lang.products || 'Products' }}
+              </a>
             </li>
-<!--            <li class="nav-item" @click="brandActive" :class="{'show active' : activeNav == 'brands'}"-->
-<!--                role="presentation"><a class="nav-link" href="javaScript:void(0)" aria-controls="brands"-->
-<!--                                      role="tab" data-bs-toggle="tab"-->
-<!--                                      aria-expanded="true">{{ lang.brands }}</a></li>-->
-<!--            <li class="nav-item" @click="shopActive"-->
-<!--                :class="{'show active' : activeNav == 'shops'}" role="presentation"><a class="nav-link"-->
-<!--                                                                                      href="javaScript:void(0)"-->
-<!--                                                                                      aria-controls="shops"-->
-<!--                                                                                      role="tab"-->
-<!--                                                                                      data-bs-toggle="tab"-->
-<!--                                                                                      aria-expanded="true">{{-->
-<!--                lang.shops-->
-<!--              }}</a>-->
-<!--            </li>-->
           </ul>
         </div>
 
-        <!-- <div class=""> --> 
-          <div role="tabpanel" class="tab-pane fade" :class="{'show': activeNav == 'products'}"
-              id="products">
-              <section class="products-section d-flex flex-wrap gap-2" v-if="lengthCounter(productList) > 0">
-                <div v-for="product in products.data" :key="product.id" class="">
-                      <product_card :product="product"></product_card>
-                    </div>
-              </section>
-
-
-            <!-- <section class="products-section bg-white" v-else-if="shimmer">
-              <ul class="products" :class="'grid-6'">
-                <li v-for="(product,index) in 12" :key="index">
-                  <div class="sg-product">
-                    <a href="javaScript:void(0)">
-                      <shimmer :height="290"></shimmer>
-                    </a>
-                  </div>
-                </li>
-              </ul>
-            </section> -->
-            <div class="col-md-12 text-center show-more" v-if="product_next_page_url && !loading">
-              <a href="javaScript:void(0)" @click="loadMoreData(product_next_page_url)"
-                class="btn btn-primary">{{ lang.show_more }}</a>
+        <div role="tabpanel" class="tab-pane fade" :class="{'show': activeNav == 'products'}" id="products">
+          <section class="products-section d-flex flex-wrap gap-2" v-if="lengthCounter(productList) > 0">
+            <div v-for="product in products.data" :key="product.id" class="">
+              <product_card :product="product"></product_card>
             </div>
-          </div>
-          <div role="tabpanel" class="tab-pane fade" :class="{'show active' : activeNav == 'brands'}"
-              id="brands">
-            <div class="row">
-              <div v-if="responseCheck && brands.data && brands.data.length == 0" class="col-lg-12">
-                <h6 class="text-center">{{ lang.no_data_found }}</h6>
-              </div>
-              <div v-else class="col-6 col-sm-4 col-md-3 col-lg-2" v-for="(brand,i) in brands.data"
-                  :key="'brands'+i">
-                <div class="category-content">
-                  <div class="brand margin_right_18">
-                    <div class="brand_image">
-                      <a :href="getUrl('brand/'+brand.slug)"
-                        @click.prevent="routerNavigator('product.by.brand',brand.slug)">
-                        <img :src="brand.image_130x93" loading="lazy"
-                            :alt="brand.title" class="img-fluid">
-                      </a>
+          </section>
 
-                    </div>
-                    <span class="brand_title">{{ brand.title }}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-12 mt-2 text-center show-more" v-if="brand_next_page_url && !loading">
-                <a href="javaScript:void(0)" @click="loadMoreData(brand_next_page_url,'brand')"
-                  class="btn btn-primary">{{ lang.show_more }}</a>
-              </div>
-            </div>
+          <div class="col-md-12 text-center show-more" v-if="product_next_page_url && !loading">
+            <a href="javaScript:void(0)" @click="loadMoreData(product_next_page_url)" class="btn btn-primary">
+              {{ lang.show_more || 'Show More' }}
+            </a>
           </div>
-          <div role="tabpanel" class="tab-pane fade" :class="{'show active' : activeNav == 'shops'}"
-              id="shops">
-            <section class="sg-seller-product">
-              <h6 v-if="responseCheck && shops.data && shops.data.length == 0" class="text-center">{{ lang.no_data_found }}</h6>
-              <seller v-else :sellers="shops.data" :class_name="'grid-4'" :is_shimmer="is_shimmer"></seller>
-            </section>
-          </div><!-- /.tab-pane -->
-        <!-- </div> -->
+        </div>
 
         <div class="col-md-12 text-center show-more" v-show="loading">
           <loading_button :class_name="'btn btn-primary'"></loading_button>
         </div>
       </div><!-- /.container -->
     </section><!-- /.brand-section -->
+
     <section class="brand-section">
       <div class="container">
+        <!-- Campaign Info Section -->
+        <div v-if="campaign" class="card mb-4">
+          <div class="card-body">
+            <h5>{{ lang.campaign_details || 'Campaign Details' }}</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>{{ lang.validity || 'Validity' }}:</strong>
+                  <span v-if="campaign.event_schedule_start && campaign.event_schedule_end">
+                    {{ formatDate(campaign.event_schedule_start) }} - {{ formatDate(campaign.event_schedule_end) }}
+                  </span>
+                  <span v-else>-</span>
+                </p>
+                <p><strong>{{ lang.status || 'Status' }}:</strong>
+                  <span v-if="campaign.is_active_now" class="badge badge-success">{{ lang.active || 'Active' }}</span>
+                  <span v-else-if="campaign.status === 'upcoming'" class="badge badge-info">{{ lang.upcoming || 'Upcoming' }}</span>
+                  <span v-else class="badge badge-secondary">{{ lang.ended || 'Ended' }}</span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p v-if="campaign.badge_text"><strong>{{ lang.offer || 'Offer' }}:</strong>
+                  <span class="badge" :style="{ backgroundColor: campaign.badge_color || '#ff0000', color: 'white' }">
+                    {{ campaign.badge_text }}
+                  </span>
+                </p>
+                <p v-if="campaign.default_discount"><strong>{{ lang.discount || 'Discount' }}:</strong>
+                  {{ campaign.default_discount }}{{ campaign.default_discount_type === 'percentage' ? '%' : ' ' + getSymbol }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </div>
@@ -128,7 +122,6 @@ import StarRating from '../partials/StarRating.vue';
 import shimmer from "../partials/shimmer";
 import seller from "../partials/seller";
 import product_card from '../common/product_card.vue';
-
 
 export default {
   name: "campaign_details",
@@ -205,8 +198,25 @@ export default {
         return [];
       }
     },
+    getSymbol() {
+      return this.$store.getters.getCurrencySymbol;
+    }
   },
   methods: {
+    getCampaignTypeLabel(type) {
+      const labels = {
+        'product': this.lang.product_based || 'Product-based',
+        'category': this.lang.category_based || 'Category-based',
+        'brand': this.lang.brand_based || 'Brand-based',
+        'event': this.lang.event_based || 'Event-based'
+      };
+      return labels[type] || type;
+    },
+    formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    },
     campaignProducts() {
       let requestData = {
         slug: this.$route.params.slug,
@@ -275,63 +285,23 @@ export default {
           }
         }
       });
-    },
-    brandActive() {
-      this.activeNav = 'brands'
-      if (this.lengthCounter(this.brands) != 0) {
-        this.brand_next_page_url = this.brands.next_page_url;
-        return this.brands;
-      }
-      let url = this.baseUrl + '/home/campaign-brands';
-      this.loading = true
-      let requestData = {
-        slug: this.$route.params.slug,
-        type: 'brand',
-      };
-      axios.get(url, {params: requestData}).then((response) => {
-        if (response.data.error) {
-          toastr.error(response.data.error, this.lang.Error + ' !!');
-        }
-        this.loading = false;
-        this.$store.commit('setResponseCheck',true);
-        let data = {
-          slug: this.$route.params.slug,
-          brands: response.data.brands
-        };
-        this.brand_next_page_url = response.data.brands.next_page_url;
-        this.next_page_url = this.brand_next_page_url;
-        this.$store.commit('getCampaignBrands', data);
-      })
-    },
-    shopActive() {
-      this.activeNav = 'shops'
-      if (this.lengthCounter(this.shops) != 0) {
-        this.shop_next_page_url = this.shops.next_page_url;
-        return this.shops;
-      }
-      let url = this.baseUrl + '/home/campaign-brands';
-      this.loading = true
-      let requestData = {
-        slug: this.$route.params.slug,
-        type: 'shop',
-      };
-      axios.get(url, {params: requestData}).then((response) => {
-        this.is_shimmer = true;
-        this.loading = false;
-        this.$store.commit('setResponseCheck',true);
-        if (response.data.error) {
-          toastr.error(response.data.error, this.lang.Error + ' !!');
-        }
-        else{
-          let data = {
-            slug: this.$route.params.slug,
-            shops: response.data.shops
-          };
-          this.shop_next_page_url = response.data.shops.next_page_url;
-          this.$store.commit('getCampaignShops', data);
-        }
-      })
     }
   }
 }
 </script>
+
+<style scoped>
+.campaign-expired-notice {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.expired-timer {
+  padding: 20px;
+}
+
+.badge {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+</style>

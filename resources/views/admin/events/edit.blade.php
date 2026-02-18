@@ -73,6 +73,18 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{ __('Campaign Type') }}</label>
+                                        <select name="campaign_type" class="form-control" id="campaign_type">
+                                            <option value="product" {{ ($event->campaign_type ?? 'product') == 'product' ? 'selected' : '' }}>{{ __('Product-based') }}</option>
+                                            <option value="category" {{ ($event->campaign_type ?? 'product') == 'category' ? 'selected' : '' }}>{{ __('Category-based') }}</option>
+                                            <option value="brand" {{ ($event->campaign_type ?? 'product') == 'brand' ? 'selected' : '' }}>{{ __('Brand-based') }}</option>
+                                            <option value="event" {{ ($event->campaign_type ?? 'product') == 'event' ? 'selected' : '' }}>{{ __('Event-based (Ramadan, Black Friday, etc.)') }}</option>
+                                        </select>
+                                        <small class="text-muted">{{ __('Select how products are included in this campaign') }}</small>
+                                    </div>
+                                </div>
                                 <div class="col-md-6" id="start_date_field" {{ $event->event_type != 'date_range' ? 'style="display:none;"' : '' }}>
                                     <div class="form-group">
                                         <label>{{ __('Start Date & Time') }}</label>
@@ -175,7 +187,7 @@
                             </div>
 
                             <!-- Products Section -->
-                            <div class="row mt-4">
+                            <div class="row mt-4" id="products-section">
                                 <div class="col-12">
                                     <h5>{{ __('Event Products') }}</h5>
                                     <p class="text-muted">{{ __('Manage products in this event') }}</p>
@@ -277,6 +289,19 @@
                     $('#daily_start_field, #daily_end_field').hide();
                 }
             });
+
+            // Handle campaign type change
+            $('#campaign_type').change(function () {
+                var type = $(this).val();
+                if (type === 'product' || type === 'event') {
+                    $('#products-section').show();
+                } else {
+                    $('#products-section').hide();
+                }
+            });
+
+            // Initialize campaign type state
+            $('#campaign_type').trigger('change');
 
             // Generate slug from title
             $('input[name="event_title"]').on('input', function () {

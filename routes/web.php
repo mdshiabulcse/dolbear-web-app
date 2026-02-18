@@ -273,6 +273,7 @@ Route::middleware(['XSS'])->group(function () {
     Route::get('/{anypath}', [HomeController::class, 'index'])->where('path', '*')->name('home.page');
     Route::get('user/{anypath}', [HomeController::class, 'index'])->where('path', '*')->middleware('loginCheck');
     Route::get('/blog/{slug}', [HomeController::class, 'index'])->where('path', '*')->name('blog-details');
+    Route::get('/campaigns', [HomeController::class, 'index'])->where('path', '*')->name('campaigns.list');
     Route::get('/campaign/{slug}', [HomeController::class, 'index'])->where('path', '*')->name('campaign.details');
     Route::get('/category/{slug}', [HomeController::class, 'index'])->where('path', '*')->name('category-by-slug');
     Route::get('/best-selling/products', [HomeController::class, 'index'])->where('path', '*')->name('best.selling.products.list');

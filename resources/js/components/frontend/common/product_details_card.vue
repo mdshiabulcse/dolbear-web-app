@@ -130,28 +130,57 @@
 
         <button v-if="productDetails?.free_shipping === 1 || productDetails?.free_shipping === true" class="product-details-card-button buy-now">Free Delivery</button>
 
+        <!-- Campaign Badge -->
+        <div v-if="productDetails.discount_info && productDetails.discount_info.badge_text"
+             class="campaign-badge-section mb-2">
+          <span class="badge badge-lg"
+                :style="{ backgroundColor: productDetails.discount_info.badge_color || '#ff0000', color: 'white', fontSize: '14px', padding: '8px 16px' }">
+            {{ productDetails.discount_info.badge_text }}
+          </span>
+        </div>
+
         <div class="price-section d-flex mt-3">
           <span class="space"></span>
           <div class="d-flex flex-column justify-content-center ms-3">
             <div class="d-flex gap-2 align-items-center">
               <h4 class="current-price">
-                <template v-if="productDetails.special_discount_check > 0">
-                  {{
-                    priceFormat(productDetails.product_stock.discount_percentage)
-                  }}
+                <!-- Campaign Price (Highest Priority) -->
+                <template v-if="productDetails.campaign_price && productDetails.campaign_price < productDetails.product_stock.price">
+                  {{ priceFormat(productDetails.campaign_price) }}
                 </template>
+                <!-- Special Discount Price -->
+                <template v-else-if="productDetails.special_discount_check > 0">
+                  {{ priceFormat(productDetails.product_stock.discount_percentage) }}
+                </template>
+                <!-- Regular Price -->
                 <template v-else>
                   {{ priceFormat(productDetails.product_stock.price) }}
                 </template>
               </h4>
-              <template v-if="productDetails.special_discount_check > 0">
+              <!-- Original Price with Strikethrough -->
+              <template v-if="(productDetails.campaign_price && productDetails.campaign_price < productDetails.product_stock.price) || productDetails.special_discount_check > 0">
                 <span>|</span>
                 <del><h4>{{ priceFormat(productDetails.product_stock.price) }}</h4></del>
               </template>
-
             </div>
-            <p>Cash Discount Price</p>
-            <p> Online / Cash Payment</p>
+            <p>
+              <!-- Campaign Discount Label -->
+              <template v-if="productDetails.discount_info && productDetails.discount_info.discount_source === 'campaign'">
+                {{ productDetails.discount_info.formatted_discount }} {{ lang.off || 'OFF' }} - {{ lang.campaign_offer || 'Campaign Offer' }}
+              </template>
+              <!-- Special Discount Label -->
+              <template v-else-if="productDetails.special_discount_check > 0">
+                {{ productDetails.special_discount_type == "flat"
+                    ? priceFormat(productDetails.special_discount_check) + " " + lang.off
+                    : productDetails.special_discount_check + "% " + lang.off
+                }} - {{ lang.discount_offer || 'Discount Offer' }}
+              </template>
+              <!-- Regular Price Label -->
+              <template v-else>
+                {{ lang.regular_price || 'Regular Price' }}
+              </template>
+            </p>
+            <p>{{ lang.online_payment || 'Online / Cash Payment' }}</p>
           </div>
         </div>
 

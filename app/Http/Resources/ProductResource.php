@@ -22,7 +22,10 @@ class ProductResource extends JsonResource
         }
         $created_at = Carbon::parse($this->created_at);
         $difference = $created_at->diffInDays();
-        return [
+
+        // Get lowest price (campaign > special > regular)
+        $lowestPrice = $this->lowest_price;
+        $response = [
             'id'                                    => $this->id,
             'slug'                                  => $this->slug,
             'title'                                 => $this->getTranslation('name',apiLanguage($request->lang)),
@@ -42,5 +45,20 @@ class ProductResource extends JsonResource
             'minimum_order_quantity'                => (int)$this->minimum_order_quantity,
             'is_favourite'                          => $user && count($this->wishlists) > 0 && $this->wishlists->where('user_id', $user->id)->first(),
         ];
+
+        // Add campaign pricing if available
+        if ($lowestPrice && $lowestPrice['price'] < $this->price) {
+            $response['campaign_price'] = number_format($lowestPrice['price'], 3, '.', '');
+            $response['original_price'] = number_format($lowestPrice['original_price'], 3, '.', '');
+            $response['has_campaign'] = true;
+            $response['discount_source'] = $lowestPrice['discount_source'];
+            $response['campaign_discount_info'] = $lowestPrice['info'];
+        } else {
+            $response['campaign_price'] = null;
+            $response['has_campaign'] = false;
+            $response['discount_source'] = $lowestPrice['discount_source'] ?? 'none';
+        }
+
+        return $response;
     }
 }

@@ -537,18 +537,74 @@ class ProductController extends Controller
     public function campaignProducts(Request $request, CampaignInterface $campaign): \Illuminate\Http\JsonResponse
     {
         try {
+            // Try to get Event by slug first
+            $event = \App\Models\Event::where('slug', $request->slug)->first();
 
-            $campaign = $campaign->getBySlug($request->slug);
-            if(!$campaign){
+            if ($event) {
+                // Check if event is active or expired
+                if (!$event->is_active_now && $event->status !== 'upcoming') {
+                    return response()->json([
+                        'error' => __('This campaign has ended')
+                    ], 404);
+                }
+
+                $pricingService = app(\App\Services\CampaignPricingService::class);
+                $isActive = ($pricingService->getActiveCampaign()?->id === $event->id);
+
+                // Get products for this event
+                $products = $event->getAllProducts()
+                    ->ProductPublished()
+                    ->userCheck()
+                    ->isStockOut()
+                    ->paginate(get_pagination('api_paginate'));
+
+                // Apply campaign pricing if this is the active campaign
+                if ($isActive) {
+                    $products->getCollection()->transform(function ($product) use ($pricingService) {
+                        $pricing = $pricingService->getFinalPrice($product);
+                        $product->campaign_price = $pricing['price'];
+                        $product->original_price = $pricing['original_price'];
+                        $product->discount_info = $pricing['discount_info'];
+                        return $product;
+                    });
+                }
+
+                $data = [
+                    'products' => $products,
+                    'campaign' => [
+                        'id' => $event->id,
+                        'title' => $event->event_title,
+                        'slug' => $event->slug,
+                        'short_description' => $event->description,
+                        'description' => $event->description,
+                        'image_1920x412' => $event->image_1920x412,
+                        'banner' => $event->image_1920x412,
+                        'campaign_start_date' => $event->event_schedule_start,
+                        'campaign_end_date' => $event->event_schedule_end,
+                        'event_schedule_start' => $event->event_schedule_start,
+                        'event_schedule_end' => $event->event_schedule_end,
+                        'is_active_now' => $event->is_active_now,
+                        'campaign_type' => $event->campaign_type ?? 'product',
+                        'badge_text' => $event->badge_text,
+                        'badge_color' => $event->badge_color,
+                        'status' => $event->status,
+                    ],
+                ];
+                return response()->json($data);
+            }
+
+            // Fallback to old Campaign system if Event not found
+            $oldCampaign = $campaign->getBySlug($request->slug);
+            if (!$oldCampaign) {
                 return response()->json([
                     'error' => 'Invalid campaign slug'
                 ]);
             }
 
-            $campaign_products = $this->product->productByCampaign($campaign->id);
+            $campaign_products = $this->product->productByCampaign($oldCampaign->id);
             $data = [
                 'products' => $campaign_products,
-                'campaign' => $campaign ? $campaign->makeHidden(['banner', 'banner_id', 'created_at', 'updated_at']) : [],
+                'campaign' => $oldCampaign ? $oldCampaign->makeHidden(['banner', 'banner_id', 'created_at', 'updated_at']) : [],
             ];
             return response()->json($data);
         } catch (\Exception $e) {

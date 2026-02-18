@@ -512,9 +512,12 @@
                     <ul class="dropdown-menu">
                         @if (hasPermission('campaign_read'))
                             <li class="@yield('campaign')"><a class="nav-link"
-                                    href="{{ route('campaign') }}">{{ __('Campaigns') }}</a>f
+                                    href="{{ route('campaign') }}">{{ __('Campaigns') }}</a>
                             </li>
                         @endif
+                        <li class="@yield('events')"><a class="nav-link"
+                                href="{{ route('events') }}">{{ __('Events & Sales') }}</a>
+                        </li>
                         @if (settingHelper('seller_system') == 1)
                             @if (hasPermission('campaign_product_read'))
                                 <li class="@yield('campaign_request')"><a class="nav-link"

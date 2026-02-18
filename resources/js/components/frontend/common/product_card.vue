@@ -2,6 +2,12 @@
     <div>
 
         <div class="product-card" v-if="product?.slug != undefined">
+            <!-- Campaign Badge -->
+            <div class="product-badge" v-if="product.discount_info && product.discount_info.badge_text"
+                 :style="{ backgroundColor: product.discount_info.badge_color || '#ff0000' }">
+                {{ product.discount_info.badge_text }}
+            </div>
+
             <img :src="product.image_190x230" isloading="lazy" @click="openModal(product.slug)" :alt="product.product_name" class="img-fluid transition-transform hover-zoom"
             >
             <p class="product-card-title">
@@ -10,18 +16,31 @@
                 </router-link>
             </p>
 
-
-            <div class="d-flex justify-content-center price" v-if="product.special_discount_check > 0">
+            <!-- Campaign Price Display -->
+            <div class="d-flex justify-content-center price" v-if="product.campaign_price && product.campaign_price < product.price">
+                <span class="price original">{{ priceFormat(product?.price) }}</span>
+                <span class="line">|</span>
+                <span class="price discount">{{ priceFormat(product?.campaign_price) }}</span>
+            </div>
+            <!-- Special Discount Price Display -->
+            <div class="d-flex justify-content-center price" v-else-if="product.special_discount_check > 0">
                 <span class="price original">{{ priceFormat(product?.discount_percentage) }}</span>
                 <span class="line">|</span>
                 <span class="price discount">{{ priceFormat(product?.price) }}</span>
             </div>
+            <!-- Regular Price Display -->
             <div class="d-flex justify-content-center price" v-else>
                 <span class="price original">{{ priceFormat(product?.price) }}</span>
             </div>
 
-            <div class="product-offer" v-if="product.special_discount_check > 0">
-
+            <!-- Campaign Discount Badge -->
+            <div class="product-offer" v-if="product.discount_info && product.discount_info.formatted_discount">
+                <div class="product-offer-text">
+                    {{ product.discount_info.formatted_discount }} {{ lang.off || 'OFF' }}
+                </div>
+            </div>
+            <!-- Special Discount Badge -->
+            <div class="product-offer" v-else-if="product.special_discount_check > 0">
                 <div  class="product-offer-text">{{ product.special_discount_type == "flat" ? priceFormat(product.special_discount_check) + " " +
                     lang.off : product.special_discount_check + "% " + lang.off }}</div>
             </div>
@@ -213,6 +232,20 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+.product-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    background: #ff0000;
+    color: white;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .product-card-title {

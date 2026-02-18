@@ -9,6 +9,8 @@ class EventProduct extends Model
 {
     use HasFactory;
 
+    public $timestamps = true;
+
     protected $fillable = [
         'event_id',
         'product_id',
@@ -24,11 +26,20 @@ class EventProduct extends Model
         'badge_color',
         'created_by',
         'updated_by',
+        // Additional columns for campaign system
+        'is_inherited',
+        'parent_event_id',
+        'final_price',
     ];
 
     protected $casts = [
         'event_price' => 'float',
         'discount_amount' => 'float',
+        'product_priority' => 'integer',
+        'event_stock' => 'integer',
+        'event_stock_sold' => 'integer',
+        'is_active' => 'boolean',
+        'is_inherited' => 'boolean',
     ];
 
     /**

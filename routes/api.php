@@ -127,6 +127,14 @@ Route::prefix('v100')->group(function() {
             Route::get('campaign-data','campaignData');
         });
 
+        // New unified campaign routes (using Event system)
+        Route::prefix('campaign')->group(function (){
+            Route::get('active', [\App\Http\Controllers\Api\V100\CampaignController::class, 'activeCampaign']);
+            Route::get('details/{slug}', [\App\Http\Controllers\Api\V100\CampaignController::class, 'campaignDetailsBySlug']);
+            Route::get('products', [\App\Http\Controllers\Api\V100\CampaignController::class, 'campaignProducts']);
+            Route::get('filters', [\App\Http\Controllers\Api\V100\CampaignController::class, 'campaignFilters']);
+        });
+
         //events API routes
         Route::controller(\App\Http\Controllers\Api\V100\EventController::class)->group(function (){
             Route::get('get-events','events');

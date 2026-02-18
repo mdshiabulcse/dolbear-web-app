@@ -11,6 +11,7 @@ use App\Http\Resources\SiteResource\ProductPaginateResource;
 use App\Http\Resources\SiteResource\ShopPaginateResource;
 use App\Http\Resources\SiteResource\VideoPaginateResource;
 use App\Http\Resources\SiteResource\WishlistResource;
+use App\Models\Event;
 use App\Repositories\Admin\Page\PageRepository;
 use App\Repositories\Interfaces\Admin\Addon\VideoShoppingInterface;
 use App\Repositories\Interfaces\Admin\Blog\BlogInterface;
@@ -29,7 +30,9 @@ use App\Repositories\Interfaces\Site\CartInterface;
 use App\Repositories\Interfaces\Site\ContactUsInterface;
 use App\Repositories\Interfaces\Site\ReviewInterface;
 use App\Repositories\Interfaces\Site\WishlistInterface;
+use App\Services\CampaignPricingService;
 use App\Traits\HomePage;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 
@@ -103,8 +106,64 @@ class FrontendController extends Controller
     public function campaigns(CampaignInterface $campaign): \Illuminate\Http\JsonResponse
     {
         try {
+            // Get active and upcoming events (campaigns) using the Event system
+            $now = Carbon::now()->format('Y-m-d H:i:s');
+
+            $events = Event::where('show_on_frontend', 1)
+                ->where(function ($q) use ($now) {
+                    $q->where('status', 'active')
+                        ->where('is_active', 1)
+                        ->where(function ($q2) use ($now) {
+                            $q2->where('event_type', 'daily')
+                                ->orWhere(function ($q3) use ($now) {
+                                    $q3->where('event_type', 'date_range')
+                                        ->where('event_schedule_start', '<=', $now)
+                                        ->where('event_schedule_end', '>=', $now);
+                                });
+                        });
+                })
+                ->orWhere(function ($q) use ($now) {
+                    // Include upcoming campaigns (status = active but not yet started)
+                    $q->where('status', 'active')
+                        ->where('event_type', 'date_range')
+                        ->where('event_schedule_start', '>', $now);
+                })
+                ->orderBy('event_priority', 'asc')
+                ->orderBy('event_schedule_start', 'asc')
+                ->paginate(12);
+
+            // Transform events to campaign format for frontend compatibility
+            $campaigns = $events->getCollection()->map(function ($event) use ($now) {
+                $isActive = ($event->status == 'active' && $event->is_active == 1 && $event->is_active_now);
+                $isUpcoming = ($event->status == 'active' && $event->event_type == 'date_range' && $event->event_schedule_start > $now);
+
+                return [
+                    'id' => $event->id,
+                    'title' => $event->event_title,
+                    'slug' => $event->slug,
+                    'short_description' => $event->description,
+                    'description' => $event->description,
+                    'image_374x374' => $event->image_374x374,
+                    'image_1920x412' => $event->image_1920x412,
+                    'banner' => $event->image_1920x412,
+                    'campaign_start_date' => $event->event_schedule_start,
+                    'campaign_end_date' => $event->event_schedule_end,
+                    'event_schedule_start' => $event->event_schedule_start,
+                    'event_schedule_end' => $event->event_schedule_end,
+                    'is_active_now' => $event->is_active_now,
+                    'campaign_type' => $event->campaign_type ?? 'product',
+                    'badge_text' => $event->badge_text,
+                    'badge_color' => $event->badge_color,
+                    'status' => $event->status,
+                    'is_active' => $isActive,
+                    'is_upcoming' => $isUpcoming,
+                ];
+            });
+
+            $events->setCollection($campaigns);
+
             $data = [
-                'campaigns' => new CampaignPaginateResource($campaign->campaigns(12))
+                'campaigns' => $events
             ];
             return response()->json($data);
         } catch (\Exception $e) {
