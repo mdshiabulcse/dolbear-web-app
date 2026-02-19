@@ -391,7 +391,11 @@ export default {
       this.resetForm();
       for (let i = 0; i < carts.length; i++) {
         this.payment_form.quantity.push({id: carts[i].id, quantity: carts[i].quantity});
-        this.payment_form.sub_total += parseFloat(carts[i].price * carts[i].quantity);
+        // CRITICAL FIX: Subtotal is always calculated from ORIGINAL price
+        // Use original_price if available, otherwise fall back to price
+        const originalPrice = carts[i].original_price || carts[i].price;
+        this.payment_form.sub_total += parseFloat(originalPrice * carts[i].quantity);
+        // discount_offer is the campaign/special discount amount
         this.payment_form.discount_offer += parseFloat(carts[i].discount * carts[i].quantity);
         if (this.settings.shipping_cost == 'product_base') {
           this.payment_form.shipping_tax += parseFloat(carts[i].shipping_cost);

@@ -58,9 +58,11 @@
         </div>
 
         <div role="tabpanel" class="tab-pane fade" :class="{'show': activeNav == 'products'}" id="products">
-          <section class="products-section d-flex flex-wrap gap-2" v-if="lengthCounter(productList) > 0">
-            <div v-for="product in products.data" :key="product.id" class="">
-              <product_card :product="product"></product_card>
+          <section class="products-section" v-if="lengthCounter(productList) > 0">
+            <div class="row">
+              <div v-for="product in products.data" :key="product.id" class="col-6 col-md-4 col-lg-3 product-col">
+                <product_card :product="product"></product_card>
+              </div>
             </div>
           </section>
 
@@ -303,5 +305,82 @@ export default {
 .badge {
   padding: 8px 16px;
   font-size: 14px;
+}
+
+/* Products Section Grid Layout */
+.products-section {
+  margin-top: 20px;
+}
+
+.products-section .row {
+  margin: 0 -8px;
+}
+
+.product-col {
+  padding: 8px;
+  margin-bottom: 16px;
+}
+
+/* Mobile - 2 columns by default */
+@media screen and (max-width: 576px) {
+  .product-col {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding: 6px;
+  }
+
+  .products-section .row {
+    margin: 0 -6px;
+  }
+}
+
+/* Small mobile - 430px and below */
+@media screen and (max-width: 430px) {
+  .product-col {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding: 4px;
+  }
+
+  .products-section .row {
+    margin: 0 -4px;
+  }
+}
+
+/* Extra small mobile - 360px and below */
+@media screen and (max-width: 360px) {
+  .product-col {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding: 3px;
+  }
+
+  .products-section .row {
+    margin: 0 -3px;
+  }
+}
+
+/* Tablet - 3 columns */
+@media screen and (min-width: 577px) and (max-width: 991px) {
+  .product-col {
+    flex: 0 0 33.333%;
+    max-width: 33.333%;
+  }
+}
+
+/* Desktop - 4 columns */
+@media screen and (min-width: 992px) {
+  .product-col {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
+/* Large Desktop - 5 columns */
+@media screen and (min-width: 1400px) {
+  .product-col {
+    flex: 0 0 20%;
+    max-width: 20%;
+  }
 }
 </style>

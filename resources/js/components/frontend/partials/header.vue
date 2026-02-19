@@ -101,7 +101,7 @@
     <!-- cart -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
       <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasRightLabel">SHOPPING CART1</h5>
+        <h5 class="offcanvas-title" id="offcanvasRightLabel">SHOPPING CART</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close">X <span class="ms-3" style="font-size: 20px;">CLOSE</span></button>
       </div>
       <div class="offcanvas-body">
@@ -129,7 +129,17 @@
               </div>
             </div>
             <div class="cart-item-details-quantity mt-2">
-              <p class="mb-0"><span class="item-qnt">{{ item.quantity }} x</span> {{ item.price }} = tk {{ item.quantity * item.price }}</p>
+              <p class="mb-0">
+                <span class="item-qnt">{{ item.quantity }} x</span>
+                <span v-if="item.discount > 0">
+                  <del style="color: #999; font-size: 12px;">{{ priceFormat(item.original_price) }}</del>
+                  <span style="color: #ff6b6b; font-weight: 600;">{{ priceFormat(item.price) }}</span>
+                </span>
+                <span v-else>
+                  {{ priceFormat(item.price) }}
+                </span>
+                = tk {{ priceFormat(item.quantity * item.price) }}
+              </p>
             </div>
 
           </div>

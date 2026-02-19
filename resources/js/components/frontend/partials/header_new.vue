@@ -86,13 +86,24 @@
                 <a class="btn pull-left" @click="cartMinus(item)" href="javascript:void(0);" data-spin="down"><span
                     class="mdi mdi-name mdi-minus"></span></a>
                 <input type="text" name="quantity" v-model="item.quantity" title="quantity" readonly class="input-text">
-                <a class="btn pull-right" @click="cartPlus(item.id)" href="javascript:void(0);" data-spin="up"><span
+                <a class="btn pull-right" @click="cartPlus(item.id, item)" href="javascript:void(0);" data-spin="up"><span
                     class="mdi mdi-name mdi-plus"></span></a>
               </div>
             </div>
             <div class="cart-item-details-quantity mt-2">
-              <p class="mb-0"><span class="item-qnt"> ৳ {{ item.quantity * (item.price - item.discount) }} <span
-                    class="item-qnt-details">( ৳ {{ item.quantity }} x {{ (item.price - item.discount) }} )</span></span> </p>
+              <p class="mb-0">
+                <!-- Campaign Price Display -->
+                <span v-if="item.discount > 0" class="item-qnt">
+                  <del style="color: #999; font-size: 11px; margin-right: 4px;">৳ {{ item.quantity * item.original_price }}</del>
+                  <span style="color: #ff6b6b; font-weight: 600;">৳ {{ item.quantity * (item.original_price - item.discount) }}</span>
+                  <span class="item-qnt-details">( ৳ {{ item.quantity }} x {{ (item.original_price - item.discount) }} )</span>
+                </span>
+                <!-- Regular Price Display -->
+                <span v-else class="item-qnt">
+                  ৳ {{ item.quantity * item.price }}
+                  <span class="item-qnt-details">( ৳ {{ item.quantity }} x {{ item.price }} )</span>
+                </span>
+              </p>
             </div>
 
           </div>
@@ -578,8 +589,7 @@ export default {
         this.$Progress.fail();
       })
     },
-    cartPlus(id) {
-
+    cartPlus(id, item) {
       let formData = {
         id: id,
         quantity: 1,
@@ -592,11 +602,11 @@ export default {
           toastr.error(response.data.error, this.lang.Error + ' !!');
         } else {
           this.$store.dispatch('carts', response.data.carts);
-          let coupons = response.data.coupons;
-          this.parseData(this.cartList, response.data.checkouts, coupons);
+          // Campaign pricing is automatically recalculated on backend
         }
+      }).catch((error) => {
+        console.error('Cart update error:', error);
       })
-
     },
 
     cartMinus(item) {
@@ -616,10 +626,10 @@ export default {
             toastr.error(response.data.error, this.lang.Error + ' !!');
           } else {
             this.$store.dispatch('carts', response.data.carts);
-            let coupons = response.data.coupons;
-            let checkouts = response.data.checkouts;
-            this.parseData(this.cartList, checkouts, coupons);
+            // Campaign pricing is automatically recalculated on backend
           }
+        }).catch((error) => {
+          console.error('Cart update error:', error);
         })
       } else {
         this.deleteCart(item.id)
@@ -726,18 +736,6 @@ export default {
     hideSearchDropdown: function () {
       this.search_key_focus = false;
       document.removeEventListener("click", this.hideSearchDropdown);
-    },
-    deleteCart(id) {
-      if (confirm("Are you sure?")) {
-        let url = this.getUrl("cart/delete/" + id);
-        axios.get(url).then((response) => {
-          if (response.data.error) {
-            toastr.error(response.data.error, this.lang.Error + " !!");
-          } else {
-            this.$store.dispatch("carts", response.data.carts);
-          }
-        });
-      }
     },
     searchProducts() {
       this.search_bar = true;
@@ -1088,21 +1086,108 @@ input.input-text {
 }
 
 .cart-item {
-  align-items: center !important;
-  border-bottom: none !important;
+  align-items: flex-start !important;
+  border-bottom: 1px solid #eee !important;
   display: flex;
   justify-content: space-between;
+  padding: 15px 0;
+  flex-wrap: wrap;
+}
+
+.cart-item-img {
+  flex: 0 0 60px;
+  margin-right: 15px;
+}
+
+.cart-item-img img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.cart-item-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.offcanvas-body .item-name {
+  color: #0B0B0B !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.product-quantity {
+  margin: 8px 0;
+}
+
+.product-quantity .quantity {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.product-quantity .quantity a {
+  padding: 4px 10px;
+  background: #f5f5f5;
+  text-decoration: none;
+  color: #333;
+  cursor: pointer;
+}
+
+.product-quantity .quantity a:hover {
+  background: #e0e0e0;
+}
+
+.product-quantity .quantity input {
+  width: 40px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  font-weight: 600;
 }
 
 .item-qnt {
-  color: #0B0B0B !important;
-  font-size: 15px !important;
+  color: #ff6b6b !important;
+  font-size: 16px !important;
+  font-weight: 600;
 }
 
 span.item-qnt-details {
   font-size: 12px !important;
-  color: black !important;
-  font-weight: 500;
+  color: #666 !important;
+  font-weight: 400;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 576px) {
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .cart-item-img {
+    flex: 0 0 100%;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .cart-item-img img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .cart-item-details {
+    width: 100%;
+  }
+
+  .offcanvas-body .item-name {
+    font-size: 13px !important;
+  }
 }
 
 .offcanvas-title {

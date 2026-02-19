@@ -23,9 +23,10 @@
                 </td>
                 <td>
                   <div v-if="cart.discount > 0">
-                    <del>{{ priceFormat((cart.price + cart.discount)) }}</del>
+                    <del style="color: #999;">{{ priceFormat(cart.original_price) }}</del>
+                    <span style="color: #ff6b6b; font-weight: 600; margin-left: 5px;">{{ priceFormat(cart.price) }}</span>
                   </div>
-                  <span>{{ priceFormat(cart.price) }}</span>
+                  <span v-else>{{ priceFormat(cart.price) }}</span>
                 </td>
                 <td>
                   <div class="product-quantity">
@@ -909,7 +910,11 @@ export default {
         for (let i = 0; i < carts.length; i++) {
           this.payment_form.quantity.push({id: carts[i].id, quantity: carts[i].quantity});
           this.carts.push(carts[i]);
-          this.payment_form.sub_total += parseFloat(carts[i].price * carts[i].quantity);
+          // CRITICAL FIX: Subtotal is always calculated from ORIGINAL price
+          // Use original_price if available, otherwise fall back to price
+          const originalPrice = carts[i].original_price || carts[i].price;
+          this.payment_form.sub_total += parseFloat(originalPrice * carts[i].quantity);
+          // discount_offer is the campaign/special discount amount
           this.payment_form.discount_offer += (parseFloat(carts[i].discount) * carts[i].quantity);
           this.payment_form.tax += parseFloat(carts[i].tax * carts[i].quantity);
         }
@@ -949,6 +954,8 @@ export default {
       }
 
       // Recalculate total
+      // Formula: (subtotal - discount_offer - coupon_discount) + tax + shipping
+      // Where subtotal is based on ORIGINAL prices
       if (this.settings.tax_type == 'after_tax' && this.settings.vat_and_tax_type == 'order_base') {
         this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.shipping_tax)) - (parseFloat(this.payment_form.discount_offer) + parseFloat(this.payment_form.coupon_discount)));
         this.payment_form.total += this.payment_form.tax;

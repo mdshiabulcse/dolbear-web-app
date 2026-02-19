@@ -3,9 +3,9 @@
 
         <div class="product-card" v-if="product?.slug != undefined">
             <!-- Campaign Badge -->
-            <div class="product-badge" v-if="product.discount_info && product.discount_info.badge_text"
-                 :style="{ backgroundColor: product.discount_info.badge_color || '#ff0000' }">
-                {{ product.discount_info.badge_text }}
+            <div class="product-badge" v-if="getCampaignBadgeText()"
+                 :style="{ backgroundColor: getCampaignBadgeColor() || '#ff0000' }">
+                {{ getCampaignBadgeText() }}
             </div>
 
             <img :src="product.image_190x230" isloading="lazy" @click="openModal(product.slug)" :alt="product.product_name" class="img-fluid transition-transform hover-zoom"
@@ -18,10 +18,10 @@
 
             <!-- Campaign/Event Price Display (HIGHEST PRIORITY) -->
             <!-- Event active: Original price (crossed) | Event price (main) -->
-            <div class="d-flex justify-content-center price" v-if="product.campaign_price && parseFloat(product.campaign_price) < parseFloat(product.price)">
-                <span class="price original"><del>{{ priceFormat(product?.price) }}</del></span>
+            <div class="d-flex justify-content-center price" v-if="hasCampaignPrice()">
+                <span class="price original"><del>{{ priceFormat(getCampaignOriginalPrice()) }}</del></span>
                 <span class="line">|</span>
-                <span class="price discount">{{ priceFormat(product?.campaign_price) }}</span>
+                <span class="price discount">{{ priceFormat(getCampaignPrice()) }}</span>
             </div>
             <!-- General Discount Only (No active event) -->
             <!-- Original price (crossed) | Discounted price (main) -->
@@ -36,9 +36,9 @@
             </div>
 
             <!-- Campaign Discount Badge -->
-            <div class="product-offer" v-if="product.discount_info && product.discount_info.formatted_discount">
+            <div class="product-offer" v-if="getCampaignDiscountText()">
                 <div class="product-offer-text">
-                    {{ product.discount_info.formatted_discount }} {{ lang.off || 'OFF' }}
+                    {{ getCampaignDiscountText() }} {{ lang.off || 'OFF' }}
                 </div>
             </div>
             <!-- Special Discount Badge -->
@@ -104,10 +104,60 @@ export default {
                 this.product_form.trx_id = carts[0].trx_id;
             }
             return carts;
-          }
+        },
+        // Helper to determine if product has campaign pricing
+        // Handles both ProductResource format and direct Product model format
+        campaignData() {
+            if (!this.product) return null;
+
+            // ProductResource format: campaign_price is a number, discount_info has the full object
+            if (this.product.discount_info && typeof this.product.discount_info === 'object' && this.product.discount_info.price) {
+                return this.product.discount_info;
+            }
+
+            // Direct Product model format: campaign_price is an object
+            if (this.product.campaign_price && typeof this.product.campaign_price === 'object' && this.product.campaign_price.price) {
+                return this.product.campaign_price;
+            }
+
+            return null;
+        }
     },
 
     methods: {
+        // Campaign price helper methods
+        hasCampaignPrice() {
+            const campaign = this.campaignData;
+            if (!campaign) return false;
+            const price = parseFloat(campaign.price || 0);
+            const originalPrice = parseFloat(this.product?.price || 0);
+            return price > 0 && price < originalPrice;
+        },
+        getCampaignPrice() {
+            const campaign = this.campaignData;
+            return campaign ? campaign.price : this.product?.price;
+        },
+        getCampaignOriginalPrice() {
+            // ProductResource has original_price as separate field
+            if (this.product.original_price) {
+                return this.product.original_price;
+            }
+            // Direct Product model has it in campaign_price object
+            const campaign = this.campaignData;
+            return campaign ? (campaign.original_price || this.product?.price) : this.product?.price;
+        },
+        getCampaignBadgeText() {
+            const campaign = this.campaignData;
+            return campaign ? campaign.badge_text : null;
+        },
+        getCampaignBadgeColor() {
+            const campaign = this.campaignData;
+            return campaign ? campaign.badge_color : null;
+        },
+        getCampaignDiscountText() {
+            const campaign = this.campaignData;
+            return campaign ? campaign.formatted_discount : null;
+        },
         openModal(slug) {
             this.isloading = true
             let set_params = {

@@ -444,8 +444,9 @@ trait HomePage
                     'image_72x72'           => $cart->image_72x72,
                     'image_40x40'           => $cart->image_40x40,
                     'sku'                   => $sku_product ? $sku_product->sku : '',
-                    'discount'              => $cart->discount,
-                    'price'                 => $cart->price,
+                    'original_price'        => $cart->product->price, // Product's original selling price
+                    'price'                 => $cart->price, // Campaign/selling price
+                    'discount'              => $cart->discount, // Campaign discount amount
                     'quantity'              => $cart->quantity,
                     'trx_id'                => $cart->trx_id,
                     'shipping_cost'         => $cart->shipping_cost,

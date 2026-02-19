@@ -68,6 +68,107 @@
     </div>
 </template>
 
+<style scoped>
+/* Campaign Cards Responsive Grid */
+@media screen and (max-width: 576px) {
+    .row [class*="col-"] {
+        padding: 8px;
+    }
+}
+
+@media screen and (max-width: 430px) {
+    .row [class*="col-"] {
+        padding: 6px;
+    }
+}
+
+@media screen and (max-width: 360px) {
+    .row [class*="col-"] {
+        padding: 4px;
+    }
+}
+
+/* Campaign Card Styles */
+.campaign {
+    height: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.campaign:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.campaign img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.campaign:hover img {
+    transform: scale(1.05);
+}
+
+.campaign_title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 10px 0;
+    line-height: 1.4;
+}
+
+.campaign_title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.campaign_title a:hover {
+    color: #1BADEB;
+}
+
+.campaign p {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 15px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Responsive Typography */
+@media screen and (max-width: 576px) {
+    .campaign_title {
+        font-size: 14px;
+    }
+
+    .campaign p {
+        font-size: 12px;
+    }
+
+    .campaign img {
+        height: 150px;
+    }
+}
+
+@media screen and (max-width: 360px) {
+    .campaign_title {
+        font-size: 13px;
+    }
+
+    .campaign p {
+        font-size: 11px;
+    }
+
+    .campaign img {
+        height: 130px;
+    }
+}
+</style>
+
 <script>
 import shimmer from "../partials/shimmer";
 

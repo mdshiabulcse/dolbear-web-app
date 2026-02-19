@@ -22,7 +22,14 @@
             </VueSlickCarousel>
           </div>
 
-          <span class="base" v-if="productDetails.special_discount_check > 0">
+          <!-- Campaign Badge -->
+          <span v-if="productDetails.campaign_price && productDetails.campaign_price.badge_text"
+                class="base campaign-badge"
+                :style="{ backgroundColor: productDetails.campaign_price.badge_color || '#ff0000' }">
+            {{ productDetails.campaign_price.badge_text }}
+          </span>
+          <!-- Special Discount Badge -->
+          <span class="base" v-else-if="productDetails.special_discount_check > 0">
             {{
               productDetails.special_discount_type == "flat"
                 ? priceFormat(productDetails.special_discount_check) +
@@ -130,12 +137,12 @@
 
         <button v-if="productDetails?.free_shipping === 1 || productDetails?.free_shipping === true" class="product-details-card-button buy-now">Free Delivery</button>
 
-        <!-- Campaign Badge -->
-        <div v-if="productDetails.discount_info && productDetails.discount_info.badge_text"
+        <!-- Campaign Badge (shown below image) -->
+        <div v-if="productDetails.campaign_price && productDetails.campaign_price.badge_text"
              class="campaign-badge-section mb-2">
           <span class="badge badge-lg"
-                :style="{ backgroundColor: productDetails.discount_info.badge_color || '#ff0000', color: 'white', fontSize: '14px', padding: '8px 16px' }">
-            {{ productDetails.discount_info.badge_text }}
+                :style="{ backgroundColor: productDetails.campaign_price.badge_color || '#ff0000', color: 'white', fontSize: '14px', padding: '8px 16px' }">
+            {{ productDetails.campaign_price.badge_text }}
           </span>
         </div>
 
@@ -146,8 +153,9 @@
               <h4 class="current-price">
                 <!-- Campaign Price (Highest Priority) -->
                 <!-- Event active: Campaign price (main) -->
-                <template v-if="productDetails.campaign_price && parseFloat(productDetails.campaign_price) < parseFloat(productDetails.price)">
-                  {{ priceFormat(productDetails.campaign_price) }}
+                <!-- campaign_price is an object with {price, original_price, formatted_discount, badge_text, badge_color} -->
+                <template v-if="productDetails.campaign_price && productDetails.campaign_price.price && parseFloat(productDetails.campaign_price.price) < parseFloat(productDetails.price)">
+                  {{ priceFormat(productDetails.campaign_price.price) }}
                 </template>
                 <!-- Special Discount Price (Only when NO campaign is active) -->
                 <!-- General discount: Discounted price (main) -->
@@ -160,15 +168,15 @@
                 </template>
               </h4>
               <!-- Original Price with Strikethrough (shown for any discount) -->
-              <template v-if="(productDetails.campaign_price && parseFloat(productDetails.campaign_price) < parseFloat(productDetails.price)) || productDetails.special_discount_check > 0">
+              <template v-if="(productDetails.campaign_price && productDetails.campaign_price.price && parseFloat(productDetails.campaign_price.price) < parseFloat(productDetails.price)) || productDetails.special_discount_check > 0">
                 <span>|</span>
                 <del><h4>{{ priceFormat(productDetails.price) }}</h4></del>
               </template>
             </div>
             <p>
               <!-- Campaign Discount Label -->
-              <template v-if="productDetails.discount_info && productDetails.discount_info.discount_source === 'campaign'">
-                {{ productDetails.discount_info.formatted_discount }} {{ lang.off || 'OFF' }} - {{ lang.campaign_offer || 'Campaign Offer' }}
+              <template v-if="productDetails.campaign_price && productDetails.campaign_price.price && parseFloat(productDetails.campaign_price.price) < parseFloat(productDetails.price)">
+                {{ productDetails.campaign_price.formatted_discount || '' }} {{ lang.off || 'OFF' }} - {{ lang.campaign_offer || 'Campaign Offer' }}
               </template>
               <!-- Special Discount Label -->
               <template v-else-if="productDetails.special_discount_check > 0">
@@ -397,6 +405,15 @@ export default {
     productDetails() {
 
       if (this.productDetails && this.productDetails.form) {
+        // Debug: Log campaign pricing data
+        console.log('[Product Details Card] Campaign Pricing Check:', {
+          product_name: this.productDetails.product_name,
+          price: this.productDetails.price,
+          campaign_price: this.productDetails.campaign_price,
+          campaign_price_value: this.productDetails.campaign_price?.price,
+          has_campaign_discount: this.productDetails.has_campaign_discount,
+        });
+
         if (this.productDetails.special_discount_check > 0) {
           this.setCountDown();
         }
@@ -632,7 +649,8 @@ export default {
       });
     },
     priceFind() {
-      let price = this.productDetails.price;
+      // Use campaign price if available, otherwise use regular price
+      let price = this.productDetails.campaign_price?.price || this.productDetails.price;
 
       if (this.productDetails.wholesale_prices) {
         let whole_sales = this.productDetails.wholesale_prices;

@@ -191,21 +191,25 @@ class ProductController extends Controller
             $product->current_stock = $product->stock->sum('current_stock');
 
             // Add campaign pricing to product
+            // Note: The Product model already has getCampaignPriceAttribute() accessor
+            // that provides campaign pricing data. When serialized to JSON, this accessor
+            // returns an array with campaign_price, original_price, discount_info, etc.
+            // We just need to ensure has_campaign_discount is set for frontend convenience.
             try {
-                if (class_exists(\App\Services\CampaignPricingService::class)) {
-                    $pricingService = app(\App\Services\CampaignPricingService::class);
-                    $campaignPricing = $pricingService->getCampaignPrice($product->id);
+                $campaignPrice = $product->campaign_price;
+                $product->has_campaign_discount = !empty($campaignPrice) && isset($campaignPrice['price']) && $campaignPrice['price'] > 0;
 
-                    if ($campaignPricing) {
-                        $product->campaign_price = $campaignPricing['price'];
-                        $product->original_price = $campaignPricing['original_price'];
-                        $product->discount_info = $campaignPricing;
-                        $product->has_campaign_discount = true;
-                    } else {
-                        $product->has_campaign_discount = false;
-                    }
-                }
+                \Log::info('ProductController: Campaign pricing check', [
+                    'product_id' => $product->id,
+                    'product_slug' => $product->slug,
+                    'has_campaign_discount' => $product->has_campaign_discount,
+                    'campaign_price_data' => $campaignPrice,
+                ]);
             } catch (\Exception $e) {
+                \Log::error('ProductController: Campaign pricing error', [
+                    'product_id' => $product->id,
+                    'error' => $e->getMessage(),
+                ]);
                 $product->has_campaign_discount = false;
             }
 

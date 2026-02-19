@@ -55,10 +55,10 @@
           </VueSlickCarousel>
 
           <!-- Campaign Badge -->
-          <span v-if="productDetails.discount_info && productDetails.discount_info.badge_text"
+          <span v-if="productDetails.campaign_price && productDetails.campaign_price.badge_text"
                 class="base campaign-badge"
-                :style="{ backgroundColor: productDetails.discount_info.badge_color || '#ff0000' }">
-            {{ productDetails.discount_info.badge_text }}
+                :style="{ backgroundColor: productDetails.campaign_price.badge_color || '#ff0000' }">
+            {{ productDetails.campaign_price.badge_text }}
           </span>
           <!-- Special Discount Badge -->
           <span class="base" v-else-if="productDetails.special_discount_check > 0">
@@ -185,15 +185,16 @@
               <div class="sg-product-price" v-if="!productDetails.is_wholesale">
                 <!-- Campaign Price Display (HIGHEST PRIORITY) -->
                 <!-- Event active: Campaign price (main) | Original price (crossed) -->
-                <template v-if="productDetails.campaign_price && parseFloat(productDetails.campaign_price) < parseFloat(productDetails.price)">
-                  <span>{{ priceFormat(productDetails.campaign_price) }}</span>
-                  <del>{{ priceFormat(productDetails.price) }}</del>
+                <!-- campaign_price is an object with {price, original_price, formatted_discount, badge_text, badge_color} -->
+                <template v-if="productDetails.campaign_price && productDetails.campaign_price.price && parseFloat(productDetails.campaign_price.price) < parseFloat(productDetails.price)">
+                  <span>{{ priceFormat(productDetails.campaign_price.price) }}</span>
+                  <del>{{ priceFormat(productDetails.campaign_price.original_price || productDetails.price) }}</del>
                   <p class="text-start">
                     {{ lang.you_save }}
                     <span>{{
-                      productDetails.discount_info && productDetails.discount_info.formatted_discount
-                        ? productDetails.discount_info.formatted_discount
-                        : priceFormat(productDetails.price - productDetails.campaign_price)
+                      productDetails.campaign_price.formatted_discount
+                        ? productDetails.campaign_price.formatted_discount
+                        : priceFormat((productDetails.campaign_price.original_price || productDetails.price) - productDetails.campaign_price.price)
                     }}</span>
                   </p>
                 </template>
@@ -1255,7 +1256,8 @@ const Analytics = {
     trackProductView(productDetails, activeCurrency) {
         if (!this.isGTMReady() || !productDetails) return;
         try {
-            const price = productDetails.sale_price || productDetails.product_stock?.price || productDetails.price || 0;
+            // Use campaign price if available, otherwise fall back to other prices
+            const price = productDetails.campaign_price?.price || productDetails.sale_price || productDetails.product_stock?.price || productDetails.price || 0;
             const sku = productDetails.product_stock?.sku || productDetails.sku || String(productDetails.id);
             const category = productDetails.category_name || productDetails.category?.name || '';
             const currency = this.getCurrencyCode(activeCurrency);
@@ -1279,7 +1281,7 @@ const Analytics = {
             // NOTE: Facebook Pixel tracking handled by GTM container (GTM-54BWTWX9)
             // DO NOT call fbq('track', 'ViewContent') directly - GTM will handle it
 
-            console.log('[Analytics] Product view tracked:', productDetails.product_name, 'Currency:', currency);
+            console.log('[Analytics] Product view tracked:', productDetails.product_name, 'Price:', price, 'Currency:', currency);
         } catch (error) {
             console.error('[Analytics] Error tracking product view:', error);
         }
@@ -1287,7 +1289,8 @@ const Analytics = {
     trackAddToCart(productDetails, quantity, activeCurrency) {
         if (!this.isGTMReady() || !productDetails) return;
         try {
-            const price = productDetails.sale_price || productDetails.product_stock?.price || productDetails.price || 0;
+            // Use campaign price if available, otherwise fall back to other prices
+            const price = productDetails.campaign_price?.price || productDetails.sale_price || productDetails.product_stock?.price || productDetails.price || 0;
             const sku = productDetails.product_stock?.sku || productDetails.sku || String(productDetails.id);
             const category = productDetails.category_name || productDetails.category?.name || '';
             const currency = this.getCurrencyCode(activeCurrency);
@@ -1320,7 +1323,8 @@ const Analytics = {
     trackAddToWishlist(productDetails, activeCurrency) {
         if (!this.isGTMReady() || !productDetails) return;
         try {
-            const price = productDetails.sale_price || productDetails.product_stock?.price || productDetails.price || 0;
+            // Use campaign price if available, otherwise fall back to other prices
+            const price = productDetails.campaign_price?.price || productDetails.sale_price || productDetails.product_stock?.price || productDetails.price || 0;
             const sku = productDetails.product_stock?.sku || productDetails.sku || String(productDetails.id);
             const category = productDetails.category_name || productDetails.category?.name || '';
             const currency = this.getCurrencyCode(activeCurrency);
@@ -1344,7 +1348,7 @@ const Analytics = {
             // NOTE: Facebook Pixel tracking handled by GTM container (GTM-54BWTWX9)
             // DO NOT call fbq('track', 'AddToWishlist') directly - GTM will handle it
 
-            console.log('[Analytics] Add to wishlist tracked:', productDetails.product_name, 'Currency:', currency);
+            console.log('[Analytics] Add to wishlist tracked:', productDetails.product_name, 'Price:', price, 'Currency:', currency);
         } catch (error) {
             console.error('[Analytics] Error tracking add to wishlist:', error);
         }
@@ -1488,6 +1492,16 @@ export default {
   watch: {
     productDetails() {
       if (this.productDetails && this.productDetails.form) {
+        // Debug: Log campaign pricing data
+        console.log('[Product Details] Campaign Pricing Check:', {
+          product_name: this.productDetails.product_name,
+          price: this.productDetails.price,
+          campaign_price: this.productDetails.campaign_price,
+          campaign_price_value: this.productDetails.campaign_price?.price,
+          has_campaign_discount: this.productDetails.has_campaign_discount,
+          price_comparison: this.productDetails.campaign_price?.price && parseFloat(this.productDetails.campaign_price.price) < parseFloat(this.productDetails.price)
+        });
+
         if (this.productDetails.special_discount_check > 0) {
           this.setCountDown();
         }
@@ -1661,7 +1675,8 @@ export default {
       });
     },
     priceFind() {
-      let price = this.productDetails.price;
+      // Use campaign price if available, otherwise use regular price
+      let price = this.productDetails.campaign_price?.price || this.productDetails.price;
 
       if (this.productDetails.wholesale_prices) {
         let whole_sales = this.productDetails.wholesale_prices;

@@ -423,11 +423,50 @@ class CartRepository implements CartInterface
             return 'out_of_stock';
 
         //check for wholesale product
+        $discount = 0.00;
         if ($product->is_wholesale):
             $wholesale_price = $product_stock->wholeSalePrice->where('min_qty', '<=', $cart_item->quantity + $request->quantity)->where('max_qty', '>=', $cart_item->quantity + $request->quantity)->first();
             if (!blank($wholesale_price)):
                 $price = $wholesale_price->price;
             endif;
+        else:
+            // CRITICAL FIX: Re-check campaign pricing on cart update
+            // This ensures that if campaign expires or becomes active, cart prices update
+            try {
+                if (class_exists(\App\Services\CampaignPricingService::class)) {
+                    $pricingService = app(\App\Services\CampaignPricingService::class);
+                    $campaignPricing = $pricingService->getCampaignPrice($product->id);
+
+                    if ($campaignPricing && $campaignPricing['price'] < $price) {
+                        // Campaign pricing applies - calculate discount from original price
+                        $price = $campaignPricing['price'];
+                        $discount = $campaignPricing['original_price'] - $price;
+                    } elseif (special_discount_applicable($product)) {
+                        // No active campaign, use special discount
+                        if ($product->special_discount_type == 'flat'):
+                            $discount   = $product->special_discount;
+                        elseif ($product->special_discount_type == 'percentage'):
+                            $discount   = ($price * $product->special_discount) / 100;
+                        endif;
+                    }
+                } elseif (special_discount_applicable($product)) {
+                    // CampaignPricingService not available, fallback to special discount only
+                    if ($product->special_discount_type == 'flat'):
+                        $discount   = $product->special_discount;
+                    elseif ($product->special_discount_type == 'percentage'):
+                        $discount   = ($price * $product->special_discount) / 100;
+                    endif;
+                }
+            } catch (\Exception $e) {
+                // If campaign pricing fails, fallback to special discount
+                if (special_discount_applicable($product)):
+                    if ($product->special_discount_type == 'flat'):
+                        $discount   = $product->special_discount;
+                    elseif ($product->special_discount_type == 'percentage'):
+                        $discount   = ($price * $product->special_discount) / 100;
+                    endif;
+                endif;
+            }
         endif;
 
         //shipping calculation
@@ -447,6 +486,7 @@ class CartRepository implements CartInterface
         }
 
         $cart_item->price = $price;
+        $cart_item->discount = $discount;
         $cart_item->shipping_cost = $shipping_cost;
         $cart_item->save();
 
