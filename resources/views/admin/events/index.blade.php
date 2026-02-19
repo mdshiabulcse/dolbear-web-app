@@ -39,45 +39,121 @@
                                 <tr>
                                     <th>#</th>
                                     <th>{{ __('Campaign Name') }}</th>
-                                    <th>{{ __('Slug') }}</th>
                                     <th>{{ __('Type') }}</th>
-                                    <th>{{ __('Start Date & Time') }}</th>
-                                    <th>{{ __('End Date & Time') }}</th>
-                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Priority') }}</th>
+                                    <th>{{ __('Start') }}</th>
+                                    <th>{{ __('End') }}</th>
+                                    <th>{{ __('Current Status') }}</th>
                                     <th>{{ __('Products') }}</th>
                                     <th>{{ __('Actions') }}</th>
                                 </tr>
                                 @foreach ($events as $key => $event)
                                     @php
-                                        // Determine campaign status
+                                        // Determine campaign status based on type and time
                                         $now = \Carbon\Carbon::now();
+                                        $currentTime = $now->format('H:i:s');
+                                        $currentDateTime = $now->format('Y-m-d H:i:s');
+
                                         $statusBadge = 'secondary';
                                         $statusText = __('Draft');
+                                        $statusDescription = '';
 
+                                        // Check if event is enabled (status=active AND is_active=1)
                                         if ($event->status == 'active' && $event->is_active) {
-                                            if ($event->is_active_now) {
-                                                $statusBadge = 'success';
-                                                $statusText = __('Active');
-                                            } elseif ($event->event_schedule_start && $now->lt(\Carbon\Carbon::parse($event->event_schedule_start))) {
-                                                $statusBadge = 'info';
-                                                $statusText = __('Upcoming');
+
+                                            // Check based on event type
+                                            if ($event->event_type == 'daily') {
+                                                // Daily event (Sehri/Iftar) - check time window
+                                                if ($event->daily_start_time && $event->daily_end_time) {
+                                                    if ($currentTime >= $event->daily_start_time && $currentTime <= $event->daily_end_time) {
+                                                        $statusBadge = 'success';
+                                                        $statusText = __('Active Now');
+                                                        $statusDescription = __('Daily time window active');
+                                                    } else {
+                                                        // Check if time window has passed for today
+                                                        if ($currentTime > $event->daily_end_time) {
+                                                            $statusBadge = 'dark';
+                                                            $statusText = __('Ended Today');
+                                                            $statusDescription = __('Time window ended');
+                                                        } else {
+                                                            $statusBadge = 'info';
+                                                            $statusText = __('Upcoming');
+                                                            $statusDescription = __('Starting at') . ' ' . $event->daily_start_time;
+                                                        }
+                                                    }
+                                                } else {
+                                                    // Daily event without time set
+                                                    $statusBadge = 'warning';
+                                                    $statusText = __('No Time Set');
+                                                    $statusDescription = __('Daily time not configured');
+                                                }
+
+                                            } elseif ($event->event_type == 'date_range') {
+                                                // Date range event (Monthly/General) - check date window
+                                                if ($event->event_schedule_start && $event->event_schedule_end) {
+                                                    if ($currentDateTime >= $event->event_schedule_start && $currentDateTime <= $event->event_schedule_end) {
+                                                        $statusBadge = 'success';
+                                                        $statusText = __('Active Now');
+                                                        $statusDescription = __('Within date range');
+                                                    } elseif ($currentDateTime < $event->event_schedule_start) {
+                                                        $statusBadge = 'info';
+                                                        $statusText = __('Upcoming');
+                                                        $statusDescription = __('Starts') . ' ' . \Carbon\Carbon::parse($event->event_schedule_start)->format('M d H:i');
+                                                    } else {
+                                                        $statusBadge = 'dark';
+                                                        $statusText = __('Expired');
+                                                        $statusDescription = __('Ended') . ' ' . \Carbon\Carbon::parse($event->event_schedule_end)->format('M d H:i');
+                                                    }
+                                                } else {
+                                                    $statusBadge = 'warning';
+                                                    $statusText = __('No Dates Set');
+                                                    $statusDescription = __('Schedule not configured');
+                                                }
+                                            } else {
+                                                $statusBadge = 'secondary';
+                                                $statusText = __('Unknown Type');
+                                                $statusDescription = __('Event type: ' . $event->event_type);
                                             }
+
                                         } elseif ($event->status == 'expired') {
                                             $statusBadge = 'dark';
                                             $statusText = __('Expired');
+                                            $statusDescription = __('Manually expired');
                                         } elseif ($event->status == 'paused') {
                                             $statusBadge = 'warning';
                                             $statusText = __('Paused');
+                                            $statusDescription = __('Temporarily paused');
+                                        } elseif ($event->status == 'draft') {
+                                            $statusBadge = 'secondary';
+                                            $statusText = __('Draft');
+                                            $statusDescription = __('Not yet published');
                                         }
 
                                         // Campaign type label
                                         $campaignTypeLabel = match($event->campaign_type ?? 'product') {
-                                            'product' => __('Product-based'),
-                                            'category' => __('Category-based'),
-                                            'brand' => __('Brand-based'),
-                                            'event' => __('Event-based'),
-                                            default => __('Product-based')
+                                            'product' => __('Product'),
+                                            'category' => __('Category'),
+                                            'brand' => __('Brand'),
+                                            'event' => __('Event'),
+                                            default => __('Product')
                                         };
+
+                                        // Event type label
+                                        $eventTypeLabel = match($event->event_type ?? 'date_range') {
+                                            'daily' => __('Daily (Sehri/Iftar)'),
+                                            'date_range' => __('Date Range (Monthly)'),
+                                            'recurring' => __('Recurring'),
+                                            default => __('Date Range')
+                                        };
+
+                                        // Format start/end display based on event type
+                                        if ($event->event_type == 'daily') {
+                                            $startDisplay = $event->daily_start_time ?? '-';
+                                            $endDisplay = $event->daily_end_time ?? '-';
+                                        } else {
+                                            $startDisplay = $event->event_schedule_start ? \Carbon\Carbon::parse($event->event_schedule_start)->format('M d, Y H:i') : '-';
+                                            $endDisplay = $event->event_schedule_end ? \Carbon\Carbon::parse($event->event_schedule_end)->format('M d, Y H:i') : '-';
+                                        }
                                     @endphp
 
                                     <tr id="row_{{ $event->id }}" class="table-data-row">
@@ -90,28 +166,38 @@
                                                 <br>
                                                 <small class="text-muted">{{ $campaignTypeLabel }}</small>
                                             @endif
+                                            @if($event->description)
+                                                <br>
+                                                <small class="text text-truncate" style="max-width: 200px; display: inline-block;">
+                                                    {{ \Str::limit($event->description, 50) }}
+                                                </small>
+                                            @endif
                                         </td>
                                         <td>
-                                            <code>{{ $event->slug }}</code>
+                                            <span class="badge badge-light">{{ $eventTypeLabel }}</span>
                                             <br>
-                                            <small class="text-muted">
-                                                <a href="{{ url('campaign/' . $event->slug) }}" target="_blank">
-                                                    <i class="bx bx-link-external"></i> {{ __('View') }}
-                                                </a>
-                                            </small>
+                                            <small class="text-muted">{{ $campaignTypeLabel }}</small>
                                         </td>
                                         <td>
-                                            <span class="badge badge-light">{{ $campaignTypeLabel }}</span>
+                                            <span class="badge badge-primary">{{ $event->event_priority }}</span>
+                                            <small class="text-muted d-block">{{ __('Lower = Higher') }}</small>
                                         </td>
-                                        <td>{{ $event->event_schedule_start ? date('M d, Y H:i', strtotime($event->event_schedule_start)) : '-' }}</td>
-                                        <td>{{ $event->event_schedule_end ? date('M d, Y H:i', strtotime($event->event_schedule_end)) : '-' }}</td>
                                         <td>
-                                            <span class="badge badge-{{ $statusBadge }}">
+                                            {{ $startDisplay }}
+                                        </td>
+                                        <td>
+                                            {{ $endDisplay }}
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-{{ $statusBadge }} d-block mb-1">
                                                 {{ $statusText }}
                                             </span>
+                                            @if($statusDescription)
+                                                <small class="text-muted">{{ $statusDescription }}</small>
+                                            @endif
                                         </td>
                                         <td>
-                                            <span class="badge badge-info">{{ $event->total_products }}</span>
+                                            <span class="badge badge-info">{{ $event->total_products ?? 0 }}</span>
                                         </td>
                                         <td>
                                             <div class="btn-group">

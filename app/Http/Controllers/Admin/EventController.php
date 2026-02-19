@@ -107,9 +107,10 @@ class EventController extends Controller
                     ->withInput();
             }
 
-            // Check for overlapping campaigns only when activating
+            // Check for overlapping campaigns only for date_range events when activating
+            // Daily time-slotted events (Iftar, Sehri) can overlap with each other
             if ($request->status == 'active' && $request->event_type == 'date_range') {
-                Log::info('EventController::store - Checking for overlapping campaigns');
+                Log::info('EventController::store - Checking for overlapping date_range campaigns');
                 $overlapping = Event::where('status', 'active')
                     ->where('is_active', 1)
                     ->where('event_type', 'date_range')
@@ -123,8 +124,31 @@ class EventController extends Controller
                     })->exists();
 
                 if ($overlapping) {
-                    Log::warning('EventController::store - Overlapping campaign detected');
-                    Toastr::error(__('Cannot create campaign: It overlaps with an existing active campaign. Only one campaign can be active at a time.'));
+                    Log::warning('EventController::store - Overlapping date_range campaign detected');
+                    Toastr::error(__('Cannot create campaign: It overlaps with an existing active date_range campaign. Only one date_range campaign can be active at a time. Daily time-slotted events (Iftar, Sehri) can overlap.'));
+                    return back()->withInput();
+                }
+            }
+
+            // For daily events, check if the time slot overlaps with another daily event's time slot
+            if ($request->status == 'active' && $request->event_type == 'daily' && $request->daily_start_time && $request->daily_end_time) {
+                Log::info('EventController::store - Checking for overlapping daily event time slots');
+                $overlapping = Event::where('status', 'active')
+                    ->where('is_active', 1)
+                    ->where('event_type', 'daily')
+                    ->where(function ($q) use ($request) {
+                        $q->where(function ($query) use ($request) {
+                            // Check if the new time slot overlaps with existing time slot
+                            $query->where('daily_start_time', '<=', $request->daily_end_time)
+                                  ->where('daily_end_time', '>=', $request->daily_start_time);
+                        });
+                    })
+                    ->whereNot('id', $request->id ?? 0) // Exclude current event when updating
+                    ->exists();
+
+                if ($overlapping) {
+                    Log::warning('EventController::store - Overlapping daily event time slot detected');
+                    Toastr::error(__('Cannot create campaign: The time slot overlaps with another daily event. Please choose a different time slot.'));
                     return back()->withInput();
                 }
             }
@@ -441,9 +465,9 @@ class EventController extends Controller
                     ->withInput();
             }
 
-            // Check for overlapping campaigns only when activating
+            // Check for overlapping campaigns only for date_range events when activating
             if ($request->status == 'active' && $request->event_type == 'date_range' && $event->status != 'active') {
-                Log::info('EventController::update - Checking for overlapping campaigns');
+                Log::info('EventController::update - Checking for overlapping date_range campaigns');
                 $overlapping = Event::where('status', 'active')
                     ->where('is_active', 1)
                     ->where('event_type', 'date_range')
@@ -458,8 +482,30 @@ class EventController extends Controller
                     })->exists();
 
                 if ($overlapping) {
-                    Log::warning('EventController::update - Overlapping campaign detected');
-                    Toastr::error(__('Cannot create campaign: It overlaps with an existing active campaign. Only one campaign can be active at a time.'));
+                    Log::warning('EventController::update - Overlapping date_range campaign detected');
+                    Toastr::error(__('Cannot activate campaign: It overlaps with an existing active date_range campaign. Only one date_range campaign can be active at a time.'));
+                    return back()->withInput();
+                }
+            }
+
+            // For daily events, check if the time slot overlaps with another daily event's time slot
+            if ($request->status == 'active' && $request->event_type == 'daily' && $request->daily_start_time && $request->daily_end_time) {
+                Log::info('EventController::update - Checking for overlapping daily event time slots');
+                $overlapping = Event::where('status', 'active')
+                    ->where('is_active', 1)
+                    ->where('event_type', 'daily')
+                    ->where('id', '!=', $id)
+                    ->where(function ($q) use ($request) {
+                        $q->where(function ($query) use ($request) {
+                            // Check if the new time slot overlaps with existing time slot
+                            $query->where('daily_start_time', '<=', $request->daily_end_time)
+                                  ->where('daily_end_time', '>=', $request->daily_start_time);
+                        });
+                    })->exists();
+
+                if ($overlapping) {
+                    Log::warning('EventController::update - Overlapping daily event time slot detected');
+                    Toastr::error(__('Cannot activate campaign: The time slot overlaps with another daily event. Please choose a different time slot.'));
                     return back()->withInput();
                 }
             }
@@ -519,6 +565,30 @@ class EventController extends Controller
                 $updateData['badge_color'] = $request->badge_color;
             }
 
+            // CRITICAL: Check original state BEFORE update
+            // getOriginal() must be called before update() to get the actual previous values
+            $originalStatus = $event->getOriginal('status');
+            $originalIsActive = $event->getOriginal('is_active');
+            $wasActive = $originalIsActive && $originalStatus == 'active';
+            $shouldBeActive = $request->status == 'active';
+
+            Log::info('EventController::update - Checking activation state', [
+                'event_id' => $event->id,
+                'original_status' => $originalStatus,
+                'original_is_active' => $originalIsActive,
+                'was_active' => $wasActive,
+                'new_status' => $request->status,
+                'should_be_active' => $shouldBeActive,
+            ]);
+
+            // If activating, don't set is_active in updateData - let activate() handle it
+            // This ensures activated_at is set correctly
+            if ($shouldBeActive && !$wasActive) {
+                // Remove is_active from updateData - activate() will set it with activated_at
+                unset($updateData['is_active']);
+                Log::info('EventController::update - Will activate after update', ['event_id' => $event->id]);
+            }
+
             Log::info('EventController::update - Updating event', ['event_id' => $event->id]);
 
             $event->update($updateData);
@@ -529,16 +599,20 @@ class EventController extends Controller
             ]);
 
             // Handle activation for active campaigns (single-active enforcement)
-            $wasActive = $event->getOriginal('is_active') && $event->getOriginal('status') == 'active';
-            $shouldBeActive = $request->status == 'active';
-
             if ($shouldBeActive && !$wasActive) {
-                // Activating - use single-active logic
+                // Activating - use single-active logic (this sets activated_at)
                 Log::info('EventController::update - Activating event', ['event_id' => $event->id]);
                 try {
                     $event->activate();
+                    Log::info('EventController::update - Event activated successfully', ['event_id' => $event->id]);
                 } catch (\Exception $activateError) {
                     Log::error('EventController::update - Activation failed', ['error' => $activateError->getMessage()]);
+                }
+            } elseif (!$shouldBeActive && $wasActive) {
+                // Deactivating - set deactivated_at
+                Log::info('EventController::update - Deactivating event', ['event_id' => $event->id]);
+                if (Schema::hasColumn('events', 'deactivated_at')) {
+                    $event->update(['deactivated_at' => Carbon::now()]);
                 }
             }
 
@@ -904,11 +978,11 @@ class EventController extends Controller
         try {
             $request->validate([
                 'event_price' => 'nullable|numeric|min:0',
-                'discount_amount' => 'required|numeric|min:0',
-                'discount_type' => 'required|in:flat,percentage',
-                'product_priority' => 'required|integer|min:0',
+                'discount_amount' => 'nullable|numeric|min:0',
+                'discount_type' => 'nullable|in:flat,percentage',
+                'product_priority' => 'nullable|integer|min:0',
                 'event_stock' => 'nullable|integer|min:1',
-                'is_active' => 'required|in:0,1',
+                'is_active' => 'nullable|in:0,1',
                 'badge_text' => 'nullable|string|max:255',
                 'badge_color' => 'nullable|string|max:20',
             ]);
@@ -919,13 +993,19 @@ class EventController extends Controller
 
             $product = $eventProduct->product;
 
+            // Get values with defaults
+            $discountAmount = $request->discount_amount ?? 0;
+            $discountType = $request->discount_type ?? 'flat';
+            $productPriority = $request->product_priority ?? 0;
+            $isActive = $request->is_active ?? 1;
+
             // Calculate event price if not provided
             $eventPrice = $request->event_price;
             if ($eventPrice === null || $eventPrice === '') {
-                if ($request->discount_type == 'percentage') {
-                    $eventPrice = $product->price - ($product->price * ($request->discount_amount / 100));
+                if ($discountType == 'percentage') {
+                    $eventPrice = $product->price - ($product->price * ($discountAmount / 100));
                 } else {
-                    $eventPrice = $product->price - $request->discount_amount;
+                    $eventPrice = $product->price - $discountAmount;
                 }
             }
             $eventPrice = max(0, $eventPrice);
@@ -933,11 +1013,11 @@ class EventController extends Controller
             // Prepare update data
             $updateData = [
                 'event_price' => $eventPrice,
-                'discount_amount' => $request->discount_amount,
-                'discount_type' => $request->discount_type,
-                'product_priority' => $request->product_priority,
-                'is_active' => $request->is_active,
-                'status' => $request->is_active ? 'active' : 'paused',
+                'discount_amount' => $discountAmount,
+                'discount_type' => $discountType,
+                'product_priority' => $productPriority,
+                'is_active' => $isActive,
+                'status' => $isActive ? 'active' : 'paused',
                 'badge_text' => $request->badge_text,
                 'badge_color' => $request->badge_color,
                 'updated_by' => authId() ?? 1,

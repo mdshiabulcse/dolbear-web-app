@@ -21,11 +21,16 @@ class CampaignPaginateResource extends ResourceCollection
                 return [
                     'id'                    => $data->id,
                     'slug'                  => $data->slug,
-                    'title'                 => $title ?: $data->title,
-                    'short_description'     => $description ?: nullCheck($data->short_description),
-                    'campaign_start_date'   => nullCheck($data->campaign_start_date),
-                    'campaign_end_date'     => nullCheck($data->campaign_end_date),
+                    'title'                 => $title ?: ($data->event_title ?? $data->title),
+                    'short_description'     => $description ?: nullCheck($data->short_description ?? $data->description),
+                    'event_title'           => $data->event_title ?? $data->title,
+                    'description'           => $data->description ?? $data->short_description,
+                    'event_schedule_start'  => nullCheck($data->event_schedule_start ?? $data->campaign_start_date),
+                    'event_schedule_end'    => nullCheck($data->event_schedule_end ?? $data->campaign_end_date),
                     'image_374x374'         => $data->image_374x374,
+                    'image_1920x412'        => $data->image_1920x412,
+                    'image_406x235'         => $data->image_406x235,
+                    'banner'                => $data->banner_image_original ?? $data->image_1920x412,
                 ];
             }),
 

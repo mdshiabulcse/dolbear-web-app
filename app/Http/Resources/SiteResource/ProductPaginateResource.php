@@ -10,6 +10,12 @@ class ProductPaginateResource extends ResourceCollection
     {
         return [
             'data' => $this->collection->map(function ($data) {
+                // Get campaign price directly from model accessor
+                $campaignPriceData = $data->campaign_price;
+
+                // Get lowest price (includes fallback to special discount)
+                $lowestPrice = $data->lowest_price;
+                $hasCampaign = $lowestPrice && $lowestPrice['discount_source'] === 'campaign';
 
                 return [
                     'id'                        => $data->id,
@@ -31,6 +37,15 @@ class ProductPaginateResource extends ResourceCollection
                     'user_wishlist'             => (bool)$data->userWishlist,
                     'is_catalog'                => (bool)$data->is_catalog,
                     'is_classified'             => (bool)$data->is_classified,
+                    // Campaign pricing fields
+                    // campaign_price: The event price (only if campaign is active)
+                    'campaign_price'            => $hasCampaign && $campaignPriceData ? $campaignPriceData['price'] : null,
+                    // original_price: The original product price (for strikethrough display)
+                    'original_price'            => ($lowestPrice && $lowestPrice['price'] < $data->price) ? $data->price : null,
+                    // has_campaign_discount: Whether product has active campaign discount
+                    'has_campaign_discount'     => $hasCampaign,
+                    // discount_info: Contains badge text, color, discount amount, etc.
+                    'discount_info'             => $campaignPriceData ?? null,
                 ];
             }),
 

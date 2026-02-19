@@ -16,19 +16,21 @@
                 </router-link>
             </p>
 
-            <!-- Campaign Price Display -->
-            <div class="d-flex justify-content-center price" v-if="product.campaign_price && product.campaign_price < product.price">
-                <span class="price original">{{ priceFormat(product?.price) }}</span>
+            <!-- Campaign/Event Price Display (HIGHEST PRIORITY) -->
+            <!-- Event active: Original price (crossed) | Event price (main) -->
+            <div class="d-flex justify-content-center price" v-if="product.campaign_price && parseFloat(product.campaign_price) < parseFloat(product.price)">
+                <span class="price original"><del>{{ priceFormat(product?.price) }}</del></span>
                 <span class="line">|</span>
                 <span class="price discount">{{ priceFormat(product?.campaign_price) }}</span>
             </div>
-            <!-- Special Discount Price Display -->
+            <!-- General Discount Only (No active event) -->
+            <!-- Original price (crossed) | Discounted price (main) -->
             <div class="d-flex justify-content-center price" v-else-if="product.special_discount_check > 0">
-                <span class="price original">{{ priceFormat(product?.discount_percentage) }}</span>
+                <span class="price original"><del>{{ priceFormat(product?.price) }}</del></span>
                 <span class="line">|</span>
-                <span class="price discount">{{ priceFormat(product?.price) }}</span>
+                <span class="price discount">{{ priceFormat(product?.discount_percentage) }}</span>
             </div>
-            <!-- Regular Price Display -->
+            <!-- No Discount - Regular Price -->
             <div class="d-flex justify-content-center price" v-else>
                 <span class="price original">{{ priceFormat(product?.price) }}</span>
             </div>
@@ -91,9 +93,9 @@ export default {
         },
         minWidth: {
         type: String,
-        default: '258px', 
+        default: '258px',
     }
-        
+
     },
     computed: {
         carts() {
@@ -104,7 +106,7 @@ export default {
             return carts;
           }
     },
-    
+
     methods: {
         openModal(slug) {
             this.isloading = true
@@ -114,23 +116,34 @@ export default {
                 trx_id: '',
             }
 
-            this.$store.dispatch('productView', this.slug);
-            if (!this.productDetails) {
-                this.$store.dispatch('productDetails', set_params);
-            }
+            this.$store.dispatch('productView', slug);
+            this.$store.dispatch('productDetails', set_params);
 
-            setTimeout(() => {
+            // Check for product data with multiple retries
+            let retries = 0;
+            const maxRetries = 5;
+            const checkInterval = 200; // 200ms between checks
+
+            const checkProductData = () => {
                 let data = this.$store.getters.getProductDetails;
-                this.productData = data.find(p => p.slug == slug).product
-                this.isloading = false
-            }, 2000);
+                let found = data.find(p => p.slug == slug);
 
+                if (found && found.product) {
+                    this.productData = found.product;
+                    this.isloading = false;
+                    this.$refs.productModal.showModal();
+                } else if (retries < maxRetries) {
+                    retries++;
+                    setTimeout(checkProductData, checkInterval);
+                } else {
+                    this.isloading = false;
+                    console.error('Product not found in store after retries:', { slug, data });
+                    toastr.error("Product not found", "Error !!");
+                }
+            };
 
-
-
-
-          toastr.warning("Select variant", "Warning !!");
-          this.$refs.productModal.showModal()
+            // Start checking after initial delay
+            setTimeout(checkProductData, 300);
         },
 
         addToCart() {
@@ -147,7 +160,7 @@ export default {
           }
 
             this.product_form.id = this.product.id;
-            
+
             let carts = this.carts;
             let url = this.getUrl("user/addToCart");
 
@@ -157,11 +170,11 @@ export default {
                 } else {
                 toastr.success(response.data.success, this.lang.Success + " !!");
                 let carts = response.data.carts;
-                
+
                     this.$store.dispatch("carts", carts);
 
-                
-                
+
+
                 }
             });
         },
@@ -210,7 +223,7 @@ export default {
           }
         }
     },
-  
+
     watch: {
         product() {
         }
@@ -291,15 +304,12 @@ export default {
     position: relative;
 }
 
-.product-card .discount::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
-    height: 2px;
-    background-color: #e63946;
-    transform: translateY(-50%);
+/* Crossed/strikethrough class for original price */
+.crossed {
+    text-decoration: line-through;
+    text-decoration-color: #707070;
+    text-decoration-thickness: 1px;
+    opacity: 0.7;
 }
 
 .product-button-group {
@@ -645,7 +655,7 @@ button.product-button:hover {
 
     .product-card img {
         max-height: 110px;
-        margin-bottom: 5px;
+        margin-bottom: 4px;
     }
 
     .product-card p {

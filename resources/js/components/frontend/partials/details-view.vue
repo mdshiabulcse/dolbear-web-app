@@ -54,7 +54,14 @@
             </div>
           </VueSlickCarousel>
 
-          <span class="base" v-if="productDetails.special_discount_check > 0">
+          <!-- Campaign Badge -->
+          <span v-if="productDetails.discount_info && productDetails.discount_info.badge_text"
+                class="base campaign-badge"
+                :style="{ backgroundColor: productDetails.discount_info.badge_color || '#ff0000' }">
+            {{ productDetails.discount_info.badge_text }}
+          </span>
+          <!-- Special Discount Badge -->
+          <span class="base" v-else-if="productDetails.special_discount_check > 0">
             {{
               productDetails.special_discount_type == "flat"
                 ? priceFormat(productDetails.special_discount_check) +
@@ -176,26 +183,44 @@
                 {{ productDetails.variation_price }}
               </p>
               <div class="sg-product-price" v-if="!productDetails.is_wholesale">
-                <span v-if="productDetails.special_discount_check > 0">{{
-                  priceFormat(productDetails.product_stock.discount_percentage)
-                }}</span>
-                <span v-else>{{
-                  priceFormat(productDetails.product_stock.price)
-                }}</span>
-                <del v-if="productDetails.special_discount_check > 0">
-                  {{ priceFormat(productDetails.product_stock.price) }}
-                </del>
-                <p
-                  class="text-start"
-                  v-if="productDetails.special_discount_check > 0"
-                >
-                  {{ lang.you_save }}
+                <!-- Campaign Price Display (HIGHEST PRIORITY) -->
+                <!-- Event active: Campaign price (main) | Original price (crossed) -->
+                <template v-if="productDetails.campaign_price && parseFloat(productDetails.campaign_price) < parseFloat(productDetails.price)">
+                  <span>{{ priceFormat(productDetails.campaign_price) }}</span>
+                  <del>{{ priceFormat(productDetails.price) }}</del>
+                  <p class="text-start">
+                    {{ lang.you_save }}
+                    <span>{{
+                      productDetails.discount_info && productDetails.discount_info.formatted_discount
+                        ? productDetails.discount_info.formatted_discount
+                        : priceFormat(productDetails.price - productDetails.campaign_price)
+                    }}</span>
+                  </p>
+                </template>
+                <!-- Special Discount Price Display (Only when NO campaign is active) -->
+                <!-- General discount: Discounted price (main) | Original price (crossed) -->
+                <template v-else-if="productDetails.special_discount_check > 0">
                   <span>{{
-                    productDetails.special_discount_type == "flat"
-                      ? priceFormat(productDetails.special_discount_check)
-                      : productDetails.special_discount_check + "%"
+                    priceFormat(productDetails.discount_percentage)
                   }}</span>
-                </p>
+                  <del>{{
+                    priceFormat(productDetails.price)
+                  }}</del>
+                  <p class="text-start">
+                    {{ lang.you_save }}
+                    <span>{{
+                      productDetails.special_discount_type == "flat"
+                        ? priceFormat(productDetails.special_discount_check)
+                        : productDetails.special_discount_check + "%"
+                    }}</span>
+                  </p>
+                </template>
+                <!-- Regular Price Display (No discount) -->
+                <template v-else>
+                  <span>{{
+                    priceFormat(productDetails.price)
+                  }}</span>
+                </template>
               </div>
               <div class="sg-product-price" v-else>
                 <span>{{ priceFormat(productDetails.price) }} </span>

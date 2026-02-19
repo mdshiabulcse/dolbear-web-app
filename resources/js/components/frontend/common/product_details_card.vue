@@ -145,22 +145,24 @@
             <div class="d-flex gap-2 align-items-center">
               <h4 class="current-price">
                 <!-- Campaign Price (Highest Priority) -->
-                <template v-if="productDetails.campaign_price && productDetails.campaign_price < productDetails.product_stock.price">
+                <!-- Event active: Campaign price (main) -->
+                <template v-if="productDetails.campaign_price && parseFloat(productDetails.campaign_price) < parseFloat(productDetails.price)">
                   {{ priceFormat(productDetails.campaign_price) }}
                 </template>
-                <!-- Special Discount Price -->
+                <!-- Special Discount Price (Only when NO campaign is active) -->
+                <!-- General discount: Discounted price (main) -->
                 <template v-else-if="productDetails.special_discount_check > 0">
-                  {{ priceFormat(productDetails.product_stock.discount_percentage) }}
+                  {{ priceFormat(productDetails.discount_percentage) }}
                 </template>
-                <!-- Regular Price -->
+                <!-- Regular Price (No discount) -->
                 <template v-else>
-                  {{ priceFormat(productDetails.product_stock.price) }}
+                  {{ priceFormat(productDetails.price) }}
                 </template>
               </h4>
-              <!-- Original Price with Strikethrough -->
-              <template v-if="(productDetails.campaign_price && productDetails.campaign_price < productDetails.product_stock.price) || productDetails.special_discount_check > 0">
+              <!-- Original Price with Strikethrough (shown for any discount) -->
+              <template v-if="(productDetails.campaign_price && parseFloat(productDetails.campaign_price) < parseFloat(productDetails.price)) || productDetails.special_discount_check > 0">
                 <span>|</span>
-                <del><h4>{{ priceFormat(productDetails.product_stock.price) }}</h4></del>
+                <del><h4>{{ priceFormat(productDetails.price) }}</h4></del>
               </template>
             </div>
             <p>

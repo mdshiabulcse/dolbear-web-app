@@ -10,6 +10,13 @@ class ProductResource extends JsonResource
 {
     public function toArray($request)
     {
+        // Get campaign price directly from model accessor
+        $campaignPriceData = $this->campaign_price;
+
+        // Get lowest price (includes fallback to special discount)
+        $lowestPrice = $this->lowest_price;
+        $hasCampaign = $lowestPrice && $lowestPrice['discount_source'] === 'campaign';
+
         return [
             'id'                                    => $this->id,
             'slug'                                  => $this->slug,
@@ -38,6 +45,15 @@ class ProductResource extends JsonResource
             'is_bundle_deals'                       => (bool)$this->is_bundle_deals,
             'is_classified'                         => (bool)$this->is_classified,
             'stock'                                 => ProductStockResource::collection($this->stock),
+            // Campaign pricing fields
+            // campaign_price: The event price (only if campaign is active)
+            'campaign_price'                        => $hasCampaign && $campaignPriceData ? $campaignPriceData['price'] : null,
+            // original_price: The original product price (for strikethrough display)
+            'original_price'                        => ($lowestPrice && $lowestPrice['price'] < $this->price) ? $this->price : null,
+            // has_campaign_discount: Whether product has active campaign discount
+            'has_campaign_discount'                 => $hasCampaign,
+            // discount_info: Contains badge text, color, discount amount, etc.
+            'discount_info'                         => $campaignPriceData ?? null,
         ];
     }
 }

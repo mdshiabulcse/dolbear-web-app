@@ -65,9 +65,9 @@
                           </th>
                           <td>
                                                         <span v-if="cart.discount > 0"><del>{{
-                                                            priceFormat((cart.price))
+                                                            priceFormat((cart.price + cart.discount))
                                                           }}</del></span>
-                            <span>{{ priceFormat(cart.price - cart.discount) }}</span>
+                            <span>{{ priceFormat(cart.price) }}</span>
                           </td>
                           <td v-if="cart.is_digital_product == 1">
                             1
@@ -91,10 +91,10 @@
                           </td>
                           <td>
                             <span v-if="cart.discount > 0"><del>{{
-                              priceFormat((cart.price * payment_form.quantity[index].quantity))
+                              priceFormat((cart.price + cart.discount) * payment_form.quantity[index].quantity)
                             }}</del></span>
                             <span>{{
-                                priceFormat((cart.price - cart.discount) * payment_form.quantity[index].quantity)
+                                priceFormat(cart.price * payment_form.quantity[index].quantity)
                               }}</span></td>
                           <td>
                             <div class="delete">

@@ -118,7 +118,9 @@ export default {
         return state.recent_posts = data;
     },
     productDetails(state, data) {
-        return state.product_details.push({slug: data.slug, product: data});
+        // data structure from API: {product: {...}, attributes: {...}}
+        // slug is inside data.product.slug
+        return state.product_details.push({slug: data.product.slug, product: data.product});
     },
     setShopContents(state, data) {
         return state.shop_contents.push({slug: data.slug, contents: data});

@@ -30,7 +30,14 @@
             @click.prevent="routerNavigator('product.details', product.slug)"
           >
             <div class="product-thumb">
-              <span class="base" v-if="product.special_discount_check > 0"
+              <!-- Campaign Badge -->
+              <span v-if="product.discount_info && product.discount_info.badge_text"
+                    class="base campaign-badge"
+                    :style="{ backgroundColor: product.discount_info.badge_color || '#ff0000' }">
+                {{ product.discount_info.badge_text }}
+              </span>
+              <!-- Special Discount Badge -->
+              <span class="base" v-else-if="product.special_discount_check > 0"
                 >{{
                   product.special_discount_type == "flat"
                     ? priceFormat(product.special_discount_check) +
@@ -72,13 +79,20 @@
             </h1>
 
             <span class="price">
-              <del v-if="product.special_discount_check > 0"
-                >{{ priceFormat(product.price) }}
-              </del>
-              <span v-if="product.special_discount_check > 0">
-                {{ priceFormat(product.discount_percentage) }}
-              </span>
-              <span v-else>{{ priceFormat(product.price) }}</span>
+              <!-- Campaign Price (Highest Priority) -->
+              <template v-if="product.campaign_price && parseFloat(product.campaign_price) < parseFloat(product.price)">
+                <del>{{ priceFormat(product.price) }}</del>
+                <span>{{ priceFormat(product.campaign_price) }}</span>
+              </template>
+              <!-- Special Discount Price (Only when NO campaign is active) -->
+              <template v-else-if="product.special_discount_check > 0">
+                <del>{{ priceFormat(product.price) }}</del>
+                <span>{{ priceFormat(product.discount_percentage) }}</span>
+              </template>
+              <!-- Regular Price (No discount) -->
+              <template v-else>
+                <span>{{ priceFormat(product.price) }}</span>
+              </template>
             </span>
             <!-- <div class="sg-rating" v-if="!addons.includes('ishopet')">
                 <star-rating v-model:rating="product.rating" :read-only="true" :star-size="12" :round-start-rating="false"></star-rating>

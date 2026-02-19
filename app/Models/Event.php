@@ -18,6 +18,9 @@ class Event extends Model
         'image_1920x412',
         'image_406x235',
         'image_374x374',
+        'image_1920x412',
+        'image_406x235',
+        'banner_image_original',
         'event_start_date',
         'event_end_date',
         'is_active_now',
@@ -229,6 +232,16 @@ class Event extends Model
     }
 
     /**
+     * Attribute: Get banner image original
+     */
+    public function getBannerImageOriginalAttribute()
+    {
+        return @is_file_exists(@$this->banner_image['original_image'], @$this->banner_image['storage'])
+            ? @get_media(@$this->banner_image['original_image'], @$this->banner_image['storage'])
+            : static_asset('images/default/default-image-1280x420.png');
+    }
+
+    /**
      * Attribute: Get banner image 1920x412
      */
     public function getImage1920x412Attribute()
@@ -283,25 +296,39 @@ class Event extends Model
 
     /**
      * Attribute: Check if event is currently active
+     * For daily events (Sehri/Iftar): Check if current time is within the daily time slot
+     * For date_range events (Monthly): Check if current datetime is within the date range
+     *
+     * IMPORTANT: Daily events are ONLY active during their time window, NOT 24/7
      */
     public function getIsActiveNowAttribute(): bool
     {
+        // Event must be enabled (status=active AND is_active=1)
         if ($this->status != 'active' || !$this->is_active) {
             return false;
         }
 
         $now = Carbon::now();
+        $currentTime = $now->format('H:i:s');
+        $currentDateTime = $now->format('Y-m-d H:i:s');
 
         if ($this->event_type == 'daily') {
-            // For daily events, check time range
+            // Daily events (Sehri/Iftar) - ONLY active during time window
+            // This is critical: daily events are NOT active 24/7
             if ($this->daily_start_time && $this->daily_end_time) {
-                $currentTime = $now->format('H:i:s');
-                return $currentTime >= $this->daily_start_time && $currentTime <= $this->daily_end_time;
+                $isActive = $currentTime >= $this->daily_start_time && $currentTime <= $this->daily_end_time;
+                return $isActive;
             }
-            return true;
+            // Daily event WITHOUT time slots is NOT considered valid
+            // Admin must set time slots for daily events
+            return false;
+
         } elseif ($this->event_type == 'date_range') {
-            // For date range events, check if current time is within range
-            return $now >= $this->event_schedule_start && $now <= $this->event_schedule_end;
+            // Date range events (Monthly/General) - check date/time range
+            if ($this->event_schedule_start && $this->event_schedule_end) {
+                return $currentDateTime >= $this->event_schedule_start && $currentDateTime <= $this->event_schedule_end;
+            }
+            return false;
         }
 
         return false;
@@ -394,6 +421,16 @@ class Event extends Model
             'created_by' => authId() ?? 1,
         ];
 
+        // Only include event_stock if the column exists and value is provided
+        if (Schema::hasColumn('event_products', 'event_stock') && $eventStock !== null) {
+            $createData['event_stock'] = $eventStock;
+        }
+
+        // Add final_price if column exists
+        if (Schema::hasColumn('event_products', 'final_price')) {
+            $createData['final_price'] = $eventPrice;
+        }
+
         // Create new event product
         $eventProduct = $this->eventProducts()->create($createData);
 
@@ -432,34 +469,39 @@ class Event extends Model
     }
 
     /**
-     * Method: Activate this event (deactivates all other active campaigns)
-     * Ensures only ONE campaign is active at a time
+     * Method: Activate this event
+     * - For date_range events: Deactivates all other active date_range campaigns
+     * - For daily events: Allows multiple daily events with different time slots
      */
     public function activate()
     {
         DB::transaction(function () {
             $now = Carbon::now();
 
-            // Deactivate all other active events
-            $deactivateQuery = self::where('id', '!=', $this->id)
-                ->where('status', 'active')
-                ->where('is_active', 1);
+            // Only deactivate other date_range campaigns
+            // Daily time-slotted events can coexist
+            if ($this->event_type === 'date_range') {
+                $deactivateQuery = self::where('id', '!=', $this->id)
+                    ->where('status', 'active')
+                    ->where('is_active', 1)
+                    ->where('event_type', 'date_range');
 
-            // Check if activated_at column exists before using it
-            if (Schema::hasColumn('events', 'activated_at')) {
-                $deactivateQuery->whereNotNull('activated_at');
+                // Check if activated_at column exists before using it
+                if (Schema::hasColumn('events', 'activated_at')) {
+                    $deactivateQuery->whereNotNull('activated_at');
+                }
+
+                $updateData = [
+                    'is_active' => 0,
+                    'status' => 'paused'
+                ];
+
+                if (Schema::hasColumn('events', 'deactivated_at')) {
+                    $updateData['deactivated_at'] = $now;
+                }
+
+                $deactivateQuery->update($updateData);
             }
-
-            $updateData = [
-                'is_active' => 0,
-                'status' => 'paused'
-            ];
-
-            if (Schema::hasColumn('events', 'deactivated_at')) {
-                $updateData['deactivated_at'] = $now;
-            }
-
-            $deactivateQuery->update($updateData);
 
             // Activate this event
             $activateData = [
@@ -477,6 +519,16 @@ class Event extends Model
 
             $this->update($activateData);
         });
+
+        // Clear campaign pricing cache to ensure real-time updates
+        try {
+            if (class_exists(\App\Services\CampaignPricingService::class)) {
+                app(\App\Services\CampaignPricingService::class)->clearCache();
+            }
+        } catch (\Exception $e) {
+            // Log but don't fail activation
+            \Log::error('Failed to clear campaign cache on activation: ' . $e->getMessage());
+        }
     }
 
     /**

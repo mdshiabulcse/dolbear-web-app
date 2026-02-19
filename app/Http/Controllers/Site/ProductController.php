@@ -190,6 +190,25 @@ class ProductController extends Controller
             $product->attribute_selector        = $attribute_selector;
             $product->current_stock = $product->stock->sum('current_stock');
 
+            // Add campaign pricing to product
+            try {
+                if (class_exists(\App\Services\CampaignPricingService::class)) {
+                    $pricingService = app(\App\Services\CampaignPricingService::class);
+                    $campaignPricing = $pricingService->getCampaignPrice($product->id);
+
+                    if ($campaignPricing) {
+                        $product->campaign_price = $campaignPricing['price'];
+                        $product->original_price = $campaignPricing['original_price'];
+                        $product->discount_info = $campaignPricing;
+                        $product->has_campaign_discount = true;
+                    } else {
+                        $product->has_campaign_discount = false;
+                    }
+                }
+            } catch (\Exception $e) {
+                $product->has_campaign_discount = false;
+            }
+
 
             $days = Carbon::now()->diffInDays(Carbon::parse($product->special_discount_end),false);
             $hours = 23 - Carbon::now()->format('H');

@@ -19,7 +19,9 @@ class Product extends Model
         'image_110x122',
         'special_discount_check',
         'discount_percentage',
-        'product_name'
+        'product_name',
+        'campaign_price',
+        'lowest_price',
         ];
 
     protected $casts = [
@@ -298,22 +300,35 @@ class Product extends Model
         try {
             if (class_exists(\App\Services\CampaignPricingService::class)) {
                 $pricingService = app(\App\Services\CampaignPricingService::class);
-                $pricing = $pricingService->getFinalPrice($this);
-                if ($pricing['discount_source'] === 'campaign') {
+
+                // Use the object-based method for better performance
+                $campaignPricing = $pricingService->getCampaignPriceForObject($this);
+
+                // Validate campaign pricing: must exist, have price > 0, and be less than original price
+                if ($campaignPricing && isset($campaignPricing['price']) && $campaignPricing['price'] > 0 && $campaignPricing['price'] < $this->price) {
+                    \Log::info('Product::getCampaignPriceAttribute - Campaign pricing found', [
+                        'product_id' => $this->id,
+                        'product_name' => $this->product_name,
+                        'campaign_price' => $campaignPricing['price'],
+                        'original_price' => $campaignPricing['original_price'],
+                    ]);
                     return [
-                        'price' => $pricing['price'],
-                        'original_price' => $pricing['original_price'],
-                        'discount_amount' => $pricing['discount_info']['discount_amount'] ?? 0,
-                        'discount_type' => $pricing['discount_info']['discount_type'] ?? 'flat',
-                        'formatted_discount' => $pricing['discount_info']['formatted_discount'] ?? '',
-                        'badge_text' => $pricing['discount_info']['badge_text'] ?? '',
-                        'badge_color' => $pricing['discount_info']['badge_color'] ?? '#ff0000',
+                        'price' => $campaignPricing['price'],
+                        'original_price' => $campaignPricing['original_price'],
+                        'discount_amount' => $campaignPricing['discount_amount'],
+                        'discount_type' => $campaignPricing['discount_type'],
+                        'formatted_discount' => $campaignPricing['formatted_discount'],
+                        'badge_text' => $campaignPricing['badge_text'],
+                        'badge_color' => $campaignPricing['badge_color'],
                         'is_campaign' => true,
                     ];
                 }
             }
         } catch (\Exception $e) {
-            // Ignore errors
+            \Log::error('Product::getCampaignPriceAttribute - Error', [
+                'product_id' => $this->id,
+                'error' => $e->getMessage(),
+            ]);
         }
 
         // No campaign pricing
@@ -329,6 +344,23 @@ class Product extends Model
         $campaignPrice = $this->campaign_price;
         $specialPrice = null;
 
+        // Return campaign price if available, valid, and lower (HIGHEST PRIORITY)
+        // Must have: price > 0, price < original_price, and valid campaign data
+        if ($campaignPrice && isset($campaignPrice['price']) && $campaignPrice['price'] > 0 && $campaignPrice['price'] < $this->price) {
+            \Log::info('Product::getLowestPriceAttribute - Using campaign price', [
+                'product_id' => $this->id,
+                'product_name' => $this->product_name,
+                'campaign_price' => $campaignPrice['price'],
+                'original_price' => $campaignPrice['original_price'],
+            ]);
+            return [
+                'price' => $campaignPrice['price'],
+                'original_price' => $campaignPrice['original_price'],
+                'discount_source' => 'campaign',
+                'info' => $campaignPrice,
+            ];
+        }
+
         // Check special discount
         $now = \Carbon\Carbon::now();
         if ($this->special_discount > 0
@@ -341,16 +373,6 @@ class Product extends Model
                 $specialPrice = $this->price - $this->special_discount;
             }
             $specialPrice = max(0, $specialPrice);
-        }
-
-        // Return campaign price if available and lower
-        if ($campaignPrice && $campaignPrice['price'] < $this->price) {
-            return [
-                'price' => $campaignPrice['price'],
-                'original_price' => $campaignPrice['original_price'],
-                'discount_source' => 'campaign',
-                'info' => $campaignPrice,
-            ];
         }
 
         // Return special discount price if available and lower

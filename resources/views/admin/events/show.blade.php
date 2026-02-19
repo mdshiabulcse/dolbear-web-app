@@ -58,9 +58,21 @@
                                 </p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>{{ __('Start Date') }}:</strong> {{ $event->event_start_date }}</p>
-                                <p><strong>{{ __('End Date') }}:</strong> {{ $event->event_end_date }}</p>
-                                <p><strong>{{ __('Duration') }}:</strong> {{ $event->event_duration ?: '-' }}</p>
+                                @if($event->event_type == 'daily')
+                                    <p><strong>{{ __('Daily Start Time') }}:</strong> {{ $event->daily_start_time ?: '-' }}</p>
+                                    <p><strong>{{ __('Daily End Time') }}:</strong> {{ $event->daily_end_time ?: '-' }}</p>
+                                    <p><strong>{{ __('Active Window') }}:</strong>
+                                        @if($event->daily_start_time && $event->daily_end_time)
+                                            {{ $event->daily_start_time }} - {{ $event->daily_end_time }}
+                                        @else
+                                            <span class="text-danger">{{ __('Not configured') }}</span>
+                                        @endif
+                                    </p>
+                                @else
+                                    <p><strong>{{ __('Start Date') }}:</strong> {{ $event->event_start_date }}</p>
+                                    <p><strong>{{ __('End Date') }}:</strong> {{ $event->event_end_date }}</p>
+                                    <p><strong>{{ __('Duration') }}:</strong> {{ $event->event_duration ?: '-' }}</p>
+                                @endif
                                 <p><strong>{{ __('Total Views') }}:</strong> {{ $event->total_views }}</p>
                             </div>
                             <div class="col-md-12">
@@ -76,8 +88,8 @@
                         <h4>{{ __('Event Banner') }}</h4>
                     </div>
                     <div class="card-body text-center">
-                        @if (!empty($event->banner_image) && isset($event->banner_image['original_image']) && isset($event->banner_image['storage']) && is_file_exists($event->banner_image['original_image'], $event->banner_image['storage']))
-                            <img src="{{ get_media($event->banner_image['original_image'], $event->banner_image['storage']) }}"
+                        @if($event->bannerImageOriginal)
+                            <img src="{{ $event->bannerImageOriginal }}"
                                  alt="{{ $event->event_title }}" class="img-fluid">
                         @else
                             <img src="{{ static_asset('images/default/default-image-400x235.png') }}"
@@ -174,11 +186,15 @@
                                         </td>
                                         <td>{{ $eventProduct->product_priority }}</td>
                                         <td>
-                                            @if ($eventProduct->is_active)
-                                                <span class="badge badge-success">{{ __('Active') }}</span>
-                                            @else
-                                                <span class="badge badge-secondary">{{ __('Inactive') }}</span>
-                                            @endif
+                                            <label class="custom-switch">
+                                                <input type="checkbox"
+                                                       class="custom-switch-input event-product-status-toggle"
+                                                       data-event-id="{{ $event->id }}"
+                                                       data-event-product-id="{{ $eventProduct->id }}"
+                                                       data-product-id="{{ $eventProduct->product_id }}"
+                                                       {{ $eventProduct->is_active ? 'checked' : '' }}>
+                                                <span class="custom-switch-indicator"></span>
+                                            </label>
                                         </td>
                                         <td>
                                             <button type="button" class="btn btn-sm btn-info edit-event-product"
@@ -214,7 +230,7 @@
     <div class="modal fade" id="addProductModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-                <form id="addProductForm" action="{{ route('events.add.product', $event->id) }}" method="POST">
+                <form id="addProductForm" action="{{ route('events.add.product', $event->id) }}" method="POST" onsubmit="return false;">
                     @csrf
                     <div class="modal-header">
                         <h5 class="modal-title">{{ __('Add Product to Event') }}</h5>
@@ -311,25 +327,18 @@
                             </div>
                         </div>
 
-                        <!-- Event Price & Stock Settings -->
+                        <!-- Event Stock & Priority Settings -->
                         <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>{{ __('Event Price (Optional)') }}</label>
-                                    <input type="number" name="event_price" id="eventPriceInput" class="form-control" step="0.01" min="0"
-                                           placeholder="{{ __('Leave empty to calculate from discount') }}">
-                                    <small class="text-muted">{{ __('Leave empty to auto-calculate from discount') }}</small>
-                                    <div class="invalid-feedback" id="eventPriceError"></div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
+                            <!-- Event Price is now always auto-calculated from discount -->
+                            <input type="hidden" name="event_price" id="eventPriceInput" value="">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{ __('Event Stock (Optional)') }}</label>
                                     <input type="number" name="event_stock" id="eventStockInput" class="form-control" min="1" placeholder="{{ __('Leave empty to use product stock') }}">
                                     <small class="text-muted">{{ __('Leave empty to use original product stock') }}</small>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{ __('Display Priority') }}</label>
                                     <input type="number" name="product_priority" class="form-control" value="0" min="0">
@@ -368,11 +377,44 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="product_id" id="edit_product_id">
-                        <div class="form-group">
-                            <label>{{ __('Event Price') }}</label>
-                            <input type="number" name="event_price" id="edit_event_price" class="form-control" step="0.01"
-                                   placeholder="{{ __('Leave empty to use product price') }}">
+                        <!-- Event price is auto-calculated from discount, kept as hidden field -->
+                        <input type="hidden" name="event_price" id="edit_event_price" value="">
+
+                        <!-- Product Details Preview -->
+                        <div class="card bg-light mb-3" id="editProductPreview">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <img id="editPreviewImage" src="" alt="" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                                    </div>
+                                    <div class="col">
+                                        <h6 class="mb-1" id="editPreviewName"></h6>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-1">{{ __('Original Price') }}:</p>
+                                        <h4 class="text-primary mb-0" id="editPreviewOriginalPrice"></h4>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1">{{ __('Event Price') }}:</p>
+                                        <h4 class="text-success mb-0" id="editPreviewEventPrice"></h4>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <p class="mb-1">{{ __('Discount') }}:</p>
+                                        <h5 class="text-danger mb-0" id="editPreviewDiscount"></h5>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1">{{ __('You Save') }}:</p>
+                                        <h5 class="text-success mb-0" id="editPreviewSavings"></h5>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                         <div class="form-group">
                             <label>{{ __('Discount Amount') }}</label>
                             <input type="number" name="discount_amount" id="edit_discount_amount" class="form-control" step="0.01" required>
@@ -380,8 +422,8 @@
                         <div class="form-group">
                             <label>{{ __('Discount Type') }}</label>
                             <select name="discount_type" id="edit_discount_type" class="form-control">
-                                <option value="flat">{{ __('Flat') }}</option>
-                                <option value="percentage">{{ __('Percentage') }}</option>
+                                <option value="flat">{{ __('Flat (Fixed Amount)') }}</option>
+                                <option value="percentage">{{ __('Percentage (%)') }}</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -418,7 +460,7 @@
         </div>
     </div>
 @endsection
-@push('scripts')
+@push('script')
     <script>
         // Currency symbol
         var currencySymbol = '{{ get_symbol() }}';
@@ -429,11 +471,25 @@
             return currencySymbol + parseFloat(amount).toFixed(2);
         }
 
+        // Get price helper (similar to PHP get_price)
+        function getPrice(amount) {
+            if (isNaN(amount)) amount = 0;
+            return currencySymbol + parseFloat(amount).toFixed(2);
+        }
+
         // Store current product data
         var currentProduct = null;
 
         $(document).ready(function () {
             console.log('Document ready, initializing event product handlers...');
+
+            // Verify the form exists
+            var $addProductForm = $('#addProductForm');
+            if ($addProductForm.length === 0) {
+                console.error('Add Product Form not found!');
+                return;
+            }
+            console.log('Add Product Form found, attaching submit handler...');
 
             // Product selection change handler
             $('#productSelect').on('change', function() {
@@ -486,11 +542,11 @@
                 console.log('Product preview shown');
             });
 
-            // Event price input change handler
-            $('#eventPriceInput').on('input', function() {
-                console.log('Event price input changed');
-                calculateEventPrice();
-            });
+            // Event price input change handler (no longer needed - price is auto-calculated)
+            // $('#eventPriceInput').on('input', function() {
+            //     console.log('Event price input changed');
+            //     calculateEventPrice();
+            // });
 
             // Discount amount change handler
             $('#discountAmountInput').on('input', function() {
@@ -502,25 +558,19 @@
                 calculateEventPrice();
             });
 
-            // Calculate event price based on inputs
+            // Calculate event price based on discount (ALWAYS auto-calculated)
             function calculateEventPrice() {
                 if (!currentProduct) return;
 
-                var eventPrice = null;
                 var discountAmount = parseFloat($('#discountAmountInput').val()) || 0;
                 var discountType = $('#discountTypeSelect').val();
-                var manualEventPrice = $('#eventPriceInput').val();
 
-                // If manual event price is set, use it
-                if (manualEventPrice && manualEventPrice !== '') {
-                    eventPrice = parseFloat(manualEventPrice);
+                // Always calculate based on discount
+                var eventPrice;
+                if (discountType === 'percentage') {
+                    eventPrice = currentProduct.price - (currentProduct.price * (discountAmount / 100));
                 } else {
-                    // Calculate based on discount
-                    if (discountType === 'percentage') {
-                        eventPrice = currentProduct.price - (currentProduct.price * (discountAmount / 100));
-                    } else {
-                        eventPrice = currentProduct.price - discountAmount;
-                    }
+                    eventPrice = currentProduct.price - discountAmount;
                 }
 
                 // Ensure price doesn't go below 0
@@ -535,6 +585,9 @@
                 $('#previewDiscount').text(discountPercent.toFixed(0) + '% (' + formatCurrency(discountValue) + ')');
                 $('#previewSavings').text(formatCurrency(discountValue));
 
+                // Update hidden event_price input with calculated value
+                $('#eventPriceInput').val(eventPrice.toFixed(2));
+
                 // Validate event price
                 validateEventPrice(eventPrice);
             }
@@ -543,44 +596,37 @@
             function validateEventPrice(eventPrice) {
                 var isValid = eventPrice < currentProduct.price;
                 var $validationAlert = $('#validationAlert');
-                var $eventPriceInput = $('#eventPriceInput');
                 var $submitBtn = $('#submitProductBtn');
 
                 if (!isValid) {
                     $validationAlert.show();
                     $('#validationMessage').text('Event price must be less than original price to provide discount to customers!');
-                    $eventPriceInput.addClass('is-invalid');
-                    $('#eventPriceError').text('Event price must be less than ' + formatCurrency(currentProduct.price)).show();
                     $submitBtn.prop('disabled', true);
                 } else {
                     $validationAlert.hide();
-                    $eventPriceInput.removeClass('is-invalid');
-                    $('#eventPriceError').hide();
                     $submitBtn.prop('disabled', false);
                 }
 
                 return isValid;
             }
 
-            // Add product to event - with validation
-            $('#addProductForm').on('submit', function (e) {
+            // Add product to event - with validation and DOM update
+            $addProductForm.on('submit', function (e) {
                 e.preventDefault();
+                e.stopPropagation();
+                console.log('Form submit event triggered');
 
                 // Double-check validation before submit
                 if (currentProduct) {
-                    var eventPrice = null;
-                    var manualEventPrice = $('#eventPriceInput').val();
                     var discountAmount = parseFloat($('#discountAmountInput').val()) || 0;
                     var discountType = $('#discountTypeSelect').val();
 
-                    if (manualEventPrice && manualEventPrice !== '') {
-                        eventPrice = parseFloat(manualEventPrice);
+                    // Always calculate event price from discount
+                    var eventPrice;
+                    if (discountType === 'percentage') {
+                        eventPrice = currentProduct.price - (currentProduct.price * (discountAmount / 100));
                     } else {
-                        if (discountType === 'percentage') {
-                            eventPrice = currentProduct.price - (currentProduct.price * (discountAmount / 100));
-                        } else {
-                            eventPrice = currentProduct.price - discountAmount;
-                        }
+                        eventPrice = currentProduct.price - discountAmount;
                     }
 
                     eventPrice = Math.max(0, eventPrice);
@@ -591,6 +637,10 @@
                     }
                 }
 
+                var $form = $(this);
+                var $submitBtn = $('#submitProductBtn');
+                $submitBtn.prop('disabled', true).html('<i class="bx bx-loader bx-spin"></i> Adding...');
+
                 var formData = new FormData(this);
                 $.ajax({
                     url: $(this).attr('action'),
@@ -599,14 +649,100 @@
                     processData: false,
                     contentType: false,
                     success: function (response) {
+                        $submitBtn.prop('disabled', false).html('{{ __('Add Product') }}');
+
                         if (response.status === 'success') {
                             toastr.success(response.message);
-                            location.reload();
+                            $('#addProductModal').modal('hide');
+                            // Reset form
+                            $form[0].reset();
+                            $('#productPreview').hide();
+                            currentProduct = null;
+
+                            // Update total products count
+                            var currentTotal = parseInt($('.badge-info').text().trim()) || 0;
+                            $('.badge-info').text(currentTotal + 1);
+
+                            // Add new row to table
+                            if (response.event_product) {
+                                var ep = response.event_product;
+                                var product = ep.product || {};
+
+                                // Get category name
+                                var categoryName = 'N/A';
+                                if (product.category) {
+                                    // Try to get localized category name
+                                    var catLang = null;
+                                    @if(auth()->check() && auth()->user())
+                                        categoryName = product.category.categoryLanguage
+                                            ?.where('lang', '{{ app()->getLocale() }}')
+                                            ?.first()
+                                            ?.name || product.category.categoryLanguage
+                                                ?.where('lang', 'en')
+                                                ?.first()
+                                                ?.name || categoryName;
+                                    @endif
+                                }
+
+                                var newRow = '<tr>' +
+                                    '<td>' +
+                                        '<img src="' + (product.image_40x40 || '') + '" alt="' + (product.product_name || '') + '" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;"> ' +
+                                        (product.product_name || 'Deleted Product') +
+                                    '</td>' +
+                                    '<td><span class="badge badge-secondary">' + categoryName + '</span></td>' +
+                                    '<td>' + formatCurrency(product.price || 0) + '</td>' +
+                                    '<td>' + (ep.event_price ? formatCurrency(ep.event_price) : '-') + '</td>' +
+                                    '<td><span class="badge badge-danger">' +
+                                        (ep.discount_type == 'percentage' ? ep.discount_amount + '%' : formatCurrency(ep.discount_amount || 0)) +
+                                    '</span></td>' +
+                                    '<td>' +
+                                        (ep.event_stock ?
+                                            '<span class="badge badge-info">' + (ep.event_stock - (ep.event_stock_sold || 0)) + ' / ' + ep.event_stock + '</span>' :
+                                            '<span class="text-muted">Use Product Stock</span>'
+                                        ) +
+                                    '</td>' +
+                                    '<td>' + (ep.product_priority || 0) + '</td>' +
+                                    '<td>' +
+                                        '<label class="custom-switch">' +
+                                            '<input type="checkbox" ' +
+                                                'class="custom-switch-input event-product-status-toggle" ' +
+                                                'data-event-id="{{ $event->id }}" ' +
+                                                'data-event-product-id="' + ep.id + '" ' +
+                                                'data-product-id="' + ep.product_id + '" ' +
+                                                (ep.is_active ? 'checked' : '') +
+                                                '>' +
+                                            '<span class="custom-switch-indicator"></span>' +
+                                        '</label>' +
+                                    '</td>' +
+                                    '<td>' +
+                                        '<button type="button" class="btn btn-sm btn-info edit-event-product" ' +
+                                                'data-event-product-id="' + ep.id + '" ' +
+                                                'data-product-id="' + ep.product_id + '" ' +
+                                                'data-event-price="' + (ep.event_price || '') + '" ' +
+                                                'data-discount-amount="' + (ep.discount_amount || 0) + '" ' +
+                                                'data-discount-type="' + (ep.discount_type || 'flat') + '" ' +
+                                                'data-event-stock="' + (ep.event_stock || '') + '" ' +
+                                                'data-product-priority="' + (ep.product_priority || 0) + '" ' +
+                                                'data-is-active="' + (ep.is_active ? 1 : 0) + '" ' +
+                                                'data-badge-text="' + (ep.badge_text || '') + '" ' +
+                                                'data-badge-color="' + (ep.badge_color || '#ff0000') + '">' +
+                                                '<i class="bx bx-edit"></i>' +
+                                            '</button> ' +
+                                        '<button type="button" class="btn btn-sm btn-danger remove-event-product" ' +
+                                                'data-event-product-id="' + ep.id + '">' +
+                                                '<i class="bx bx-trash"></i>' +
+                                            '</button>' +
+                                        '</td>' +
+                                    '</tr>';
+
+                                $('tbody').append(newRow);
+                            }
                         } else {
                             toastr.error(response.message);
                         }
                     },
                     error: function (xhr) {
+                        $submitBtn.prop('disabled', false).html('{{ __('Add Product') }}');
                         var errorMsg = xhr.responseJSON?.message || 'Error adding product';
                         if (xhr.responseJSON?.errors) {
                             var errors = Object.values(xhr.responseJSON.errors).flat();
@@ -617,44 +753,179 @@
                 });
             });
 
-            // Edit event product
-            $('.edit-event-product').on('click', function () {
+            // Edit event product - use event delegation for dynamically added elements
+            $(document).on('click', '.edit-event-product', function () {
                 var $btn = $(this);
                 var productId = $btn.data('product-id');
                 var eventProductId = $btn.data('event-product-id');
+                var eventPrice = $btn.data('event-price');
 
-                $('#editProductForm').attr('action', '{{ route('events.update.product', [$event->id, '']) }}' + productId);
+                // Build URL properly: /admin/events/{eventId}/products/{productId}
+                $('#editProductForm').attr('action', '/admin/events/{{ $event->id }}/products/' + productId);
                 $('#edit_product_id').val(productId);
-                $('#edit_event_price').val($btn.data('event-price'));
                 $('#edit_discount_amount').val($btn.data('discount-amount'));
                 $('#edit_discount_type').val($btn.data('discount-type'));
                 $('#edit_product_priority').val($btn.data('product-priority'));
-                $('#edit_event_stock').val($btn.data('event-stock'));
-                $('#edit_badge_text').val($btn.data('badge-text'));
-                $('#edit_badge_color').val($btn.data('badge-color'));
-                $('#edit_is_active').prop('checked', $btn.data('is-active'));
+                $('#edit_event_stock').val($btn.data('event-stock') || '');
+                $('#edit_badge_text').val($btn.data('badge-text') || '');
+                $('#edit_badge_color').val($btn.data('badge-color') || '#ff0000');
+                $('#edit_is_active').prop('checked', $btn.data('is-active') === 1 || $btn.data('is-active') === '1');
+
+                // Get the row to access product details for preview
+                var $row = $btn.closest('tr');
+                var productName = $row.find('td').eq(0).text().trim();
+                var productImage = $row.find('td').eq(0).find('img').attr('src') || '';
+                var originalPriceText = $row.find('td').eq(2).text().trim().replace(/[^\d.]/g, '');
+                var originalPrice = parseFloat(originalPriceText) || 0;
+
+                // Store product price for calculation
+                $('#editProductForm').data('product-price', originalPrice);
+                $('#editProductForm').data('product-name', productName);
+                $('#editProductForm').data('product-image', productImage);
+
+                // Update preview
+                $('#editPreviewImage').attr('src', productImage);
+                $('#editPreviewName').text(productName);
+                $('#editPreviewOriginalPrice').text(formatCurrency(originalPrice));
+
+                // Calculate and show initial event price
+                calculateEditEventPrice();
 
                 $('#editProductModal').modal('show');
             });
 
-            // Update event product
+            // Edit discount change handlers - auto-calculate preview
+            $('#edit_discount_amount').on('input', function() {
+                calculateEditEventPrice();
+            });
+
+            $('#edit_discount_type').on('change', function() {
+                calculateEditEventPrice();
+            });
+
+            // Calculate edit modal event price
+            function calculateEditEventPrice() {
+                var originalPrice = $('#editProductForm').data('product-price') || 0;
+                if (originalPrice === 0) return;
+
+                var discountAmount = parseFloat($('#edit_discount_amount').val()) || 0;
+                var discountType = $('#edit_discount_type').val();
+
+                var eventPrice;
+                if (discountType === 'percentage') {
+                    eventPrice = originalPrice - (originalPrice * (discountAmount / 100));
+                } else {
+                    eventPrice = originalPrice - discountAmount;
+                }
+                eventPrice = Math.max(0, eventPrice);
+
+                var discountValue = originalPrice - eventPrice;
+                var discountPercent = (discountValue / originalPrice) * 100;
+
+                // Update display
+                $('#editPreviewEventPrice').text(formatCurrency(eventPrice));
+                $('#editPreviewDiscount').text(discountPercent.toFixed(0) + '% (' + formatCurrency(discountValue) + ')');
+                $('#editPreviewSavings').text(formatCurrency(discountValue));
+
+                // Update hidden field
+                $('#edit_event_price').val(eventPrice.toFixed(2));
+            }
+
+            // Update event product - auto-calculate event_price from discount
             $('#editProductForm').on('submit', function (e) {
                 e.preventDefault();
+
                 var formData = new FormData(this);
                 var productId = $('#edit_product_id').val();
                 var action = $(this).attr('action');
+                var $btn = $('.edit-event-product[data-product-id="' + productId + '"]');
+                var $row = $btn.closest('tr');
+
+                // Get product original price from stored data
+                var productPrice = $('#editProductForm').data('product-price') || 0;
+
+                // Get the pre-calculated event price from hidden field (set by calculateEditEventPrice)
+                var calculatedEventPrice = parseFloat($('#edit_event_price').val()) || 0;
+
+                // Double-check calculation
+                var discountAmount = parseFloat($('#edit_discount_amount').val()) || 0;
+                var discountType = $('#edit_discount_type').val();
+
+                if (discountType === 'percentage') {
+                    calculatedEventPrice = productPrice - (productPrice * (discountAmount / 100));
+                } else {
+                    calculatedEventPrice = productPrice - discountAmount;
+                }
+                calculatedEventPrice = Math.max(0, calculatedEventPrice);
+
+                // Update the hidden event_price field with calculated value
+                $('#edit_event_price').val(calculatedEventPrice.toFixed(2));
+                formData.set('event_price', calculatedEventPrice.toFixed(2));
+
+                // Ensure CSRF token is included in FormData
+                if (!formData.has('_token')) {
+                    formData.append('_token', '{{ csrf_token() }}');
+                }
 
                 $.ajax({
                     url: action,
-                    type: 'PUT',
+                    type: 'POST',
                     data: formData,
                     processData: false,
                     contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
                     success: function (response) {
                         if (response.status === 'success') {
                             toastr.success(response.message);
                             $('#editProductModal').modal('hide');
-                            location.reload();
+
+                            // Update the row in the table
+                            if (response.event_product) {
+                                var ep = response.event_product;
+                                var product = ep.product || {};
+
+                                // Update event price cell
+                                var priceCell = $row.find('td').eq(3);
+                                priceCell.html(ep.event_price ? getPrice(ep.event_price) : '-');
+
+                                // Update discount cell
+                                var discountCell = $row.find('td').eq(4);
+                                discountCell.html(`
+                                    <span class="badge badge-danger">
+                                        ${ep.discount_type == 'percentage' ? ep.discount_amount + '%' : getPrice(ep.discount_amount)}
+                                    </span>
+                                `);
+
+                                // Update priority cell
+                                $row.find('td').eq(6).text(ep.product_priority || 0);
+
+                                // Update status toggle
+                                var statusCell = $row.find('td').eq(7);
+                                statusCell.html(`
+                                    <label class="custom-switch">
+                                        <input type="checkbox"
+                                               class="custom-switch-input event-product-status-toggle"
+                                               data-event-id="{{ $event->id }}"
+                                               data-event-product-id="${ep.id}"
+                                               data-product-id="${ep.product_id}"
+                                               ${ep.is_active ? 'checked' : ''}>
+                                        <span class="custom-switch-indicator"></span>
+                                    </label>
+                                `);
+
+                                // Update edit button data attributes
+                                var $editBtn = $row.find('.edit-event-product');
+                                $editBtn.attr('data-event-price', ep.event_price || '');
+                                $editBtn.attr('data-discount-amount', ep.discount_amount || 0);
+                                $editBtn.attr('data-discount-type', ep.discount_type || 'flat');
+                                $editBtn.attr('data-event-stock', ep.event_stock || '');
+                                $editBtn.attr('data-product-priority', ep.product_priority || 0);
+                                $editBtn.attr('data-is-active', ep.is_active ? 1 : 0);
+                                $editBtn.attr('data-badge-text', ep.badge_text || '');
+                                $editBtn.attr('data-badge-color', ep.badge_color || '#ff0000');
+                            }
                         } else {
                             toastr.error(response.message);
                         }
@@ -665,29 +936,84 @@
                 });
             });
 
-            // Remove product from event
-            $('.remove-event-product').on('click', function () {
+            // Toggle event product status
+            $(document).on('change', '.event-product-status-toggle', function () {
+                var $checkbox = $(this);
+                var eventId = $checkbox.data('event-id');
+                var eventProductId = $checkbox.data('event-product-id');
+                var productId = $checkbox.data('product-id');
+                var isActive = $checkbox.is(':checked') ? 1 : 0;
+
+                $checkbox.prop('disabled', true); // Disable during request
+
+                $.ajax({
+                    url: '/admin/events/' + eventId + '/products/' + productId,
+                    type: 'PUT',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    data: {
+                        is_active: isActive,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            toastr.success(response.message);
+
+                            // Update edit button data attribute
+                            var $editBtn = $checkbox.closest('tr').find('.edit-event-product');
+                            $editBtn.attr('data-is-active', isActive);
+                        } else {
+                            toastr.error(response.message || 'Status update failed');
+                            $checkbox.prop('checked', !isActive);
+                        }
+                    },
+                    error: function (xhr) {
+                        toastr.error(xhr.responseJSON?.message || 'Error updating status');
+                        $checkbox.prop('checked', !isActive);
+                    },
+                    complete: function () {
+                        $checkbox.prop('disabled', false); // Re-enable
+                    }
+                });
+            });
+
+            // Remove product from event - use event delegation for dynamically added elements
+            $(document).on('click', '.remove-event-product', function () {
                 var $btn = $(this);
                 var eventProductId = $btn.data('event-product-id');
+                var $row = $btn.closest('tr');
 
                 if (confirm('{{ __('Are you sure you want to remove this product from the event?') }}')) {
+                    $btn.prop('disabled', true);
+
                     $.ajax({
                         url: '{{ route('events.remove.product', $event->id) }}',
                         type: 'DELETE',
                         data: {
-                            product_id: $btn.closest('tr').find('.edit-event-product').data('product-id'),
+                            product_id: $row.find('.edit-event-product').data('product-id'),
                             _token: '{{ csrf_token() }}'
                         },
                         success: function (response) {
                             if (response.status === 'success') {
                                 toastr.success(response.message);
-                                $btn.closest('tr').remove();
+
+                                // Update total products count
+                                var newTotal = parseInt($('.badge-info').text()) - 1;
+                                $('.badge-info').text(Math.max(0, newTotal));
+
+                                // Remove row with animation
+                                $row.fadeOut(300, function () {
+                                    $(this).remove();
+                                });
                             } else {
                                 toastr.error(response.message);
+                                $btn.prop('disabled', false);
                             }
                         },
                         error: function (xhr) {
                             toastr.error(xhr.responseJSON?.message || 'Error removing product');
+                            $btn.prop('disabled', false);
                         }
                     });
                 }

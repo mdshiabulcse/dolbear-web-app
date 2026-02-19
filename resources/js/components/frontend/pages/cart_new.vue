@@ -23,9 +23,9 @@
                 </td>
                 <td>
                   <div v-if="cart.discount > 0">
-                    <del>{{ priceFormat((cart.price)) }}</del>
+                    <del>{{ priceFormat((cart.price + cart.discount)) }}</del>
                   </div>
-                  <span>{{ priceFormat(cart.price - cart.discount) }}</span>
+                  <span>{{ priceFormat(cart.price) }}</span>
                 </td>
                 <td>
                   <div class="product-quantity">
@@ -46,7 +46,7 @@
                     </div>
                   </div>
                 </td>
-                <td>{{ priceFormat((cart.price - cart.discount) * payment_form.quantity[index].quantity) }}</td>
+                <td>{{ priceFormat(cart.price * payment_form.quantity[index].quantity) }}</td>
                 <td>
                   <img :src="actionIcon" style="cursor: pointer;" alt="Delete" @click="deleteCart(cart.id)" />
                 </td>
@@ -322,8 +322,9 @@ const Analytics = {
         }
         try {
             const currency = this.getCurrencyCode(activeCurrency);
+            // cart.price is already the active price (campaign or discounted or original)
             const totalValue = carts.reduce((sum, item) => {
-                return sum + (parseFloat(item.price - (item.discount || 0)) * parseInt(item.quantity));
+                return sum + (parseFloat(item.price) * parseInt(item.quantity));
             }, 0);
 
             const items = carts.map(cart => ({
@@ -331,7 +332,7 @@ const Analytics = {
                 item_name: cart.product_name || '',
                 item_variant: cart.variant || '',
                 item_category: cart.category_name || '',
-                price: parseFloat(cart.price - (cart.discount || 0)),
+                price: parseFloat(cart.price),  // Already the active price
                 quantity: parseInt(cart.quantity)
             }));
 
@@ -359,7 +360,8 @@ const Analytics = {
         }
         try {
             const currency = this.getCurrencyCode(activeCurrency);
-            const price = parseFloat(product.price - (product.discount || 0));
+            // product.price is already the active price (campaign or discounted or original)
+            const price = parseFloat(product.price);
             const value = price * parseInt(quantity);
 
             // GA4 - Add to Cart
@@ -373,7 +375,7 @@ const Analytics = {
                         item_name: product.product_name || '',
                         item_variant: product.variant || '',
                         item_category: product.category_name || '',
-                        price: price,
+                        price: price,  // Already the active price
                         quantity: parseInt(quantity)
                     }]
                 }
@@ -393,7 +395,8 @@ const Analytics = {
         }
         try {
             const currency = this.getCurrencyCode(activeCurrency);
-            const price = parseFloat(product.price - (product.discount || 0));
+            // product.price is already the active price (campaign or discounted or original)
+            const price = parseFloat(product.price);
             const value = price * parseInt(quantity);
 
             // GA4 - Remove from Cart
@@ -407,7 +410,7 @@ const Analytics = {
                         item_name: product.product_name || '',
                         item_variant: product.variant || '',
                         item_category: product.category_name || '',
-                        price: price,
+                        price: price,  // Already the active price
                         quantity: parseInt(quantity)
                     }]
                 }
@@ -424,8 +427,9 @@ const Analytics = {
         }
         try {
             const currency = this.getCurrencyCode(activeCurrency);
+            // cart.price is already the active price (campaign or discounted or original)
             const totalValue = carts.reduce((sum, item) => {
-                return sum + (parseFloat(item.price - (item.discount || 0)) * parseInt(item.quantity));
+                return sum + (parseFloat(item.price) * parseInt(item.quantity));
             }, 0);
 
             const items = carts.map(cart => ({
@@ -433,7 +437,7 @@ const Analytics = {
                 item_name: cart.product_name || '',
                 item_variant: cart.variant || '',
                 item_category: cart.category_name || '',
-                price: parseFloat(cart.price - (cart.discount || 0)),
+                price: parseFloat(cart.price),  // Already the active price
                 quantity: parseInt(cart.quantity)
             }));
 

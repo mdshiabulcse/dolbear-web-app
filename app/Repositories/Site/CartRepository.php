@@ -110,14 +110,42 @@ class CartRepository implements CartInterface
                 $price = $wholesale_price->price;
             endif;
         else:
-            //discount calculation
-            if (special_discount_applicable($product)):
-                if ($product->special_discount_type == 'flat'):
-                    $discount   = $product->special_discount;
-                elseif ($product->special_discount_type == 'percentage'):
-                    $discount   = ($price * $product->special_discount) / 100;
+            // Check campaign pricing first (highest priority)
+            try {
+                if (class_exists(\App\Services\CampaignPricingService::class)) {
+                    $pricingService = app(\App\Services\CampaignPricingService::class);
+                    $campaignPricing = $pricingService->getCampaignPrice($product->id);
+
+                    if ($campaignPricing && $campaignPricing['price'] < $price) {
+                        // Campaign pricing applies - calculate discount from original price
+                        $price = $campaignPricing['price'];
+                        $discount = $campaignPricing['original_price'] - $price;
+                    } elseif (special_discount_applicable($product)) {
+                        // No active campaign, use special discount
+                        if ($product->special_discount_type == 'flat'):
+                            $discount   = $product->special_discount;
+                        elseif ($product->special_discount_type == 'percentage'):
+                            $discount   = ($price * $product->special_discount) / 100;
+                        endif;
+                    }
+                } elseif (special_discount_applicable($product)) {
+                    // CampaignPricingService not available, fallback to special discount only
+                    if ($product->special_discount_type == 'flat'):
+                        $discount   = $product->special_discount;
+                    elseif ($product->special_discount_type == 'percentage'):
+                        $discount   = ($price * $product->special_discount) / 100;
+                    endif;
+                }
+            } catch (\Exception $e) {
+                // If campaign pricing fails, fallback to special discount
+                if (special_discount_applicable($product)):
+                    if ($product->special_discount_type == 'flat'):
+                        $discount   = $product->special_discount;
+                    elseif ($product->special_discount_type == 'percentage'):
+                        $discount   = ($price * $product->special_discount) / 100;
+                    endif;
                 endif;
-            endif;
+            }
         endif;
 
         //tax calculation

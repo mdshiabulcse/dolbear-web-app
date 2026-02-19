@@ -69,8 +69,12 @@ export default {
                 context.state.product_details.splice(index, 1);
             }
             context.commit('setShimmer', 0);
-            context.commit("productDetails", response.data.product);
+            // Pass the full response data so mutation can access both product and attributes
+            context.commit("productDetails", response.data);
             context.commit("getProductAttributes", response.data.attributes);
+        }).catch((error) => {
+            console.error('Error fetching product details:', error);
+            context.commit('setShimmer', 0);
         });
     },
     replyForm(context, id) {

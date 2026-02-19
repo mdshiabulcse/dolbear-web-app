@@ -23,8 +23,13 @@ class ProductResource extends JsonResource
         $created_at = Carbon::parse($this->created_at);
         $difference = $created_at->diffInDays();
 
-        // Get lowest price (campaign > special > regular)
+        // Get campaign price directly from model accessor
+        $campaignPriceData = $this->campaign_price;
+
+        // Get lowest price (campaign > special > regular) - includes time-based validation
         $lowestPrice = $this->lowest_price;
+        $hasCampaign = $lowestPrice && $lowestPrice['discount_source'] === 'campaign';
+
         $response = [
             'id'                                    => $this->id,
             'slug'                                  => $this->slug,
@@ -44,20 +49,16 @@ class ProductResource extends JsonResource
             'is_new'                                => $difference < 7,
             'minimum_order_quantity'                => (int)$this->minimum_order_quantity,
             'is_favourite'                          => $user && count($this->wishlists) > 0 && $this->wishlists->where('user_id', $user->id)->first(),
+            // Campaign pricing fields (time-based validation done in backend)
+            // campaign_price: The event price (only if campaign is active)
+            'campaign_price'                        => $hasCampaign && $campaignPriceData ? number_format($campaignPriceData['price'], 3, '.', '') : null,
+            // original_price: The original product price (for strikethrough display)
+            'original_price'                        => ($lowestPrice && $lowestPrice['price'] < $this->price) ? number_format($this->price, 3, '.', '') : null,
+            'has_campaign'                          => $hasCampaign,
+            'discount_source'                       => $lowestPrice['discount_source'] ?? 'none',
+            // discount_info: Contains badge text, color, discount amount, etc.
+            'discount_info'                         => $campaignPriceData ?? null,
         ];
-
-        // Add campaign pricing if available
-        if ($lowestPrice && $lowestPrice['price'] < $this->price) {
-            $response['campaign_price'] = number_format($lowestPrice['price'], 3, '.', '');
-            $response['original_price'] = number_format($lowestPrice['original_price'], 3, '.', '');
-            $response['has_campaign'] = true;
-            $response['discount_source'] = $lowestPrice['discount_source'];
-            $response['campaign_discount_info'] = $lowestPrice['info'];
-        } else {
-            $response['campaign_price'] = null;
-            $response['has_campaign'] = false;
-            $response['discount_source'] = $lowestPrice['discount_source'] ?? 'none';
-        }
 
         return $response;
     }

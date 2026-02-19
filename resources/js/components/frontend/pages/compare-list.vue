@@ -34,12 +34,21 @@
 							<tr>
 								<td>{{ lang.price }}</td>
 								<td v-for="(product, index) in products" :key="'price' + index">
-									<span class="price"
-										><del v-if="product.special_discount_check > 0">{{ priceFormat(product.price) }}</del>
-										<span v-if="product.special_discount_check > 0">
-											{{ priceFormat(product.discount_percentage) }}
-										</span>
-										<span v-else>{{ priceFormat(product.price) }}</span>
+									<span class="price">
+                    <!-- Campaign Price (Highest Priority) -->
+										<template v-if="product.campaign_price && parseFloat(product.campaign_price) < parseFloat(product.price)">
+											<del>{{ priceFormat(product.price) }}</del>
+											<span>{{ priceFormat(product.campaign_price) }}</span>
+										</template>
+                    <!-- Special Discount Price (Only when NO campaign is active) -->
+										<template v-else-if="product.special_discount_check > 0">
+											<del>{{ priceFormat(product.price) }}</del>
+											<span>{{ priceFormat(product.discount_percentage) }}</span>
+										</template>
+                    <!-- Regular Price (No discount) -->
+										<template v-else>
+											<span>{{ priceFormat(product.price) }}</span>
+										</template>
 									</span>
 								</td>
 							</tr>
