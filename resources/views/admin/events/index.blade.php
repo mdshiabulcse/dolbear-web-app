@@ -265,7 +265,7 @@
         @endif
     </section>
 @endsection
-@push('scripts')
+@push('script')
     <script>
         $(document).ready(function () {
             // Status change for button-based toggle

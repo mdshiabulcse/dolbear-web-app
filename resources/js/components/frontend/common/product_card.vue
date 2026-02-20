@@ -38,7 +38,8 @@
             <!-- Campaign Discount Badge -->
             <div class="product-offer" v-if="getCampaignDiscountText()">
                 <div class="product-offer-text">
-                    {{ getCampaignDiscountText() }} {{ lang.off || 'OFF' }}
+                    {{ getCampaignDiscountText() }}
+
                 </div>
             </div>
             <!-- Special Discount Badge -->

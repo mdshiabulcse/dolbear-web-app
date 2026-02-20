@@ -272,7 +272,7 @@
     </section>
     @include('admin.common.selector-modal')
 @endsection
-@push('scripts')
+@push('script')
     <script>
         $(document).ready(function () {
             // Handle event type change
