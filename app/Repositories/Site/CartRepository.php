@@ -50,7 +50,108 @@ class CartRepository implements CartInterface
                 'product:free_shipping,slug,user_id,price,shipping_fee,id,thumbnail,minimum_order_quantity,is_refundable,current_stock,shipping_fee_depend_on_quantity,special_discount,special_discount_start,special_discount_end,special_discount_type,is_digital','seller:user_id,shop_name,logo')
                 ->where('user_id', getWalkInCustomer()->id)->where('trx_id',session()->get('walk_in_id'))->get();
         }
+
+        // CRITICAL FIX: Refresh campaign pricing for all cart items
+        // This ensures cart prices update when campaigns start/end or expire
+        foreach ($carts as $cart) {
+            if ($cart->product && !$cart->product->is_wholesale) {
+                $this->refreshCartCampaignPricing($cart);
+            }
+        }
+
         return $carts;
+    }
+
+    /**
+     * Refresh campaign pricing for a cart item
+     * Updates cart->price and cart->discount based on current active campaigns
+     */
+    protected function refreshCartCampaignPricing($cart)
+    {
+        try {
+            if (class_exists(\App\Services\CampaignPricingService::class)) {
+                $pricingService = app(\App\Services\CampaignPricingService::class);
+                $campaignPricing = $pricingService->getCampaignPrice($cart->product_id);
+
+                // Determine original_price:
+                // Priority: variant stock price -> first stock price -> product price
+                $product_stock = null;
+                $original_price = $cart->product->price; // Default to product price
+
+                // Only look up variant if variant name is not empty
+                if (!empty($cart->variant)) {
+                    $product_stock = $cart->product->stock->where('name', $cart->variant)->first();
+                    if ($product_stock && isset($product_stock->price) && $product_stock->price > 0) {
+                        $original_price = $product_stock->price;
+                    }
+                }
+
+                // Ensure original_price is valid
+                if ($original_price <= 0) {
+                    $original_price = $cart->product->price;
+                }
+
+                // Log before refresh
+                \Log::info('refreshCartCampaignPricing BEFORE', [
+                    'cart_id' => $cart->id,
+                    'variant' => $cart->variant,
+                    'original_price' => $original_price,
+                    'cart_price' => $cart->price,
+                    'cart_discount' => $cart->discount,
+                    'has_campaign' => !empty($campaignPricing),
+                ]);
+
+                if ($campaignPricing && isset($campaignPricing['price']) && $campaignPricing['price'] < $original_price) {
+                    // Campaign is active - use campaign price as selling price
+                    $cart->price = $campaignPricing['price'];
+                    // Discount = original_price - campaign_price
+                    $cart->discount = $original_price - $campaignPricing['price'];
+                } elseif (special_discount_applicable($cart->product)) {
+                    // No active campaign - use special discount
+                    if ($cart->product->special_discount_type == 'flat') {
+                        $cart->discount = $cart->product->special_discount;
+                        $cart->price = $original_price - $cart->discount;
+                    } elseif ($cart->product->special_discount_type == 'percentage') {
+                        $cart->discount = ($original_price * $cart->product->special_discount) / 100;
+                        $cart->price = $original_price - $cart->discount;
+                    }
+                } else {
+                    // No discount - selling price equals original price
+                    $cart->price = $original_price;
+                    $cart->discount = 0.00;
+                }
+
+                // Validate and fix cart values if needed
+                if ($cart->price === null || $cart->price <= 0) {
+                    $cart->price = $original_price;
+                    $cart->discount = 0.00;
+                }
+                if ($cart->discount < 0) {
+                    $cart->discount = 0.00;
+                }
+
+                // Log after refresh
+                \Log::info('refreshCartCampaignPricing AFTER', [
+                    'cart_id' => $cart->id,
+                    'new_price' => $cart->price,
+                    'new_discount' => $cart->discount,
+                    'is_dirty' => $cart->isDirty('price') || $cart->isDirty('discount'),
+                ]);
+
+                // Always save to ensure cart has correct values
+                // This fixes old cart items that have wrong price/discount values
+                if ($cart->isDirty('price') || $cart->isDirty('discount')) {
+                    $cart->save();
+                    \Log::info('Cart saved', ['cart_id' => $cart->id]);
+                }
+            }
+        } catch (\Exception $e) {
+            // Log error but don't break cart loading
+            \Log::error('Error refreshing cart campaign pricing', [
+                'cart_id' => $cart->id,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     public function get($id)
@@ -85,29 +186,63 @@ class CartRepository implements CartInterface
             $carts = Cart::where('user_id', getWalkInCustomer()->id)->where('trx_id',$trx_id)->where('product_id', $product->id)->get();
         endif;
 
-        $product_stock = $product->stock->where('name', $request['variants_name'])->where('variant_ids', $request['variants_ids'])->first();
-        $product_stock_count = $product->stock;
+        // Find product stock - handle both variant and non-variant products
+        $product_stock = null;
+        $variants_name = $request['variants_name'] ?? null;
+        $variant_ids = $request['variants_ids'] ?? null;
 
-        $totalStock = $product_stock_count->sum('current_stock');
-
-
-        if(!$product_stock) {
-            $product_stock = $totalStock;
+        // Try to find exact variant match
+        if (!empty($variants_name) && !empty($variant_ids)) {
+            $product_stock = $product->stock
+                ->where('name', $variants_name)
+                ->where('variant_ids', $variant_ids)
+                ->first();
+        } elseif (!empty($variants_name)) {
+            // Only variant name provided
+            $product_stock = $product->stock
+                ->where('name', $variants_name)
+                ->first();
         }
+
+        $product_stock_count = $product->stock;
+        $totalStock = $product_stock_count->sum('current_stock');
 
         if ($totalStock < $request['quantity']) {
             return 'out_of_stock';
         }
 
-        $price = $product_stock->price;
+        // Determine base/original price
+        // Priority: variant stock price -> first stock price -> product price
+        if ($product_stock && isset($product_stock->price) && $product_stock->price > 0) {
+            $original_price = $product_stock->price;
+        } else {
+            $first_stock = $product->stock->first();
+            $original_price = ($first_stock && isset($first_stock->price) && $first_stock->price > 0)
+                ? $first_stock->price
+                : $product->price;
+        }
 
+        // Ensure original_price is valid
+        if ($original_price <= 0) {
+            $original_price = $product->price;
+        }
+
+        $price = $original_price; // Default: no discount
         $discount = 0.00;
+
         //wholesale product will not be applicable for discount
         //and price will be the actual price without campaign discounts
         if ($product->is_wholesale):
-            $wholesale_price = $product_stock->wholeSalePrice->where('min_qty', '<=', $request->quantity)->where('max_qty', '>=', $request->quantity)->first();
-            if (!blank($wholesale_price)):
+            $wholesale_price = null;
+            if ($product_stock) {
+                $wholesale_price = $product_stock->wholeSalePrice
+                    ->where('min_qty', '<=', $request->quantity)
+                    ->where('max_qty', '>=', $request->quantity)
+                    ->first();
+            }
+            if (!blank($wholesale_price) && $wholesale_price->price > 0):
                 $price = $wholesale_price->price;
+                $original_price = $price; // Update original for wholesale
             endif;
         else:
             // Check campaign pricing first (highest priority)
@@ -116,37 +251,58 @@ class CartRepository implements CartInterface
                     $pricingService = app(\App\Services\CampaignPricingService::class);
                     $campaignPricing = $pricingService->getCampaignPrice($product->id);
 
-                    if ($campaignPricing && $campaignPricing['price'] < $price) {
-                        // Campaign pricing applies - calculate discount from original price
+                    if ($campaignPricing && isset($campaignPricing['price']) && $campaignPricing['price'] < $original_price) {
+                        // Campaign pricing applies
                         $price = $campaignPricing['price'];
-                        $discount = $campaignPricing['original_price'] - $price;
+                        $discount = $original_price - $price;
                     } elseif (special_discount_applicable($product)) {
                         // No active campaign, use special discount
                         if ($product->special_discount_type == 'flat'):
-                            $discount   = $product->special_discount;
+                            $discount = $product->special_discount;
                         elseif ($product->special_discount_type == 'percentage'):
-                            $discount   = ($price * $product->special_discount) / 100;
+                            $discount = ($original_price * $product->special_discount) / 100;
                         endif;
+                        $price = $original_price - $discount;
                     }
                 } elseif (special_discount_applicable($product)) {
                     // CampaignPricingService not available, fallback to special discount only
                     if ($product->special_discount_type == 'flat'):
-                        $discount   = $product->special_discount;
+                        $discount = $product->special_discount;
                     elseif ($product->special_discount_type == 'percentage'):
-                        $discount   = ($price * $product->special_discount) / 100;
+                        $discount = ($original_price * $product->special_discount) / 100;
                     endif;
+                    $price = $original_price - $discount;
                 }
             } catch (\Exception $e) {
                 // If campaign pricing fails, fallback to special discount
                 if (special_discount_applicable($product)):
                     if ($product->special_discount_type == 'flat'):
-                        $discount   = $product->special_discount;
+                        $discount = $product->special_discount;
                     elseif ($product->special_discount_type == 'percentage'):
-                        $discount   = ($price * $product->special_discount) / 100;
+                        $discount = ($original_price * $product->special_discount) / 100;
                     endif;
+                    $price = $original_price - $discount;
                 endif;
             }
         endif;
+
+        // Validate final price and discount
+        if ($price <= 0 || $price === null) {
+            $price = $original_price;
+            $discount = 0.00;
+        }
+        if ($discount < 0) {
+            $discount = 0.00;
+        }
+
+        // Log for debugging
+        \Log::info('addToCart final values', [
+            'product_id' => $product->id,
+            'variant' => $variants_name,
+            'original_price' => $original_price,
+            'price' => $price,
+            'discount' => $discount,
+        ]);
 
         //tax calculation
         $tax = 0;
@@ -186,6 +342,10 @@ class CartRepository implements CartInterface
         if (is_string($parse_cart) && $parse_cart == 'out_of_stock') {
             return 'out_of_stock';
         }
+
+        // CRITICAL FIX: Recalculate coupon discounts for all cart items after adding new product
+        // This ensures coupon discounts are updated when a new product is added
+        $this->recalculateCouponDiscounts($trx_id, $user);
 
         return $parse_cart;
     }
@@ -490,8 +650,10 @@ class CartRepository implements CartInterface
         $cart_item->shipping_cost = $shipping_cost;
         $cart_item->save();
 
-        // Recalculate coupon discounts in checkouts table after cart update
-        $this->recalculateCheckoutCouponDiscounts($cart_item->trx_id);
+        // CRITICAL FIX: Recalculate coupon discounts for all cart items after cart update
+        // This ensures coupon discounts are updated when quantity changes
+        $user = authUser() ?? null;
+        $this->recalculateCouponDiscounts($cart_item->trx_id, $user);
 
         return $cart_item;
     }
@@ -776,9 +938,10 @@ class CartRepository implements CartInterface
 
         $result = Cart::destroy($id);
 
-        // Recalculate coupon discounts after cart item is removed
+        // CRITICAL FIX: Recalculate coupon discounts after cart item is removed
         if ($result && $trx_id) {
-            $this->recalculateCheckoutCouponDiscounts($trx_id);
+            $user = authUser() ?? null;
+            $this->recalculateCouponDiscounts($trx_id, $user);
         }
 
         return $result;
@@ -1556,6 +1719,211 @@ class CartRepository implements CartInterface
             }
         endif;
         return $coupons;
+    }
+
+    /**
+     * Recalculate coupon discounts for all cart items
+     * Called after adding/updating cart to ensure coupon discounts are current
+     * This method follows the same logic as applyCoupon() to ensure consistency
+     */
+    protected function recalculateCouponDiscounts($trx_id, $user)
+    {
+        // Reset all coupon discounts to 0 first
+        Cart::where('trx_id', $trx_id)
+            ->update([
+                'coupon_discount' => 0,
+                'coupon_applied' => 0
+            ]);
+
+        // Get all active coupons for this transaction
+        $checkouts = \App\Models\Checkout::with('coupon')
+            ->where('trx_id', $trx_id)
+            ->where('status', 1)
+            ->get();
+
+        if ($checkouts->isEmpty()) {
+            return; // No active coupons
+        }
+
+        // Get all cart items for this transaction
+        $carts = Cart::with('product:id,special_discount,special_discount_type,special_discount_start,special_discount_end')
+            ->where('trx_id', $trx_id)
+            ->get();
+
+        if ($carts->isEmpty()) {
+            return;
+        }
+
+        $now = now()->format('Y-m-d H:i:s');
+
+        // Get campaign product IDs using CampaignPricingService
+        $campaignProductIds = [];
+        try {
+            if (class_exists(\App\Services\CampaignPricingService::class)) {
+                $pricingService = app(\App\Services\CampaignPricingService::class);
+//                $activeCampaigns = $pricingService->getActiveCampaigns();
+
+                if ($activeCampaigns && $activeCampaigns->isNotEmpty()) {
+                    foreach ($activeCampaigns as $campaign) {
+                        $campaignProducts = $campaign->getAllProducts()
+                            ->whereIn('product_id', $carts->pluck('product_id'))
+                            ->pluck('product_id')
+                            ->toArray();
+                        $campaignProductIds = array_merge($campaignProductIds, $campaignProducts);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('Campaign check failed: ' . $e->getMessage());
+        }
+        $campaignProductIds = array_unique($campaignProductIds);
+
+        // Process each coupon
+        foreach ($checkouts as $checkout) {
+            $coupon = $checkout->coupon;
+
+            if (!$coupon || $coupon->status != 1) {
+                continue;
+            }
+
+            // Check coupon date validity
+            if ($coupon->start_date > $now || $coupon->end_date < $now) {
+                continue;
+            }
+
+            // Determine eligible carts
+            $eligibleCarts = $carts;
+
+            // Filter by seller if coupon is seller-specific
+            if ($coupon->user_id > 1) {
+                $eligibleCarts = $eligibleCarts->where('seller_id', $coupon->user_id);
+            }
+
+            // Filter by product if coupon is product-based
+            if ($coupon->type == 'product_base' && $coupon->product_id) {
+                $productIds = is_array($coupon->product_id) ? $coupon->product_id : json_decode($coupon->product_id, true);
+                $eligibleCarts = $eligibleCarts->whereIn('product_id', $productIds);
+            }
+
+            if ($eligibleCarts->isEmpty()) {
+                continue;
+            }
+
+            // Calculate total discount for this coupon
+            $calculated_discount = 0;
+            foreach ($eligibleCarts as $cart) {
+                // Check if product is discounted
+                $isDiscountedProduct = false;
+                if ($cart->product) {
+                    if ($cart->product->special_discount > 0 &&
+                        $cart->product->special_discount_start <= $now &&
+                        $cart->product->special_discount_end >= $now) {
+                        $isDiscountedProduct = true;
+                    }
+                    if (in_array($cart->product_id, $campaignProductIds)) {
+                        $isDiscountedProduct = true;
+                    }
+                }
+
+                // Calculate discount based on applicable_on_discount
+                if ($coupon->applicable_on_discount == 0) {
+                    // Only apply to non-discounted products
+                    if (!$isDiscountedProduct) {
+                        $cartPriceTotal = $cart->price * $cart->quantity;
+                        $calculated_discount += $this->calculateDiscountForCoupon($coupon, $cartPriceTotal);
+                    }
+                } else {
+                    // Apply to all products - use selling price for discounted products
+                    if ($isDiscountedProduct) {
+                        $cartPriceTotal = ($cart->price - $cart->discount) * $cart->quantity;
+                    } else {
+                        $cartPriceTotal = $cart->price * $cart->quantity;
+                    }
+                    $calculated_discount += $this->calculateDiscountForCoupon($coupon, $cartPriceTotal);
+                }
+            }
+
+            // Apply maximum discount cap
+            $total_coupon_discount = min($calculated_discount, $coupon->maximum_discount);
+
+            // Now distribute the discount proportionally among eligible products
+            $eligible_total = 0;
+            $eligible_carts = [];
+
+            foreach ($eligibleCarts as $cart) {
+                $isDiscountedProduct = false;
+                if ($cart->product) {
+                    if ($cart->product->special_discount > 0 &&
+                        $cart->product->special_discount_start <= $now &&
+                        $cart->product->special_discount_end >= $now) {
+                        $isDiscountedProduct = true;
+                    }
+                    if (in_array($cart->product_id, $campaignProductIds)) {
+                        $isDiscountedProduct = true;
+                    }
+                }
+
+                // Collect eligible carts based on applicable_on_discount
+                if ($coupon->applicable_on_discount == 0) {
+                    if (!$isDiscountedProduct) {
+                        $eligible_total += $cart->price * $cart->quantity;
+                        $eligible_carts[] = $cart;
+                    }
+                } else {
+                    if ($isDiscountedProduct) {
+                        $eligible_total += ($cart->price - $cart->discount) * $cart->quantity;
+                    } else {
+                        $eligible_total += $cart->price * $cart->quantity;
+                    }
+                    $eligible_carts[] = $cart;
+                }
+            }
+
+            // Distribute discount proportionally among eligible products
+            foreach ($eligible_carts as $cart) {
+                $isDiscountedProduct = false;
+                if ($cart->product) {
+                    if ($cart->product->special_discount > 0 &&
+                        $cart->product->special_discount_start <= $now &&
+                        $cart->product->special_discount_end >= $now) {
+                        $isDiscountedProduct = true;
+                    }
+                    if (in_array($cart->product_id, $campaignProductIds)) {
+                        $isDiscountedProduct = true;
+                    }
+                }
+
+                // Calculate cart total for proportion
+                if ($coupon->applicable_on_discount == 1 && $isDiscountedProduct) {
+                    $cart_total = ($cart->price - $cart->discount) * $cart->quantity;
+                } else {
+                    $cart_total = $cart->price * $cart->quantity;
+                }
+
+                $proportion = $eligible_total > 0 ? $cart_total / $eligible_total : 0;
+                $cart->coupon_discount += $total_coupon_discount * $proportion;
+                $cart->coupon_applied = 1;
+            }
+        }
+
+        // Save all updated cart items
+        foreach ($carts as $cart) {
+            $cart->save();
+        }
+    }
+
+    /**
+     * Calculate discount amount for a coupon based on amount
+     * Used by recalculateCouponDiscounts to match applyCoupon logic
+     */
+    protected function calculateDiscountForCoupon($coupon, $amount)
+    {
+        if ($coupon->discount_type == 'flat') {
+            return $coupon->discount;
+        } else {
+            // Percentage discount
+            return $amount * ($coupon->discount / 100);
+        }
     }
 
     public function deleteBuyNow()

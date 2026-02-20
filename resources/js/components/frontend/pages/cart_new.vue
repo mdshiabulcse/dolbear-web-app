@@ -223,21 +223,33 @@
                       <p>৳ {{ parseFloat(payment_form.coupon_discount).toFixed(2) }}</p>
                   </div>
 
-                  <!-- Applied Coupons List - Display Only -->
+                  <!-- Applied Coupons List with Delete Button -->
                   <div v-if="coupon_list && coupon_list.length > 0" class="applied-coupons mb-3">
                       <div v-for="(coupon, index) in coupon_list" :key="index"
                            class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
                           <div class="w-100">
-                              <div class="badge bg-success">{{ coupon.code || 'Applied' }}</div><br>
-                              <small class="ms-2 text-muted">
-                                  {{ coupon.discount_type === 'flat' ? 'Flat: ' : coupon.discount_type === 'percent' ? 'Percent: ' : '' }}
-                                  {{ coupon.discount_type === 'percent' ? coupon.coupon_discount + '%' : priceFormat(coupon.coupon_discount) }}
-                              </small>
-                              <small class="ms-2 text-success">
-                                  (Discount: ৳ {{ formatCouponDiscount(coupon) }})
-                              </small>
-                              <div v-if="coupon.applicable_on_discount == 0" class="ms-2 mt-1">
-                                  <small class="text-info">* Applicable only to non-discounted products</small>
+                              <div class="d-flex justify-content-between align-items-center">
+                                  <div>
+                                      <div class="badge bg-success">{{ coupon.code || 'Applied' }}</div><br>
+                                      <small class="ms-2 text-muted">
+                                          {{ coupon.discount_type === 'flat' ? 'Flat: ' : coupon.discount_type === 'percent' ? 'Percent: ' : '' }}
+                                          {{ coupon.discount_type === 'percent' ? coupon.coupon_discount + '%' : priceFormat(coupon.coupon_discount) }}
+                                      </small>
+                                      <small class="ms-2 text-success">
+                                          (Discount: ৳ {{ parseFloat(payment_form.coupon_discount).toFixed(2) }})
+                                      </small>
+                                      <div v-if="coupon.applicable_on_discount == 0" class="ms-2 mt-1">
+                                          <small class="text-info">* Applicable only to non-discounted products</small>
+                                      </div>
+                                  </div>
+                                  <img
+                                      @click="removeCoupon(coupon.coupon_id)"
+                                      src="/images/img/icon/deletecart.png"
+                                      alt="Remove"
+                                      style="cursor: pointer; width: 20px; height: 20px; opacity: 0.7;"
+                                      :style="{ opacity: disabled ? 0.3 : 0.7, cursor: disabled ? 'not-allowed' : 'pointer' }"
+                                      title="Remove Coupon"
+                                  />
                               </div>
                           </div>
                       </div>
@@ -492,17 +504,29 @@ export default {
     });
   },
   watch: {
-    cartList(newValue, oldValue) {
-      this.getCheckout();
+    cartList: {
+      handler(newValue, oldValue) {
+        // CRITICAL FIX: Only reload if cart content actually changed
+        // Check if length changed or if we're coming from another page (home page add to cart)
+        const lengthChanged = (!oldValue && newValue) || (oldValue && newValue && oldValue.length !== newValue.length);
+        const comingFromOutside = !this.isInternalUpdate;
 
-      // Automatically remove all coupons if cart becomes empty
-      if (!newValue || newValue.length === 0) {
-        this.removeAllCoupons();
-      }
+        if (lengthChanged || comingFromOutside) {
+          console.log('cartList changed - reloading from backend', newValue?.length, 'items');
+          this.getCheckout();
+        }
 
-      // ❌ REMOVED: Don't re-track view_cart on cart changes
-      // view_cart should only fire once on page load, not when cart contents change
-      // Cart changes are tracked with add_to_cart and remove_from_cart events
+        // Automatically remove all coupons if cart becomes empty
+        if (!newValue || newValue.length === 0) {
+          this.removeAllCoupons();
+        }
+
+        // Reset the flag after handling
+        this.$nextTick(() => {
+          this.isInternalUpdate = false;
+        });
+      },
+      deep: true
     },
   },
   computed: {
@@ -573,9 +597,11 @@ export default {
         cart_length: 0,
         collapseAttribute: [],
         disable: false,
+        disabled: false,
         is_shimmer: false,
         coupon_list: [],
         shipping_classes: [],
+        isInternalUpdate: false,  // Flag to prevent infinite reload loops
 
         loading: false,
 
@@ -855,11 +881,22 @@ export default {
           toastr.error(response.data.error, this.lang.Error + ' !!');
         } else {
           this.$Progress.finish();
+          // CRITICAL FIX: Set flag before updating Vuex to prevent infinite loop
+          this.isInternalUpdate = true;
+
+          // Use fresh cart data from backend response
+          // This ensures coupon discounts are recalculated based on current cart
+          let carts = response.data.carts;
           let checkouts = response.data.checkouts;
           let coupons = response.data.coupons;
           this.free_shipping = response.data.free_shipping;
           this.shipping_classes = response.data.shipping_classes;
-          this.parseData(this.cartList, checkouts, coupons);
+
+          // Update Vuex store with fresh cart data
+          this.$store.dispatch('carts', carts);
+
+          // Parse and display fresh data from backend
+          this.parseData(carts, checkouts, coupons);
         }
       })
     },
@@ -878,11 +915,17 @@ export default {
               Analytics.trackRemoveFromCart(cartItem, cartItem.quantity || 1, this.active_currency);
             }
 
+            // CRITICAL FIX: Backend already returns updated data, use it directly
+            // Set flag to prevent watcher from triggering
+            this.isInternalUpdate = true;
             this.$store.dispatch('carts', response.data.carts);
 
             // Automatically remove all coupons if cart becomes empty
             if (!response.data.carts || response.data.carts.length === 0) {
               this.removeAllCoupons();
+            } else {
+              // Use the response data directly instead of calling getCheckout()
+              this.parseData(response.data.carts, response.data.checkouts, response.data.coupons);
             }
           }
         })
@@ -991,9 +1034,11 @@ export default {
             // Analytics: Track add to cart (1 quantity added)
             Analytics.trackAddToCart(this.carts[index], 1, this.active_currency);
 
+            // CRITICAL FIX: Backend already returns updated data, use it directly
+            // Set flag to prevent watcher from triggering
+            this.isInternalUpdate = true;
             this.$store.dispatch('carts', response.data.carts);
-            let coupons = response.data.coupons;
-            this.parseData(this.cartList, response.data.checkouts, coupons);
+            this.parseData(response.data.carts, response.data.checkouts, response.data.coupons);
           }
         }).catch((error) => {
           this.disable = false;
@@ -1028,10 +1073,11 @@ export default {
             // Analytics: Track remove from cart (1 quantity removed)
             Analytics.trackRemoveFromCart(this.carts[index], 1, this.active_currency);
 
+            // CRITICAL FIX: Backend already returns updated data, use it directly
+            // Set flag to prevent watcher from triggering
+            this.isInternalUpdate = true;
             this.$store.dispatch('carts', response.data.carts);
-            let coupons = response.data.coupons;
-            let checkouts = response.data.checkouts;
-            this.parseData(this.cartList, checkouts, coupons);
+            this.parseData(response.data.carts, response.data.checkouts, response.data.coupons);
           }
         })
 
@@ -1070,11 +1116,11 @@ export default {
               toastr.error(response.data.error, this.lang.Error + " !!");
             } else {
               toastr.success(response.data.success, this.lang.Success + " !!");
-              this.carts = [];
-              let carts = response.data.carts;
-              let checkouts = response.data.checkouts;
-              let coupons = response.data.coupons;
-              this.parseData(carts, checkouts, coupons);
+              // CRITICAL FIX: Backend already returns updated data, use it directly
+              // Set flag to prevent watcher from triggering
+              this.isInternalUpdate = true;
+              this.$store.dispatch('carts', response.data.carts);
+              this.parseData(response.data.carts, response.data.checkouts, response.data.coupons);
               this.payment_form.coupon_code = "";
             }
           })
@@ -1101,11 +1147,11 @@ export default {
                 toastr.error(response.data.error, this.lang.Error + " !!");
               } else {
                 toastr.success(response.data.success, this.lang.Success + " !!");
-                this.carts = [];
-                let carts = response.data.carts;
-                let checkouts = response.data.checkouts;
-                let coupons = response.data.coupons;
-                this.parseData(carts, checkouts, coupons);
+                // CRITICAL FIX: Backend already returns updated data, use it directly
+                // Set flag to prevent watcher from triggering
+                this.isInternalUpdate = true;
+                this.$store.dispatch('carts', response.data.carts);
+                this.parseData(response.data.carts, response.data.checkouts, response.data.coupons);
                 this.payment_form.coupon_code = "";
               }
             })
@@ -1122,7 +1168,7 @@ export default {
       }
 
       let url = this.getUrl("user/coupon-delete");
-      let couponIds = this.coupon_list.map(coupon => coupon.id);
+      let couponIds = this.coupon_list.map(coupon => coupon.coupon_id);
 
       if (couponIds.length === 0) {
         return;
@@ -1748,16 +1794,12 @@ export default {
     padding: 5px 10px;
 }
 
-.applied-coupons .btn-outline-danger {
-    border: 1px solid #dc3545;
-    color: #dc3545;
-    padding: 2px 8px;
-    font-size: 12px;
+.applied-coupons img[alt="Remove"] {
+    transition: opacity 0.3s ease;
 }
 
-.applied-coupons .btn-outline-danger:hover {
-    background: #dc3545;
-    color: white;
+.applied-coupons img[alt="Remove"]:hover {
+    opacity: 1 !important;
 }
 
 .delivery-card {

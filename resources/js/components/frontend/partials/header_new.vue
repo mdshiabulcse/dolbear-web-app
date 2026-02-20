@@ -95,8 +95,8 @@
                 <!-- Campaign Price Display -->
                 <span v-if="item.discount > 0" class="item-qnt">
                   <del style="color: #999; font-size: 11px; margin-right: 4px;">৳ {{ item.quantity * item.original_price }}</del>
-                  <span style="color: #ff6b6b; font-weight: 600;">৳ {{ item.quantity * (item.original_price - item.discount) }}</span>
-                  <span class="item-qnt-details">( ৳ {{ item.quantity }} x {{ (item.original_price - item.discount) }} )</span>
+                  <span style="color: #ff6b6b; font-weight: 600;">৳ {{ item.quantity * item.price }}</span>
+                  <span class="item-qnt-details">( ৳ {{ item.quantity }} x {{ item.price }} )</span>
                 </span>
                 <!-- Regular Price Display -->
                 <span v-else class="item-qnt">
@@ -427,7 +427,7 @@ export default {
       return this.$store.getters.getCarts;
     },
     subTotal() {
-      return this.carts?.reduce((total, item) => total + item.quantity * (item.price - item.discount), 0);
+      return this.carts?.reduce((total, item) => total + item.quantity * item.price, 0);
     },
     total() {
       return this.subTotal;

@@ -683,7 +683,13 @@ class OrderRepository implements OrderInterface
 
                     foreach ($carts->whereIn('seller_id', $cart_group['seller_id']) as $item) {
 
-                        $sub_total += $item->price * $item->quantity;
+                        // CRITICAL FIX: Use product's ORIGINAL price for subtotal calculation
+                        // The cart->price is the selling/campaign price, cart->discount is the discount amount
+                        // For subtotal, we need the product's original selling price
+                        $original_price = $item->product ? $item->product->price : $item->price;
+                        $sub_total += $original_price * $item->quantity;
+
+                        // total_discount is the campaign/special discount amount
                         $total_discount += $item->discount * $item->quantity;
                         $total_tax += $item->tax * $item->quantity;
                         $shipping_cost += $item->shipping_cost;

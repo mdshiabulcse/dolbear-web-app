@@ -434,7 +434,53 @@ trait HomePage
         foreach ($carts as $cart) {
             if ($cart->product)
             {
-                $sku_product = $cart->product->stock->where('name', $cart->variant)->first();
+                $sku_product = null;
+
+                // Try to find the variant stock
+                if (!empty($cart->variant)) {
+                    $sku_product = $cart->product->stock->where('name', $cart->variant)->first();
+                }
+
+                // Determine original_price:
+                // Priority: variant stock price -> first stock price -> product price
+                if ($sku_product && isset($sku_product->price) && $sku_product->price > 0) {
+                    $original_price = $sku_product->price;
+                } else {
+                    $first_stock = $cart->product->stock->first();
+                    $original_price = ($first_stock && isset($first_stock->price) && $first_stock->price > 0)
+                        ? $first_stock->price
+                        : $cart->product->price;
+                }
+
+                // Get selling price from cart (with fallback)
+                $price = $cart->price;
+                $discount = $cart->discount;
+
+                // Validate and fix cart values if needed
+                if ($price === null || $price <= 0) {
+                    $price = $original_price;
+                    $discount = 0.00;
+                }
+                if ($discount < 0) {
+                    $discount = 0.00;
+                }
+                if ($original_price <= 0) {
+                    $original_price = $cart->product->price;
+                }
+
+                // Debug logging
+                \Log::info('cartList debug', [
+                    'cart_id' => $cart->id,
+                    'variant' => $cart->variant,
+                    'stock_price' => $sku_product ? $sku_product->price : null,
+                    'product_price' => $cart->product->price,
+                    'original_price' => $original_price,
+                    'cart_price' => $cart->price,
+                    'cart_discount' => $cart->discount,
+                    'final_price' => $price,
+                    'final_discount' => $discount,
+                ]);
+
                 $cart_list[] = [
                     'id'                    => $cart->id,
                     'seller_id'             => $cart->seller_id,
@@ -444,9 +490,9 @@ trait HomePage
                     'image_72x72'           => $cart->image_72x72,
                     'image_40x40'           => $cart->image_40x40,
                     'sku'                   => $sku_product ? $sku_product->sku : '',
-                    'original_price'        => $cart->product->price, // Product's original selling price
-                    'price'                 => $cart->price, // Campaign/selling price
-                    'discount'              => $cart->discount, // Campaign discount amount
+                    'original_price'        => $original_price, // Original/base price
+                    'price'                 => $price, // Selling price (after discount)
+                    'discount'              => $discount, // Discount amount
                     'quantity'              => $cart->quantity,
                     'trx_id'                => $cart->trx_id,
                     'shipping_cost'         => $cart->shipping_cost,

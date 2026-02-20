@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Admin\Marketing;
 
+use App\Models\Cart;
 use App\Models\Checkout;
 use App\Models\Coupon;
 use App\Models\CouponLanguage;
@@ -154,7 +155,65 @@ class CouponRepository implements CouponInterface
 
     public function deleteCoupon($request)
     {
-        return Checkout::where('coupon_id',$request->coupon_id)->where('user_id',$request->user_id)->where('trx_id',$request->trx_id)->update(['status' => 0]) ;
+        // Update Checkout status to 0 (soft delete)
+        Checkout::where('coupon_id',$request->coupon_id)
+            ->where('user_id',$request->user_id)
+            ->where('trx_id',$request->trx_id)
+            ->update(['status' => 0]);
+
+        // CRITICAL FIX: Get all carts for this user/trx to refresh pricing
+        $carts = Cart::where('user_id',$request->user_id)
+            ->where('trx_id',$request->trx_id)
+            ->get();
+
+        // Reset coupon_discount and recalculate prices for each cart item
+        foreach ($carts as $cart) {
+            // Store original price before any calculations
+            $original_price = $cart->original_price ?? $cart->product->price;
+
+            // Reset coupon-related fields
+            $cart->coupon_discount = 0;
+            $cart->coupon_applied = 0;
+
+            // Recalculate price with campaign/special discount (without coupon)
+            $price = $original_price;
+            $discount = 0;
+
+            if (class_exists(\App\Services\CampaignPricingService::class)) {
+                $pricingService = app(\App\Services\CampaignPricingService::class);
+                $campaignPricing = $pricingService->getCampaignPrice($cart->product_id);
+
+                if ($campaignPricing && isset($campaignPricing['has_campaign']) && $campaignPricing['has_campaign']) {
+                    // Campaign price
+                    $price = $campaignPricing['price'];
+                    $discount = $original_price - $price;
+                } else {
+                    // Check for special discount
+                    if ($cart->product && $cart->product->special_discount > 0) {
+                        $specialStart = $cart->product->special_discount_start;
+                        $specialEnd = $cart->product->special_discount_end;
+                        $now = now()->format('Y-m-d H:i:s');
+
+                        if ($specialStart <= $now && $specialEnd >= $now) {
+                            if ($cart->product->special_discount_type == 'percent') {
+                                $discountAmount = $original_price * ($cart->product->special_discount / 100);
+                            } else {
+                                $discountAmount = $cart->product->special_discount;
+                            }
+                            $discount = min($discountAmount, $original_price);
+                            $price = $original_price - $discount;
+                        }
+                    }
+                }
+            }
+
+            // Update cart with recalculated prices
+            $cart->price = max(0, $price);
+            $cart->discount = max(0, $discount);
+            $cart->save();
+        }
+
+        return true;
     }
 
 }
