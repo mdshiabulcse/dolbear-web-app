@@ -510,21 +510,21 @@
                         <span>{{ __('Marketing') }}</span>
                     </a>
                     <ul class="dropdown-menu">
-                        @if (hasPermission('campaign_read'))
-                            <li class="@yield('campaign')"><a class="nav-link"
-                                    href="{{ route('campaign') }}">{{ __('Campaigns') }}</a>
-                            </li>
-                        @endif
+{{--                        @if (hasPermission('campaign_read'))--}}
+{{--                            <li class="@yield('campaign')"><a class="nav-link"--}}
+{{--                                    href="{{ route('campaign') }}">{{ __('Campaigns') }}</a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
                         <li class="@yield('events')"><a class="nav-link"
                                 href="{{ route('events') }}">{{ __('Events & Sales') }}</a>
                         </li>
-                        @if (settingHelper('seller_system') == 1)
-                            @if (hasPermission('campaign_product_read'))
-                                <li class="@yield('campaign_request')"><a class="nav-link"
-                                        href="{{ route('campaign.requests') }}">{{ __('Campaign Requests') }}</a>
-                                </li>
-                            @endif
-                        @endif
+{{--                        @if (settingHelper('seller_system') == 1)--}}
+{{--                            @if (hasPermission('campaign_product_read'))--}}
+{{--                                <li class="@yield('campaign_request')"><a class="nav-link"--}}
+{{--                                        href="{{ route('campaign.requests') }}">{{ __('Campaign Requests') }}</a>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+{{--                        @endif--}}
                         @if (addon_is_activated('otp_system') == 1)
                             @if (hasPermission('bulk_sms_read'))
                                 <li class="@yield('bulk_sms')"><a class="nav-link"
