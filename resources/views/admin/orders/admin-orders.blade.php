@@ -100,6 +100,7 @@
                                 <tr>
                                     <th>#</th>
                                     <th>{{ __('Order Code') }}</th>
+                                    <th>{{ __('Date') }}</th>
                                     <th>{{ __('Customer') }}</th>
                                     <th>{{ __('Total Product') }}</th>
                                     <th>{{ __('Price') }}</th>
@@ -116,6 +117,7 @@
                                     <tr id="row_{{ $value->id }}" class="table-data-row">
                                         <td> {{ $orders->firstItem() + $key  }} </td>
                                         <td> {{ $value->code }} </td>
+                                        <td> {{ date_format($value->daten,'Y-m-d H:i:s') }} </td>
                                         <td>
                                             <div class="ml-1">
                                                 {{ @$value->user->first_name }} {{ @$value->user->last_name }}<br/>

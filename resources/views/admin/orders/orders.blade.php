@@ -95,6 +95,7 @@
                                 <tr>
                                     <th>#</th>
                                     <th>{{ __('Order Code') }}</th>
+                                    <th>{{ __('Date') }}</th>
                                     {{-- @if(settingHelper('seller_system') == 1)
                                         <th>{{ __('Seller') }}</th>
                                     @endif --}}
@@ -117,6 +118,7 @@
                                     <tr id="row_{{ $value->id }}" class="table-data-row">
                                         <td> {{ $orders->firstItem() + $key  }} </td>
                                         <td> {{ $value->code }} </td>
+                                        <td> {{ \Carbon\Carbon::parse($value->date)->format('d M Y, h:i A') }} </td>
                                         {{-- @if(settingHelper('seller_system') == 1)
                                             <td>
                                                 @if($value->seller_id != 1)
