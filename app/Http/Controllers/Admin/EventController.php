@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\EventProduct;
 use App\Models\Product;
 use App\Services\CampaignPricingService;
+use App\Traits\ImageTrait;
 use Brian2694\Toastr\Facades\Toastr;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Schema;
 
 class EventController extends Controller
 {
+    use ImageTrait;
     /**
      * Display a listing of events
      */
@@ -167,15 +169,6 @@ class EventController extends Controller
                 return back()->withInput();
             }
 
-            // Get banner image data from media library if banner_image_id is provided
-            $bannerImage = [];
-            if ($request->banner_image_id) {
-                $media = \App\Models\Media::find($request->banner_image_id);
-                if ($media) {
-                    $bannerImage = $media->image_variants ?? [];
-                }
-            }
-
             Log::info('EventController::store - Creating event object', [
                 'title' => $request->event_title,
                 'slug' => $request->slug,
@@ -189,7 +182,6 @@ class EventController extends Controller
                 'event_title' => $request->event_title,
                 'slug' => $request->slug,
                 'description' => $request->description,
-                'banner_image' => $bannerImage,
                 'event_priority' => $request->event_priority,
                 'event_type' => $request->event_type,
                 // Save date fields if provided (regardless of event_type for flexibility)
@@ -205,9 +197,13 @@ class EventController extends Controller
                 'created_by' => authId() ?? 1,
             ];
 
-            // Only include banner_image_id if column exists
-            if (Schema::hasColumn('events', 'banner_image_id')) {
+            // Handle banner image - SAME AS CAMPAIGN
+            if ($request->banner_image_id != '') {
+                $eventData['banner_image'] = $this->getImageWithRecommendedSize($request->banner_image_id, 1920, 412, true);
                 $eventData['banner_image_id'] = $request->banner_image_id;
+            } else {
+                $eventData['banner_image'] = [];
+                $eventData['banner_image_id'] = null;
             }
 
             // Only include campaign columns if they exist
@@ -510,24 +506,11 @@ class EventController extends Controller
                 }
             }
 
-            // Get banner image data from media library if banner_image_id is provided
-            $bannerImage = $event->banner_image;
-            if ($request->banner_image_id) {
-                $media = \App\Models\Media::find($request->banner_image_id);
-                if ($media) {
-                    $bannerImage = $media->image_variants ?? [];
-                }
-            } elseif ($request->banner_image_id === null || $request->banner_image_id === '') {
-                // Clear banner if explicitly set to empty
-                $bannerImage = [];
-            }
-
             // Prepare update data - only include columns that exist
             $updateData = [
                 'event_title' => $request->event_title,
                 'slug' => $request->slug,
                 'description' => $request->description,
-                'banner_image' => $bannerImage,
                 'event_priority' => $request->event_priority,
                 'event_type' => $request->event_type,
                 // Save date fields if provided (regardless of event_type for flexibility)
@@ -543,9 +526,16 @@ class EventController extends Controller
                 'updated_by' => authId() ?? 1,
             ];
 
-            // Only include banner_image_id if column exists
-            if (Schema::hasColumn('events', 'banner_image_id')) {
-                $updateData['banner_image_id'] = $request->banner_image_id ?: $event->banner_image_id;
+            // Handle banner image - SAME AS CAMPAIGN UPDATE
+            if ($request->banner_image_id != '') {
+                $this->deleteSingleFile($event->banner_image, 'image_1920x412');
+                $updateData['banner_image'] = $this->getImageWithRecommendedSize($request->banner_image_id, 1920, 412, true);
+                $updateData['banner_image_id'] = $request->banner_image_id;
+            } elseif ($request->banner_image_id === null || $request->banner_image_id === '') {
+                // Clear banner if explicitly set to empty
+                $this->deleteSingleFile($event->banner_image, 'image_1920x412');
+                $updateData['banner_image'] = [];
+                $updateData['banner_image_id'] = null;
             }
 
             // Only include campaign columns if they exist

@@ -236,6 +236,16 @@ class Event extends Model
      */
     public function getBannerImageOriginalAttribute()
     {
+        // Try to get from Media model using banner_image_id
+        if ($this->banner_image_id) {
+            $media = \App\Models\Media::find($this->banner_image_id);
+            if ($media && $media->original_file) {
+                return @is_file_exists($media->original_file, $media->storage)
+                    ? @get_media($media->original_file, $media->storage)
+                    : static_asset('images/default/default-image-1280x420.png');
+            }
+        }
+        // Fallback to banner_image array
         return @is_file_exists(@$this->banner_image['original_image'], @$this->banner_image['storage'])
             ? @get_media(@$this->banner_image['original_image'], @$this->banner_image['storage'])
             : static_asset('images/default/default-image-1280x420.png');
@@ -246,10 +256,24 @@ class Event extends Model
      */
     public function getImage1920x412Attribute()
     {
-        // Use original_image since 1920x412 doesn't exist in media variants
-        return @is_file_exists(@$this->banner_image['original_image'], @$this->banner_image['storage'])
-            ? @get_media(@$this->banner_image['original_image'], @$this->banner_image['storage'])
-            : static_asset('images/default/default-image-1280x420.png');
+        // Try to get from Media model using banner_image_id
+        if ($this->banner_image_id) {
+            $media = \App\Models\Media::find($this->banner_image_id);
+            if ($media) {
+                $variants = $media->image_variants ?? [];
+                $storage = $media->storage ?? 'local';
+                // Check for image_1920x412 variant
+                if (isset($variants['image_1920x412']) && @is_file_exists($variants['image_1920x412'], $storage)) {
+                    return @get_media($variants['image_1920x412'], $storage);
+                }
+                // Fallback to original file
+                if ($media->original_file && @is_file_exists($media->original_file, $storage)) {
+                    return @get_media($media->original_file, $storage);
+                }
+            }
+        }
+        // Fallback to banner_image array
+        return getFileLink('1920x412', $this->banner_image);
     }
 
     /**
@@ -257,10 +281,24 @@ class Event extends Model
      */
     public function getImage406x235Attribute()
     {
-        // Use original_image since 406x235 doesn't exist in media variants
-        return @is_file_exists(@$this->banner_image['original_image'], @$this->banner_image['storage'])
-            ? @get_media(@$this->banner_image['original_image'], @$this->banner_image['storage'])
-            : static_asset('images/default/default-image-400x235.png');
+        // Try to get from Media model using banner_image_id
+        if ($this->banner_image_id) {
+            $media = \App\Models\Media::find($this->banner_image_id);
+            if ($media) {
+                $variants = $media->image_variants ?? [];
+                $storage = $media->storage ?? 'local';
+                // Check for image_406x235 variant
+                if (isset($variants['image_406x235']) && @is_file_exists($variants['image_406x235'], $storage)) {
+                    return @get_media($variants['image_406x235'], $storage);
+                }
+                // Fallback to original file
+                if ($media->original_file && @is_file_exists($media->original_file, $storage)) {
+                    return @get_media($media->original_file, $storage);
+                }
+            }
+        }
+        // Fallback to banner_image array
+        return getFileLink('406x235', $this->banner_image);
     }
 
     /**
@@ -268,10 +306,27 @@ class Event extends Model
      */
     public function getImage374x374Attribute()
     {
-        // Use image_72x72 or original_image since 374x374 doesn't exist in media variants
-        return @is_file_exists(@$this->banner_image['image_72x72'], @$this->banner_image['storage'])
-            ? @get_media(@$this->banner_image['image_72x72'], @$this->banner_image['storage'])
-            : static_asset('images/default/default-image-72x72.png');
+        // Try to get from Media model using banner_image_id
+        if ($this->banner_image_id) {
+            $media = \App\Models\Media::find($this->banner_image_id);
+            if ($media) {
+                $variants = $media->image_variants ?? [];
+                $storage = $media->storage ?? 'local';
+                // Check for image_374x374 or image_72x72 variant
+                if (isset($variants['image_374x374']) && @is_file_exists($variants['image_374x374'], $storage)) {
+                    return @get_media($variants['image_374x374'], $storage);
+                }
+                if (isset($variants['image_72x72']) && @is_file_exists($variants['image_72x72'], $storage)) {
+                    return @get_media($variants['image_72x72'], $storage);
+                }
+                // Fallback to original file
+                if ($media->original_file && @is_file_exists($media->original_file, $storage)) {
+                    return @get_media($media->original_file, $storage);
+                }
+            }
+        }
+        // Fallback to banner_image array
+        return getFileLink('374x374', $this->banner_image);
     }
 
     /**
