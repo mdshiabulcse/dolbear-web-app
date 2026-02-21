@@ -258,10 +258,6 @@
                 advancedMatching: fbAdvancedMatchingData,
                 isLoggedIn: isLoggedIn
             };
-
-            // Debug: Log advanced matching data to console
-            console.log('[Facebook Pixel] Initialized with Advanced Matching Data:', fbAdvancedMatchingData);
-            console.log('[Facebook Pixel] Is Logged In:', isLoggedIn);
         }
     </script>
     <noscript>
@@ -293,7 +289,6 @@
         // Initialize virtual page view tracking for SPA
         window.trackVirtualPageView = function(path, title) {
             if (!window.dataLayer) {
-                console.warn('[Analytics] dataLayer not ready');
                 return;
             }
 
@@ -305,8 +300,6 @@
                 page_location: window.location.href,
                 virtual_page_view: true // Marker to identify SPA navigation
             });
-
-            console.log('[Analytics] Virtual Page View:', path || window.location.pathname);
         };
 
         // Expose to window for Vue router usage
@@ -316,8 +309,6 @@
                 return typeof window.dataLayer !== 'undefined';
             }
         };
-
-        console.log('[Analytics] GTM SPA tracking initialized');
     </script>
 
 

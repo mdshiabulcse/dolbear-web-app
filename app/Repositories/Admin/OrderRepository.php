@@ -684,9 +684,20 @@ class OrderRepository implements OrderInterface
                     foreach ($carts->whereIn('seller_id', $cart_group['seller_id']) as $item) {
 
                         // CRITICAL FIX: Use product's ORIGINAL price for subtotal calculation
-                        // The cart->price is the selling/campaign price, cart->discount is the discount amount
-                        // For subtotal, we need the product's original selling price
-                        $original_price = $item->product ? $item->product->price : $item->price;
+                        // For variant products, get the variant stock price; for simple products, use product price
+                        $original_price = $item->price + $item->discount; // cart stores selling price + discount = original
+                        if ($item->product && !empty($item->variant)) {
+                            // For variant products, verify against stock price
+                            $sku_product = $item->product->stock->where('name', $item->variant)->first();
+                            if ($sku_product && isset($sku_product->price) && $sku_product->price > 0) {
+                                // Use variant stock price as original price
+                                $original_price = $sku_product->price;
+                            }
+                        } elseif ($item->product) {
+                            // For simple products, use product base price
+                            $original_price = $item->product->price;
+                        }
+
                         $sub_total += $original_price * $item->quantity;
 
                         // total_discount is the campaign/special discount amount
@@ -819,6 +830,22 @@ class OrderRepository implements OrderInterface
 
                 foreach ($carts->whereIn('seller_id', $cart_group['seller_id']) as $item) {
 
+                    // CRITICAL FIX: Calculate ORIGINAL price to save in order_details
+                    // Cart stores: price = selling price, discount = discount amount
+                    // So: original_price = price + discount
+                    $original_price = $item->price + $item->discount;
+
+                    // For variant products, verify with stock price
+                    if ($item->product && !empty($item->variant)) {
+                        $sku_product = $item->product->stock->where('name', $item->variant)->first();
+                        if ($sku_product && isset($sku_product->price) && $sku_product->price > 0) {
+                            $original_price = $sku_product->price;
+                        }
+                    } elseif ($item->product) {
+                        // For simple products, use product base price
+                        $original_price = $item->product->price;
+                    }
+
                     $shipping_cost = [
                         'type' => '',
                         'depend_on_quantity' => 0,
@@ -840,10 +867,18 @@ class OrderRepository implements OrderInterface
                         ];
                     }
 
-                    if ($item->coupon_discount > 0) {
+                    // CRITICAL FIX: Always initialize coupon array to avoid undefined issues in invoice
+                    // If coupon_discount > 0, store the coupon info; otherwise store empty array
+                    if ($item->coupon_discount > 0 && isset($cart_group['code'])) {
                         $coupon = [
                             'code' => $cart_group['code'],
                             'discount' => $item->coupon_discount,
+                        ];
+                    } else {
+                        // Initialize empty coupon array when no discount
+                        $coupon = [
+                            'code' => '',
+                            'discount' => 0,
                         ];
                     }
 
@@ -851,7 +886,7 @@ class OrderRepository implements OrderInterface
                         'order_id' => $order->id,
                         'product_id' => $item->product_id,
                         'variation' => $item->variant,
-                        'price' => $item->price,
+                        'price' => $original_price, // Save ORIGINAL price, not selling price
                         'tax' => $item->tax,
                         'discount' => $item->discount,
                         'shipping_cost' => $shipping_cost,

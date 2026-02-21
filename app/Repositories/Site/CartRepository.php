@@ -1003,15 +1003,33 @@ class CartRepository implements CartInterface
                     return __('This Coupon is Already Used');
                 }
 
-                // Get campaign product IDs for all carts (single query for efficiency)
+                // Get campaign product IDs for all carts using CampaignPricingService
+                // This ensures proper time-based validation (daily events, date ranges)
+                $campaignProductIds = [];
+                try {
+                    if (class_exists(\App\Services\CampaignPricingService::class)) {
+                        $pricingService = app(\App\Services\CampaignPricingService::class);
+                        $activeCampaigns = $pricingService->getActiveCampaigns();
+
+                        if ($activeCampaigns && $activeCampaigns->isNotEmpty()) {
+                            foreach ($activeCampaigns as $campaign) {
+                                // Get all products for this actively running campaign
+                                $campaignProducts = $campaign->activeEventProducts()
+                                    ->whereIn('product_id', $carts->pluck('product_id'))
+                                    ->where('is_active', 1)
+                                    ->where('status', 'active')
+                                    ->pluck('product_id')
+                                    ->toArray();
+                                $campaignProductIds = array_merge($campaignProductIds, $campaignProducts);
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Campaign check failed: ' . $e->getMessage());
+                }
+                $campaignProductIds = array_unique($campaignProductIds);
+
                 $now = now()->format('Y-m-d H:i:s');
-                $campaignProductIds = CampaignProduct::whereIn('product_id', $carts->pluck('product_id'))
-                    ->whereHas('campaign', function($q) {
-                        $q->where('start_date', '<=', now())
-                          ->where('end_date', '>=', now());
-                    })
-                    ->pluck('product_id')
-                    ->toArray();
 
                 // Calculate full cart subtotal for minimum shopping check
                 $full_cart_subtotal = 0;
@@ -1047,12 +1065,10 @@ class CartRepository implements CartInterface
                             $coupon_base_amount += $cart->price * $cart->quantity;
                         }
                     } else {
-                        // Include all products - use selling price (price - discount) for discounted products
-                        if ($isDiscountedProduct) {
-                            $coupon_base_amount += ($cart->price - $cart->discount) * $cart->quantity;
-                        } else {
-                            $coupon_base_amount += $cart->price * $cart->quantity;
-                        }
+                        // Include all products - use selling price (cart->price is already after discount)
+                        // For discounted products, cart->price IS the selling price
+                        // For non-discounted products, cart->price is the original price
+                        $coupon_base_amount += $cart->price * $cart->quantity;
                     }
                 }
 
@@ -1095,12 +1111,8 @@ class CartRepository implements CartInterface
                                     $eligible_product_amount += $cart->price * $cart->quantity;
                                 }
                             } else {
-                                // Include all products
-                                if ($isDiscountedProduct) {
-                                    $eligible_product_amount += ($cart->price - $cart->discount) * $cart->quantity;
-                                } else {
-                                    $eligible_product_amount += $cart->price * $cart->quantity;
-                                }
+                                // Include all products - use selling price (cart->price is already after discount)
+                                $eligible_product_amount += $cart->price * $cart->quantity;
                             }
                         }
 
@@ -1135,12 +1147,8 @@ class CartRepository implements CartInterface
                                     $calculated_discount += $this->calculateDiscount($coupon, ($cart->price * $cart->quantity));
                                 }
                             } else {
-                                // Apply to all products - use selling price for discounted products
-                                if ($isDiscountedProduct) {
-                                    $calculated_discount += $this->calculateDiscount($coupon, (($cart->price - $cart->discount) * $cart->quantity));
-                                } else {
-                                    $calculated_discount += $this->calculateDiscount($coupon, ($cart->price * $cart->quantity));
-                                }
+                                // Apply to all products - use selling price (cart->price is already after discount)
+                                $calculated_discount += $this->calculateDiscount($coupon, ($cart->price * $cart->quantity));
                             }
                         }
 
@@ -1176,12 +1184,8 @@ class CartRepository implements CartInterface
                                     $eligible_carts[] = $cart;
                                 }
                             } else {
-                                // Include all products - use selling price for discounted products
-                                if ($isDiscountedProduct) {
-                                    $eligible_total += ($cart->price - $cart->discount) * $cart->quantity;
-                                } else {
-                                    $eligible_total += $cart->price * $cart->quantity;
-                                }
+                                // Include all products - use selling price (cart->price is already after discount)
+                                $eligible_total += $cart->price * $cart->quantity;
                                 $eligible_carts[] = $cart;
                             }
 
@@ -1206,11 +1210,8 @@ class CartRepository implements CartInterface
                             }
 
                             // Calculate cart total for proportion
-                            if ($coupon->applicable_on_discount == 1 && $isDiscountedProduct) {
-                                $cart_total = ($cart->price - $cart->discount) * $cart->quantity;
-                            } else {
-                                $cart_total = $cart->price * $cart->quantity;
-                            }
+                            // Use selling price (cart->price is already after discount)
+                            $cart_total = $cart->price * $cart->quantity;
 
                             $proportion = $eligible_total > 0 ? $cart_total / $eligible_total : 0;
                             $cart->coupon_discount = $total_coupon_discount * $proportion;
@@ -1268,14 +1269,9 @@ class CartRepository implements CartInterface
                                     $eligible_carts[] = $cart;
                                 }
                             } else {
-                                // Include all products - use selling price for discounted products
-                                if ($isDiscountedProduct) {
-                                    $eligible_total += ($cart->price - $cart->discount) * $cart->quantity;
-                                    $eligible_carts[] = $cart;
-                                } else {
-                                    $eligible_total += $cart->price * $cart->quantity;
-                                    $eligible_carts[] = $cart;
-                                }
+                                // Include all products - use selling price (cart->price is already after discount)
+                                $eligible_total += $cart->price * $cart->quantity;
+                                $eligible_carts[] = $cart;
                             }
                             $cart->save();
                         }
@@ -1297,11 +1293,8 @@ class CartRepository implements CartInterface
                             }
 
                             // Calculate cart total for proportion
-                            if ($coupon->applicable_on_discount == 1 && $isDiscountedProduct) {
-                                $cart_total = ($cart->price - $cart->discount) * $cart->quantity;
-                            } else {
-                                $cart_total = $cart->price * $cart->quantity;
-                            }
+                            // Use selling price (cart->price is already after discount)
+                            $cart_total = $cart->price * $cart->quantity;
 
                             $proportion = $eligible_total > 0 ? $cart_total / $eligible_total : 0;
                             $cart->coupon_discount = $coupon_discount * $proportion;
@@ -1706,6 +1699,26 @@ class CartRepository implements CartInterface
             $checkouts = Checkout::with('coupon')->where('trx_id',$request['trx_id'])->where('status',1)->get();
             foreach ($checkouts as $key =>$checkout) {
                 $coupon = $checkout->coupon;
+                $productIds = [];
+
+                // Determine if this is a product-based coupon
+                // Check for both 'product_base' type OR null type with product_ids set
+                $isProductBased = ($coupon->type == 'product_base' ||
+                                   (empty($coupon->type) && !empty($coupon->product_id)));
+
+                if ($isProductBased && $coupon->product_id) {
+                    $productIds = is_array($coupon->product_id) ? $coupon->product_id : json_decode($coupon->product_id, true);
+                    if (!is_array($productIds)) {
+                        $productIds = [];
+                    }
+                }
+
+                // If type is null but product_ids exist, treat as product_base
+                $couponType = $coupon->type;
+                if (empty($couponType) && !empty($productIds)) {
+                    $couponType = 'product_base';
+                }
+
                 $coupons[] = [
                     'coupon_id'    => $coupon->id,
                     'code'         => $coupon->code,
@@ -1715,6 +1728,8 @@ class CartRepository implements CartInterface
                     'discount'     => $checkout->coupon_discount,
                     'coupon_discount'=> $coupon->discount,
                     'applicable_on_discount' => $coupon->applicable_on_discount ?? 1,
+                    'type'         => $couponType,
+                    'product_ids'  => $productIds,
                 ];
             }
         endif;
@@ -1757,16 +1772,21 @@ class CartRepository implements CartInterface
         $now = now()->format('Y-m-d H:i:s');
 
         // Get campaign product IDs using CampaignPricingService
+        // This ensures proper time-based validation for active campaigns
         $campaignProductIds = [];
         try {
             if (class_exists(\App\Services\CampaignPricingService::class)) {
                 $pricingService = app(\App\Services\CampaignPricingService::class);
-//                $activeCampaigns = $pricingService->getActiveCampaigns();
+                $activeCampaigns = $pricingService->getActiveCampaigns();
 
                 if ($activeCampaigns && $activeCampaigns->isNotEmpty()) {
                     foreach ($activeCampaigns as $campaign) {
-                        $campaignProducts = $campaign->getAllProducts()
+                        // Get all products for this actively running campaign
+                        // Using activeEventProducts relation which respects is_active and status
+                        $campaignProducts = $campaign->activeEventProducts()
                             ->whereIn('product_id', $carts->pluck('product_id'))
+                            ->where('is_active', 1)
+                            ->where('status', 'active')
                             ->pluck('product_id')
                             ->toArray();
                         $campaignProductIds = array_merge($campaignProductIds, $campaignProducts);
@@ -1833,12 +1853,8 @@ class CartRepository implements CartInterface
                         $calculated_discount += $this->calculateDiscountForCoupon($coupon, $cartPriceTotal);
                     }
                 } else {
-                    // Apply to all products - use selling price for discounted products
-                    if ($isDiscountedProduct) {
-                        $cartPriceTotal = ($cart->price - $cart->discount) * $cart->quantity;
-                    } else {
-                        $cartPriceTotal = $cart->price * $cart->quantity;
-                    }
+                    // Apply to all products - use selling price (cart->price is already after discount)
+                    $cartPriceTotal = $cart->price * $cart->quantity;
                     $calculated_discount += $this->calculateDiscountForCoupon($coupon, $cartPriceTotal);
                 }
             }
@@ -1870,11 +1886,8 @@ class CartRepository implements CartInterface
                         $eligible_carts[] = $cart;
                     }
                 } else {
-                    if ($isDiscountedProduct) {
-                        $eligible_total += ($cart->price - $cart->discount) * $cart->quantity;
-                    } else {
-                        $eligible_total += $cart->price * $cart->quantity;
-                    }
+                    // Include all products - use selling price (cart->price is already after discount)
+                    $eligible_total += $cart->price * $cart->quantity;
                     $eligible_carts[] = $cart;
                 }
             }
@@ -1894,11 +1907,8 @@ class CartRepository implements CartInterface
                 }
 
                 // Calculate cart total for proportion
-                if ($coupon->applicable_on_discount == 1 && $isDiscountedProduct) {
-                    $cart_total = ($cart->price - $cart->discount) * $cart->quantity;
-                } else {
-                    $cart_total = $cart->price * $cart->quantity;
-                }
+                // Use selling price (cart->price is already after discount)
+                $cart_total = $cart->price * $cart->quantity;
 
                 $proportion = $eligible_total > 0 ? $cart_total / $eligible_total : 0;
                 $cart->coupon_discount += $total_coupon_discount * $proportion;

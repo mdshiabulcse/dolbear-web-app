@@ -70,10 +70,8 @@ const Analytics = {
 
 			// NOTE: Facebook Pixel tracking removed to prevent duplicates
 			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
-
-			console.log('[Analytics] Product view tracked:', productDetails.product_name);
 		} catch (error) {
-			console.error('[Analytics] Error tracking product view:', error);
+			// Error tracking product view
 		}
 	},
 
@@ -85,7 +83,6 @@ const Analytics = {
 	 */
 	trackAddToCart(productDetails, quantity, activeCurrency) {
 		if (!this.isGTMReady() || !productDetails) {
-			console.warn('[Analytics] GTM not ready or no product data');
 			return;
 		}
 
@@ -114,10 +111,8 @@ const Analytics = {
 
 			// NOTE: Facebook Pixel tracking removed to prevent duplicates
 			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
-
-			console.log('[Analytics] Add to cart tracked:', productDetails.product_name, 'Qty:', quantity);
 		} catch (error) {
-			console.error('[Analytics] Error tracking add to cart:', error);
+			console.error(error);
 		}
 	},
 
@@ -129,7 +124,6 @@ const Analytics = {
 	 */
 	trackBeginCheckout(carts, couponCode, activeCurrency) {
 		if (!this.isGTMReady() || !carts || !Array.isArray(carts) || carts.length === 0) {
-			console.warn('[Analytics] GTM not ready or no cart data');
 			return;
 		}
 
@@ -160,10 +154,8 @@ const Analytics = {
 
 			// NOTE: Facebook Pixel tracking removed to prevent duplicates
 			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
-
-			console.log('[Analytics] Begin checkout tracked. Total:', totalValue, 'Items:', carts.length);
 		} catch (error) {
-			console.error('[Analytics] Error tracking begin checkout:', error);
+			console.error(error);
 		}
 	},
 
@@ -175,7 +167,6 @@ const Analytics = {
 	 */
 	trackViewCart(carts, activeCurrency) {
 		if (!this.isGTMReady() || !carts || !Array.isArray(carts) || carts.length === 0) {
-			console.warn('[Analytics] GTM not ready or no cart data');
 			return;
 		}
 
@@ -206,10 +197,8 @@ const Analytics = {
 
 			// NOTE: Facebook Pixel tracking removed to prevent duplicates
 			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
-
-			console.log('[Analytics] View cart tracked. Total:', totalValue, 'Currency:', currency, 'Items:', carts.length);
 		} catch (error) {
-			console.error('[Analytics] Error tracking view cart:', error);
+			console.error(error);
 		}
 	},
 
@@ -221,7 +210,6 @@ const Analytics = {
 	 */
 	trackRemoveFromCart(product, quantity, activeCurrency) {
 		if (!this.isGTMReady() || !product) {
-			console.warn('[Analytics] GTM not ready or no product data');
 			return;
 		}
 
@@ -246,10 +234,8 @@ const Analytics = {
 					}]
 				}
 			});
-
-			console.log('[Analytics] Remove from cart tracked:', product.product_name, 'Qty:', quantity, 'Value:', value, 'Currency:', currency);
 		} catch (error) {
-			console.error('[Analytics] Error tracking remove from cart:', error);
+			console.error(error);
 		}
 	},
 
@@ -261,7 +247,6 @@ const Analytics = {
 	 */
 	trackPurchase(orders, activeCurrency) {
 		if (!this.isGTMReady() || !orders || !Array.isArray(orders) || orders.length === 0) {
-			console.warn('[Analytics] GTM not ready or no order data');
 			return;
 		}
 
@@ -304,11 +289,9 @@ const Analytics = {
 
 				// NOTE: Facebook Pixel tracking removed to prevent duplicates
 				// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
-
-				console.log('[Analytics] Purchase tracked for order:', order.code, 'Total:', order.total_payable);
 			});
 		} catch (error) {
-			console.error('[Analytics] Error tracking purchase:', error);
+			console.error(error);
 		}
 	},
 
@@ -332,10 +315,8 @@ const Analytics = {
 
 			// NOTE: Facebook Pixel tracking removed to prevent duplicates
 			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
-
-			console.log('[Analytics] Search tracked:', searchTerm);
 		} catch (error) {
-			console.error('[Analytics] Error tracking search:', error);
+			console.error(error);
 		}
 	},
 
@@ -374,10 +355,8 @@ const Analytics = {
 
 			// NOTE: Facebook Pixel tracking removed to prevent duplicates
 			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
-
-			console.log('[Analytics] Add to wishlist tracked:', productDetails.product_name);
 		} catch (error) {
-			console.error('[Analytics] Error tracking add to wishlist:', error);
+			console.error(error);
 		}
 	},
 
@@ -398,10 +377,8 @@ const Analytics = {
 				page_title: pageName,
 				page_category: pageCategory
 			});
-
-			console.log('[Analytics] Page view tracked:', pageName);
 		} catch (error) {
-			console.error('[Analytics] Error tracking page view:', error);
+			console.error(error);
 		}
 	},
 
@@ -429,10 +406,8 @@ const Analytics = {
 
 			// NOTE: Facebook Pixel tracking removed to prevent duplicates
 			// GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
-
-			console.log('[Analytics] Campaign view tracked:', campaign.title || campaign.name);
 		} catch (error) {
-			console.error('[Analytics] Error tracking campaign view:', error);
+			console.error(error);
 		}
 	}
 };

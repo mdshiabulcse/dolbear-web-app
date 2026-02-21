@@ -22,9 +22,12 @@
                   <span>{{ cart.product_name }} <span v-if="cart.variant">({{ cart.variant }})</span> </span>
                 </td>
                 <td>
-                  <div v-if="cart.discount > 0">
-                    <del style="color: #999;">{{ priceFormat(cart.original_price) }}</del>
+                  <div v-if="cart.discount > 0 || cart.coupon_discount > 0">
+                    <del style="color: #999;">{{ priceFormat(cart.original_price || cart.price + cart.discount) }}</del>
                     <span style="color: #ff6b6b; font-weight: 600; margin-left: 5px;">{{ priceFormat(cart.price) }}</span>
+                    <div v-if="cart.coupon_discount > 0" style="font-size: 11px; color: #28a745;">
+                      Coupon: -{{ priceFormat(cart.coupon_discount) }}
+                    </div>
                   </div>
                   <span v-else>{{ priceFormat(cart.price) }}</span>
                 </td>
@@ -362,7 +365,7 @@ const Analytics = {
             // NOTE: Facebook Pixel tracking removed to prevent duplicates
             // GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
 
-            console.log('[Analytics] View cart tracked. Total:', totalValue, 'Currency:', currency, 'Items:', carts.length);
+            // Analytics: View cart tracked
         } catch (error) {
             console.error('[Analytics] Error tracking view cart:', error);
         }
@@ -397,7 +400,7 @@ const Analytics = {
             // NOTE: Facebook Pixel tracking removed to prevent duplicates
             // GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
 
-            console.log('[Analytics] Add to cart tracked:', product.product_name, 'Qty:', quantity, 'Value:', value, 'Currency:', currency);
+            // Analytics: Add to cart tracked
         } catch (error) {
             console.error('[Analytics] Error tracking add to cart:', error);
         }
@@ -429,7 +432,7 @@ const Analytics = {
                 }
             });
 
-            console.log('[Analytics] Remove from cart tracked:', product.product_name, 'Qty:', quantity, 'Value:', value, 'Currency:', currency);
+            // Analytics: Remove from cart tracked
         } catch (error) {
             console.error('[Analytics] Error tracking remove from cart:', error);
         }
@@ -467,7 +470,7 @@ const Analytics = {
             // NOTE: Facebook Pixel tracking removed to prevent duplicates
             // GTM container (GTM-54BWTWX9) handles Facebook Pixel based on dataLayer events
 
-            console.log('[Analytics] Begin checkout tracked. Total:', totalValue, 'Currency:', currency, 'Items:', carts.length);
+            // Analytics: Begin checkout tracked
         } catch (error) {
             console.error('[Analytics] Error tracking begin checkout:', error);
         }
@@ -512,7 +515,7 @@ export default {
         const comingFromOutside = !this.isInternalUpdate;
 
         if (lengthChanged || comingFromOutside) {
-          console.log('cartList changed - reloading from backend', newValue?.length, 'items');
+          // Cart list changed - reloading from backend
           this.getCheckout();
         }
 
@@ -646,14 +649,14 @@ export default {
 
     getDivisions() {
       let url = this.getUrl('get/division-list/');
-      console.log('Fetching divisions from:', url);
+      // Fetching divisions
       axios.get(url).then((response) => {
-        console.log('Divisions response:', response.data);
+        // Divisions loaded
         if (response.data.error) {
           toastr.error(response.data.error, this.lang.Error + ' !!');
         } else {
           this.divisions = response.data.divisions;
-          console.log('Divisions loaded:', this.divisions);
+          // Divisions stored
         }
       }).catch((error) => {
         console.error('Error fetching divisions:', error);
@@ -904,6 +907,7 @@ export default {
       if (confirm("Are you sure?")) {
         // Find the cart item before deleting for tracking
         const cartItem = this.carts.find(c => c.id === id);
+        const deletedProductId = cartItem ? cartItem.product_id : null;
 
         let url = this.getUrl('cart/delete/' + id);
         axios.get(url).then((response) => {
@@ -923,9 +927,19 @@ export default {
             // Automatically remove all coupons if cart becomes empty
             if (!response.data.carts || response.data.carts.length === 0) {
               this.removeAllCoupons();
+              // Parse data after removing coupons
+              this.parseData(response.data.carts, response.data.checkouts, []);
             } else {
-              // Use the response data directly instead of calling getCheckout()
-              this.parseData(response.data.carts, response.data.checkouts, response.data.coupons);
+              // Validate product-wise coupons after deletion
+              // Don't parse yet - validation will handle it
+              this.validateProductWiseCoupons(response.data.carts, response.data.coupons, deletedProductId)
+                .then(() => {
+                  // Validation complete - cart already refreshed by getCheckout()
+                })
+                .catch(() => {
+                  // If validation fails, still parse the original data
+                  this.parseData(response.data.carts, response.data.checkouts, response.data.coupons);
+                });
             }
           }
         })
@@ -1210,8 +1224,116 @@ export default {
             }
           }
         }).catch((error) => {
-          console.log('Error removing coupon:', error);
+          // Error removing coupon
         });
+      });
+    },
+
+    /**
+     * Validate product-wise coupons after cart operations
+     * Removes coupons that are no longer valid because eligible products were removed
+     * Returns Promise that resolves when validation is complete
+     */
+    validateProductWiseCoupons(carts, coupons, deletedProductId) {
+      if (!coupons || coupons.length === 0) {
+        return Promise.resolve();
+      }
+
+      if (!carts || carts.length === 0) {
+        return this.removeAllCouponsSync();
+      }
+
+      // Get current product IDs in cart
+      const cartProductIds = carts.map(c => c.product_id);
+
+      // Check each product-wise coupon
+      const couponsToRemove = [];
+      coupons.forEach(coupon => {
+        // Debug: Check coupon structure
+        if (coupon.product_ids && coupon.product_ids.length > 0) {
+          // Check if this is a product-wise coupon
+          // Handle both 'product_base' and null/undefined type values
+          const isProductWise = coupon.type === 'product_base' ||
+                               (!coupon.type && coupon.product_ids && coupon.product_ids.length > 0);
+
+          if (isProductWise) {
+            // Check if any eligible product still exists in cart
+            const hasEligibleProduct = coupon.product_ids.some(pid => cartProductIds.includes(pid));
+
+            if (!hasEligibleProduct) {
+              // No eligible products remaining, remove this coupon
+              couponsToRemove.push(coupon.coupon_id);
+            }
+          }
+        }
+      });
+
+      // Remove invalid coupons and refresh cart
+      if (couponsToRemove.length > 0) {
+        const removePromises = couponsToRemove.map(couponId => {
+          let url = this.getUrl("user/coupon-delete");
+          let form = {
+            trx_id: this.cartList && this.cartList[0] ? this.cartList[0].trx_id : this.trx_id,
+            coupon_id: couponId,
+            user_id: this.authUser ? this.authUser.id : null,
+          };
+
+          return axios.post(url, form);
+        });
+
+        // Wait for all coupons to be removed, then refresh cart
+        return Promise.all(removePromises).then(() => {
+          toastr.info('Coupon removed: No eligible products in cart', 'Info');
+          // Refresh cart data to show updated state
+          return this.getCheckout();
+        }).catch(() => {
+          // Silently fail
+        });
+      }
+
+      return Promise.resolve();
+    },
+
+    /**
+     * Synchronous version of removeAllCoupons that returns a Promise
+     */
+    removeAllCouponsSync() {
+      if (!this.coupon_list || this.coupon_list.length === 0) {
+        return Promise.resolve();
+      }
+
+      let url = this.getUrl("user/coupon-delete");
+      let couponIds = this.coupon_list.map(coupon => coupon.coupon_id);
+
+      if (couponIds.length === 0) {
+        return Promise.resolve();
+      }
+
+      const removePromises = couponIds.map(couponId => {
+        let form = {
+          trx_id: this.cartList && this.cartList[0] ? this.cartList[0].trx_id : this.trx_id,
+          coupon_id: couponId,
+          user_id: this.authUser ? this.authUser.id : null,
+        };
+        return axios.post(url, form);
+      });
+
+      return Promise.all(removePromises).then(() => {
+        this.payment_form.coupon_discount = 0;
+        this.coupon_list = [];
+        // Recalculate totals
+        if (this.settings.tax_type == 'after_tax' && this.settings.vat_and_tax_type == 'order_base') {
+          this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.shipping_tax)) - parseFloat(this.payment_form.discount_offer));
+          this.payment_form.total += this.payment_form.tax;
+          if(this.payment_form.total < 0){
+            this.payment_form.total = 0;
+          }
+        } else {
+          this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.tax) + parseFloat(this.payment_form.shipping_tax)) - parseFloat(this.payment_form.discount_offer));
+          if(this.payment_form.total < 0){
+            this.payment_form.total = 0;
+          }
+        }
       });
     },
 

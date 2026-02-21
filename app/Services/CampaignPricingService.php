@@ -164,6 +164,17 @@ class CampaignPricingService
     }
 
     /**
+     * Get all active campaigns (collection)
+     * Returns empty collection if no campaigns are currently active
+     * NOTE: The system is designed to have only ONE active campaign at a time
+     * based on time-based priority, but this returns the collection for flexibility
+     */
+    public function getActiveCampaigns(): \Illuminate\Support\Collection
+    {
+        return $this->activeCampaigns ?? collect();
+    }
+
+    /**
      * Check if any campaign is currently active
      */
     public function hasActiveCampaign(): bool

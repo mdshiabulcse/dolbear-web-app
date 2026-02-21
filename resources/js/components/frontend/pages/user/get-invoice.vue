@@ -186,7 +186,7 @@
 						<div class="table_body">
 						<div class="product_data">{{ order_detail.product_name }} <span v-if="order_detail.variation"> ({{ order_detail.variation }})</span> </div>
 						<div class="quantity_data">{{ order_detail.quantity }}</div>
-						<div class="price_data">{{ priceFormat(order_detail.price) }}</div>
+						<div class="price_data">{{ priceFormat(order_detail.price * order_detail.quantity) }}</div>
 						<div class="price_data">{{ priceFormat(order_detail.discount * order_detail.quantity) }}</div>
 						<div class="price_data">{{								priceFormat(												((parseFloat(order_detail.price) * order_detail.quantity) +	(parseFloat(order_detail.tax) * order_detail.quantity) +parseFloat(order_detail.shipping_cost.total_cost)) -													((parseFloat(order_detail.discount) * order_detail.quantity) + parseFloat(order_detail.coupon_discount.discount)),											)										}}</div>
 					</div>
