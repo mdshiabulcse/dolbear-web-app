@@ -208,7 +208,7 @@
     </div>
 </div>
 
-@push('scripts')
+@push('script')
 <script>
     $(document).ready(function () {
         // Add product to event
