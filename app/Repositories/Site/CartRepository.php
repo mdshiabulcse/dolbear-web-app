@@ -1153,7 +1153,7 @@ class CartRepository implements CartInterface
                         }
 
                         // Apply maximum discount cap
-                        $total_coupon_discount = min($calculated_discount, $coupon->maximum_discount);
+                        $total_coupon_discount = round(min($calculated_discount, $coupon->maximum_discount), 2);
 
                         // Now distribute the capped discount proportionally among eligible products
                         $eligible_total = 0;
@@ -1214,7 +1214,7 @@ class CartRepository implements CartInterface
                             $cart_total = $cart->price * $cart->quantity;
 
                             $proportion = $eligible_total > 0 ? $cart_total / $eligible_total : 0;
-                            $cart->coupon_discount = $total_coupon_discount * $proportion;
+                            $cart->coupon_discount = round($total_coupon_discount * $proportion, 2);
                             $cart->save();
                         }
 
@@ -1235,7 +1235,7 @@ class CartRepository implements CartInterface
                         // Calculate discount amount based on coupon base amount (eligible products only)
                         $discount_amount            = $this->calculateDiscount($coupon, $coupon_base_amount);
                         $max_discount               = $coupon->maximum_discount;
-                        $coupon_discount            = min($discount_amount, $max_discount);
+                        $coupon_discount            = round(min($discount_amount, $max_discount), 2);
 
                         // Distribute coupon discount among eligible products
                         $eligible_total = 0;
@@ -1297,7 +1297,7 @@ class CartRepository implements CartInterface
                             $cart_total = $cart->price * $cart->quantity;
 
                             $proportion = $eligible_total > 0 ? $cart_total / $eligible_total : 0;
-                            $cart->coupon_discount = $coupon_discount * $proportion;
+                            $cart->coupon_discount = round($coupon_discount * $proportion, 2);
                             $cart->save();
                         }
 
@@ -1387,7 +1387,7 @@ class CartRepository implements CartInterface
             $coupon_discount = $price * ($coupon->discount / 100);
         }
 
-        return $coupon_discount;
+        return round($coupon_discount, 2);
     }
 
     public function checkoutCoupon($carts, $data,$user): array
@@ -1725,7 +1725,7 @@ class CartRepository implements CartInterface
                     'title'        => $coupon->title,
                     'status'       => $coupon->status,
                     'discount_type'=> $coupon->discount_type,
-                    'discount'     => $checkout->coupon_discount,
+                    'discount'     => round($checkout->coupon_discount, 2),
                     'coupon_discount'=> $coupon->discount,
                     'applicable_on_discount' => $coupon->applicable_on_discount ?? 1,
                     'type'         => $couponType,
@@ -1860,7 +1860,7 @@ class CartRepository implements CartInterface
             }
 
             // Apply maximum discount cap
-            $total_coupon_discount = min($calculated_discount, $coupon->maximum_discount);
+            $total_coupon_discount = round(min($calculated_discount, $coupon->maximum_discount), 2);
 
             // Now distribute the discount proportionally among eligible products
             $eligible_total = 0;
@@ -1911,7 +1911,7 @@ class CartRepository implements CartInterface
                 $cart_total = $cart->price * $cart->quantity;
 
                 $proportion = $eligible_total > 0 ? $cart_total / $eligible_total : 0;
-                $cart->coupon_discount += $total_coupon_discount * $proportion;
+                $cart->coupon_discount += round($total_coupon_discount * $proportion, 2);
                 $cart->coupon_applied = 1;
             }
         }
@@ -1932,7 +1932,7 @@ class CartRepository implements CartInterface
             return $coupon->discount;
         } else {
             // Percentage discount
-            return $amount * ($coupon->discount / 100);
+            return round($amount * ($coupon->discount / 100), 2);
         }
     }
 

@@ -173,6 +173,46 @@ class FrontendController extends Controller
         }
     }
 
+    /**
+     * Get active event/campaign for header menu display
+     * Returns only currently running events with time-based validation
+     */
+    public function activeEvent(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $activeEvent = null;
+
+            // Use CampaignPricingService to get the currently active event
+            if (class_exists(CampaignPricingService::class)) {
+                $pricingService = app(CampaignPricingService::class);
+                $activeCampaign = $pricingService->getActiveCampaign();
+
+                if ($activeCampaign) {
+                    $activeEvent = [
+                        'id' => $activeCampaign->id,
+                        'title' => $activeCampaign->event_title,
+                        'slug' => $activeCampaign->slug,
+                        'badge_text' => $activeCampaign->badge_text,
+                        'badge_color' => $activeCampaign->badge_color,
+                        'background_color' => $activeCampaign->background_color,
+                        'text_color' => $activeCampaign->text_color,
+                        'event_type' => $activeCampaign->event_type,
+                        'is_active_now' => $activeCampaign->is_active_now,
+                    ];
+                }
+            }
+
+            return response()->json([
+                'active_event' => $activeEvent
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'active_event' => null,
+                'error' => null // Don't show error to frontend
+            ]);
+        }
+    }
+
     public function categories(CategoryInterface $category): \Illuminate\Http\JsonResponse
     {
 

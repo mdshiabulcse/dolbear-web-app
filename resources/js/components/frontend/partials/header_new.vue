@@ -172,7 +172,19 @@
                 <div class="mobile-menu-close text-light" @click="closeMenu">&times;</div>
               </div>
               <ul class="menu-main p-0 mb-0 d-lg-flex flex-lg-row justify-content-lg-between d-md-flex flex-md-column">
-                <li class="nav-item menu-item-has-children" v-for="(menu, i) in headerMenu" :key=i>
+                <!-- Active Event Menu - Campaign Link -->
+                <li class="nav-item active-event-menu-item" v-if="activeEvent" :key="'active-event'">
+                  <router-link :to="{ name: 'campaign.details', params: { slug: activeEvent.slug } }"
+                               class="nav-items active-event-link"
+                               :style="getActiveEventStyle()">
+                    <span class="event-shine"></span>
+                    <span class="event-icon">🔥</span>
+                    <span class="event-badge">{{ activeEvent.badge_text || activeEvent.title }}</span>
+                    <span class="event-pulse"></span>
+                  </router-link>
+                </li>
+
+                <li class="nav-item menu-item-has-children" v-for="(menu, i) in headerMenu" :key="'menu-' + i">
                   <router-link @click.native="handleMenuClick(i, menu)"
                     :to="menu.url" class="nav-items">
                     {{ menu.label }}
@@ -335,6 +347,7 @@ export default {
 
       baseUrl: "",
 
+      activeEvent: null, // Active event/campaign for header menu
 
     };
   },
@@ -349,6 +362,9 @@ export default {
     }
 
     this.getFlashMessages()
+
+    // Fetch active event for header menu
+    this.getActiveEvent();
 
     setInterval(() => {
       this.messageIndex = (this.messageIndex + 1) % this.messages.length;
@@ -783,6 +799,37 @@ export default {
       this.phone_search_products = [];
     },
 
+    async getActiveEvent() {
+      try {
+        let url = this.getUrl('home/active-event-for-header');
+        const response = await axios.get(url);
+
+        // FrontendController returns JSON directly: { active_event: {...} }
+        if (response.data && response.data.active_event) {
+          this.activeEvent = response.data.active_event;
+          console.log('Active Event loaded:', this.activeEvent);
+        } else {
+          console.log('No active event found');
+        }
+      } catch (error) {
+        // Silently fail - active event menu is optional
+        console.log('Failed to fetch active event:', error);
+      }
+    },
+
+    getActiveEventStyle() {
+      if (!this.activeEvent) return {};
+
+      // Brand-based color scheme - Orange gradient that pops on black/white
+      // This matches the reference style: linear-gradient(135deg, #ff7a18, #ff3d00)
+      return {
+        background: 'linear-gradient(135deg, #FF8A40 0%, #FF3D00 100%)',
+        color: '#ffffff',
+        border: 'none',
+        boxShadow: '0 8px 25px rgba(255, 61, 0, 0.35)'
+      };
+    },
+
     categoryMenu() {
       this.$store.commit("setSmCategory", !this.smCategory);
       this.show_sm_category = !this.show_sm_category;
@@ -868,6 +915,286 @@ export default {
 /* new header css */
 
 
+
+/* ==========================================
+   ACTIVE EVENT MENU - ATTRACTIVE LIVE STYLE
+   Based on black/white brand colors
+   ========================================== */
+
+/* Desktop Mode - Attractive Live Button */
+@media screen and (min-width: 992px) {
+  .active-event-menu-item {
+    margin: 0 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  .active-event-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 26px !important;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Brand-based orange gradient that pops on black/white */
+    background: linear-gradient(135deg, #FF8A40 0%, #FF3D00 100%);
+    color: #ffffff !important;
+    border: none;
+    box-shadow: 0 8px 25px rgba(255, 61, 0, 0.35);
+    min-height: 44px;
+    white-space: nowrap;
+    text-decoration: none !important;
+  }
+
+  /* Shimmer Effect - Light sweep across button */
+  .active-event-link .event-shine {
+    position: absolute;
+    top: -50%;
+    left: -100%;
+    width: 60%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%
+    );
+    transform: skewX(-20deg);
+    animation: shimmer-sweep 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Event Icon - Desktop with glow */
+  .active-event-link .event-icon {
+    font-size: 16px;
+    line-height: 1;
+    animation: flame-flicker 0.8s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 6px rgba(255, 200, 100, 0.8));
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Event Badge Text - Desktop */
+  .active-event-link .event-badge {
+    line-height: 1.2;
+    font-weight: 700;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Pulse ring - Desktop */
+  .active-event-link .event-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: 50px;
+    background: inherit;
+    z-index: 0;
+    animation: pulse-expand 2.5s ease-out infinite;
+    pointer-events: none;
+  }
+
+  /* Hover Effects - Desktop */
+  .active-event-link:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 15px 40px rgba(255, 61, 0, 0.5);
+    text-decoration: none !important;
+  }
+
+  .active-event-link:hover .event-icon {
+    transform: scale(1.15) rotate(-8deg);
+  }
+
+  .active-event-link:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.6);
+    outline-offset: 3px;
+  }
+}
+
+/* Mobile Mode - Attractive Live Button */
+@media screen and (max-width: 991px) {
+  .active-event-menu-item {
+    width: 100%;
+    margin: 0;
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(255, 61, 0, 0.03);
+  }
+
+  .active-event-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+    padding: 18px 28px !important;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 17px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    /* Orange gradient for mobile */
+    background: linear-gradient(135deg, #FF8A40 0%, #FF3D00 100%);
+    color: #ffffff !important;
+    border: none;
+    box-shadow: 0 8px 25px rgba(255, 61, 0, 0.3);
+    min-height: 52px;
+    text-decoration: none !important;
+  }
+
+  /* Shimmer Effect - Mobile */
+  .active-event-link .event-shine {
+    position: absolute;
+    top: -50%;
+    left: -100%;
+    width: 60%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.25) 50%,
+      transparent 100%
+    );
+    transform: skewX(-20deg);
+    animation: shimmer-sweep 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Event Icon - Mobile */
+  .active-event-link .event-icon {
+    font-size: 20px;
+    line-height: 1;
+    animation: flame-flicker 0.8s ease-in-out infinite alternate;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Event Badge Text - Mobile */
+  .active-event-link .event-badge {
+    line-height: 1.2;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Pulse on mobile */
+  .active-event-link .event-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: 50px;
+    background: inherit;
+    z-index: 0;
+    animation: pulse-expand 2.5s ease-out infinite;
+    pointer-events: none;
+  }
+
+  /* Tap effect - Mobile */
+  .active-event-link:active {
+    transform: scale(0.97);
+    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.25);
+  }
+}
+
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
+
+/* Shimmer Sweep - Light sweeps across button */
+@keyframes shimmer-sweep {
+  0% {
+    left: -100%;
+  }
+  20%, 100% {
+    left: 200%;
+  }
+}
+
+/* Flame Flicker Animation - Makes fire icon alive */
+@keyframes flame-flicker {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 4px rgba(255, 150, 50, 0.6));
+  }
+  50% {
+    transform: scale(1.05) rotate(2deg);
+    filter: drop-shadow(0 0 8px rgba(255, 150, 50, 0.9));
+  }
+  100% {
+    transform: scale(1.1) rotate(-2deg);
+    filter: drop-shadow(0 0 12px rgba(255, 200, 100, 1));
+  }
+}
+
+/* Pulse Expand Animation - Creates expanding rings */
+@keyframes pulse-expand {
+  0% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .active-event-link,
+  .active-event-link .event-icon,
+  .active-event-link .event-pulse,
+  .active-event-link .event-shine {
+    animation: none !important;
+  }
+
+  .active-event-link:hover {
+    transform: translateY(-2px) !important;
+  }
+
+  .active-event-link:active {
+    transform: scale(0.98) !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .active-event-link {
+    border: 2px solid #ffffff;
+  }
+}
+
+/* Dark Mode Support (if navbar is dark) */
+@media (prefers-color-scheme: dark) {
+  .active-event-menu-item {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* ==========================================
+   END ACTIVE EVENT MENU STYLES
+   ========================================== */
 
 
 .sticky {

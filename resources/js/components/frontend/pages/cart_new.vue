@@ -239,7 +239,7 @@
                                           {{ coupon.discount_type === 'percent' ? coupon.coupon_discount + '%' : priceFormat(coupon.coupon_discount) }}
                                       </small>
                                       <small class="ms-2 text-success">
-                                          (Discount: ৳ {{ parseFloat(payment_form.coupon_discount).toFixed(2) }})
+                                          (Discount: ৳ {{ parseFloat(coupon.discount || 0).toFixed(2) }})
                                       </small>
                                       <div v-if="coupon.applicable_on_discount == 0" class="ms-2 mt-1">
                                           <small class="text-info">* Applicable only to non-discounted products</small>
@@ -975,6 +975,10 @@ export default {
           this.payment_form.discount_offer += (parseFloat(carts[i].discount) * carts[i].quantity);
           this.payment_form.tax += parseFloat(carts[i].tax * carts[i].quantity);
         }
+        // Round to 2 decimal places to avoid floating point precision issues
+        this.payment_form.sub_total = parseFloat(this.payment_form.sub_total.toFixed(2));
+        this.payment_form.discount_offer = parseFloat(this.payment_form.discount_offer.toFixed(2));
+        this.payment_form.tax = parseFloat(this.payment_form.tax.toFixed(2));
       }
 
       this.getDeliveryCharge()
@@ -1008,6 +1012,8 @@ export default {
         for (let i = 0; i < this.carts.length; i++) {
           this.payment_form.coupon_discount += parseFloat(this.carts[i].coupon_discount || 0);
         }
+        // Round to 2 decimal places to avoid floating point precision issues
+        this.payment_form.coupon_discount = parseFloat(this.payment_form.coupon_discount.toFixed(2));
       }
 
       // Recalculate total
@@ -1025,6 +1031,8 @@ export default {
           this.payment_form.total = 0;
         }
       }
+      // Round to 2 decimal places to avoid floating point precision issues
+      this.payment_form.total = parseFloat(this.payment_form.total.toFixed(2));
     },
     cartPlus(index) {
       if (this.disable) {

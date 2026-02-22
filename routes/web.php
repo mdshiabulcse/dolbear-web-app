@@ -321,6 +321,7 @@ Route::middleware(['XSS'])->group(function () {
     Route::get('home/campaign-lists', [FrontendController::class, 'campaigns'])->name('campaign.list');
     Route::get('home/campaign-products', [ProductController::class, 'campaignProducts'])->name('front.campaign.products');
     Route::get('home/campaign-brands', [ProductController::class, 'campaignBrands'])->name('campaign.brands');
+    Route::get('home/active-event-for-header', [FrontendController::class, 'activeEvent'])->name('active.event.header');
     Route::get('home/categories', [FrontendController::class, 'categories'])->name('front.categories');
     Route::get('home/all-categories', [FrontendController::class, 'allActiveCategories'])->name('front.all.categories');
     Route::get('home/daily-deals', [FrontendController::class, 'dailyDeals'])->name('daily.deals');
